@@ -6,10 +6,38 @@ CREATE TABLE IF NOT EXISTS users(
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE locations (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    parent_id INT REFERENCES locations(id)
+);
+
+CREATE TABLE IF NOT EXISTS tax_types (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS tax_rules (
+    id SERIAL PRIMARY KEY,
+    tax_type_id INT REFERENCES tax_types(id),
+    location_id INT REFERENCES locations(id), -- assuming map_locations is your locations table
+    rate DECIMAL(5,2), -- Tax rate as a percentage, e.g., 10.25 for 10.25%
+    description TEXT,
+    start_date DATE,
+    end_date DATE
+);
+
 CREATE TABLE IF NOT EXISTS ingredients (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     path ltree
+);
+
+CREATE TABLE IF NOT EXISTS ingredients_taxes (
+    id SERIAL PRIMARY KEY,
+    tax_type_id INT REFERENCES tax_types(id),
+    ingredient_id INT REFERENCES ingredients(id)
 );
 
 CREATE TABLE IF NOT EXISTS stores (
