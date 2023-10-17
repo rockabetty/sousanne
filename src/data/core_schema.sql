@@ -31,6 +31,11 @@ CREATE TABLE IF NOT EXISTS tax_rules (
 CREATE TABLE IF NOT EXISTS ingredients (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    -- shelf life is measured in days
+    shelf_life_room_temp INT,
+    shelf_life_refrigerated_opened INT,
+    shelf_life_refrigerated_sealed INT,
+    shelf_life_frozen INT,
     path ltree
 );
 
@@ -40,10 +45,17 @@ CREATE TABLE IF NOT EXISTS ingredients_taxes (
     ingredient_id INT REFERENCES ingredients(id)
 );
 
+CREATE TABLE IF NOT EXISTS origins (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    parent_id INT REFERENCES origins(id)
+);
+
 CREATE TABLE IF NOT EXISTS stores (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     address TEXT,
+    origin_id INT REFERENCES origins(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -55,23 +67,24 @@ CREATE TABLE IF NOT EXISTS units (
     conversion_factor DECIMAL(10, 5)
 );
 
-CREATE TABLE IF NOT EXISTS origins (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    parent_id INT REFERENCES origins(id)
-);
-
 CREATE TABLE IF NOT EXISTS product_templates (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     ingredient_id INT REFERENCES ingredients(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    -- shelf life is measured in days
-    shelf_life_room_temp INT,
-    shelf_life_refrigerated_opened INT,
-    shelf_life_refrigerated_sealed INT,
-    shelf_life_frozen INT,
-    origin_id INT references origins(id)
+    -- ounces, pounds, grams, millilitres, etc.
+    unit_id INT REFERENCES units(id),
+    -- for comparison purposes, the smallest amount this product can be divided into
+    base_quantity INT DEFAULT 1,
+    -- when false, the item is sold by the unit (e.g. per pound)
+    packaged_item BOOLEAN default FALSE,
+    -- the number of packages in the product.  The 4-pack of tuna cans would be '4', a half gallon of whole milk would be '1'
+    package_count INT,
+    -- the quantity of each package for displaying to the user; 4-pack of tuna cans would be '5', half gallon of milk would be '64' (ounces)
+    display_quantity INT,
+    -- normalized quantity for comparison in the base unit, e.g. milliliters
+    -- in MVP this comparison_qty won't be used but it'll be a decent optimization for later
+    comparison_quantity INT
 );
 
 -- Brands are vendors like "Niman Ranch", "Sarah Lee"
@@ -84,18 +97,7 @@ CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
     product_template_id INT references product_templates(id),
     brand_id INT references brands(id),
-    -- ounces, pounds, grams, millilitres, etc.
-    unit_id REFERENCES units(id),
-    -- for comparison purposes, the smallest amount this product can be divided into
-    base_quantity INT DEFAULT 1,
-    -- when false, the item is sold by the unit (e.g. per pound)
-    packaged_item BOOLEAN default FALSE,
-    -- the number of packages in the product.  The 4-pack of tuna cans would be '4', a half gallon of whole milk would be '1'
-    package_count INT,
-    -- the quantity of each package for displaying to the user; 4-pack of tuna cans would be '5', half gallon of milk would be '64' (ounces)
-    display_quantity INT,
-    -- normalized quantity for comparison in the base unit, e.g. milliliters
-    comparison_quantity INT
+    origin_id INT references origins(id)
 );
 
 CREATE TABLE tags (
@@ -115,11 +117,29 @@ CREATE TABLE IF NOT EXISTS prices (
     product_id INT REFERENCES products(id),
     store_id INT REFERENCES stores(id),
     price DECIMAL(10, 2) NOT NULL,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     sale BOOLEAN default FALSE,
     sale_begins TIMESTAMP,
     sale_ends TIMESTAMP,
     user_id INT REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS grocery_lists (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    user_id INT REFERENCES users(id),
+    archived TIMESTAMP, 
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS grocery_lists_items (
+    id SERIAL PRIMARY KEY,
+    grocery_list_id INT REFERENCES grocery_lists(id),
+    ingredient_id INT REFERENCES ingredients(id),
+    product_id INT REFERENCES products(id),
+    price_id INT REFERENCES prices(id),
+    obtained BOOLEAN DEFAULT FALSE,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Index for ltree to speed up queries
