@@ -81,10 +81,7 @@ CREATE TABLE IF NOT EXISTS product_templates (
     -- the number of packages in the product.  The 4-pack of tuna cans would be '4', a half gallon of whole milk would be '1'
     package_count INT,
     -- the quantity of each package for displaying to the user; 4-pack of tuna cans would be '5', half gallon of milk would be '64' (ounces)
-    display_quantity INT,
-    -- normalized quantity for comparison in the base unit, e.g. milliliters
-    -- in MVP this comparison_qty won't be used but it'll be a decent optimization for later
-    comparison_quantity INT
+    display_quantity INT
 );
 
 -- Brands are vendors like "Niman Ranch", "Sarah Lee"
@@ -106,7 +103,7 @@ CREATE TABLE tags (
     description TEXT
 );
 
-CREATE TABLE product_template_tags (
+CREATE TABLE products_tags (
     id SERIAL PRIMARY KEY,
     tag_id INT REFERENCES tags(id),
     product_template_id INT REFERENCES products(id)
