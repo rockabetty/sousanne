@@ -58,7 +58,7 @@ export async function getIngredientsByCategory (category: string, columns: strin
 
 export async function getIngredient (identifier: number | string, columns: string[]): Promise<any[] | Error> {
     let identifyingColumn = "name"
-    if (Number.isInteger(identifier)) {
+    if (typeof identifier === 'number') {
         identifyingColumn = "id"
     }
     const desiredColumns = columns.length > 0 ? columns.join(", ") : "*";

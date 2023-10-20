@@ -1,10 +1,10 @@
 import { NextApiHandler } from "next"
-import { getProductsByIngredient } from '../../../data/products'
+import { getPricesForIngredient } from '../../../data/prices'
 
 const handler: NextApiHandler = async (req, res) => {
   try {
     let {ingredient} = req.query;
-    const data = await getProductsByIngredient(ingredient);
+    const data = await getPricesForIngredient(ingredient);
     res.status(200).send(data)
   }
   catch (err) {
