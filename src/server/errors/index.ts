@@ -51,6 +51,24 @@ export function handleDatabaseError(error: unknown, context?: object): never {
 }
 
 /**
+ * Standard error handler for service operations.
+ * If the error is an instance of Error, it logs and rethrows it.
+ * Otherwise, it calls handleUnknownError.
+ * 
+ * @param error The error to handle
+ * @param context Optional context information to include in the log
+ * @returns never - This function always throws
+ */
+export function handleServiceError(error: unknown, context?: object): never {
+  if (error instanceof Error) {
+    logger.error("Service-layer error", { error, ...context });
+    throw error;
+  } else {
+    return handleUnknownError();
+  }
+}
+
+/**
  * Sends an error response to the client with the appropriate status code and error details.
  * 
  * @param {NextApiResponse} res - The Next.js response object
