@@ -19,7 +19,13 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@logger": ["./server/services/logger"],
+      "@logger/*": ["./server/services/logger/*"],
+      "@domains/*": ["./server/domains/*"],
+      "@errors": ["./server/errors"],
+      "@errors/*": ["./server/errors/*"],
+      "@server-services/*": ["./server/services/*"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
