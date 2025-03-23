@@ -67,14 +67,15 @@ CREATE TABLE IF NOT EXISTS tax_rules (
 -- Measurement units, e.g. fluid ounces, pounds, grams
 CREATE TABLE IF NOT EXISTS units (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    base_unit VARCHAR(50),
-    conversion_factor DECIMAL(10, 5)
+    name VARCHAR(50) NOT NULL,
+    is_volume BOOLEAN,
+    abbreviation VARCHAR(6)
 );
 
 CREATE TABLE ingredients (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    ingredient_hierarchy_id INT NOT NULL REFERENCES ingredient_hierarchy(id),
     description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -95,10 +96,10 @@ CREATE TABLE ingredients (
     average_weight INT,
     unit_id INT REFERENCES units(id) 
 );
+alter table ingredients add constraint uc_name unique (name);
 
 CREATE TABLE ingredient_hierarchy (
     id SERIAL PRIMARY KEY,
-    ingredient_id INT NOT NULL REFERENCES ingredients(id),
     path ltree
 );
 
@@ -260,8 +261,10 @@ CREATE TABLE IF NOT EXISTS recipes (
     is_public BOOLEAN DEFAULT FALSE,
     cuisine_id INT REFERENCES cuisines(id),
     base_serving_size INT NOT NULL DEFAULT 1,
-    prep_time INT,
-    cook_time INT,
+    -- times are in minutes
+    wait_time INT, -- e.g. overnight oats, recipes that must ferment, etc.
+    active_prep_time INT, -- time doing mise en place
+    cook_time INT,        -- time that it's grilling, baking, frying, etc. 
     oven_preheat INT,
     RATING DECIMAL(10,2)
 );
