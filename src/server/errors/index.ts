@@ -27,7 +27,7 @@ export function getErrorInfo(errorKey: ApplicationErrorKey) {
  * @returns never - This function always throws
  */
 export function handleUnknownError(): never {
-  const unknownError = new Error("An unexpected error occured, good luck homie");
+  const unknownError = new Error("An unexpected error occured.");
   logger.error("Unknown error encountered", { unknownError });
   throw unknownError;
 }
@@ -52,19 +52,24 @@ export function handleDatabaseError(error: unknown, context?: object): never {
 
 /**
  * Standard error handler for service operations.
- * If the error is an instance of Error, it logs and rethrows it.
+ * If the error is an instance of Error, it logs and returns it.
  * Otherwise, it calls handleUnknownError.
  * 
  * @param error The error to handle
  * @param context Optional context information to include in the log
- * @returns never - This function always throws
  */
 export function handleServiceError(error: unknown, context?: object): never {
   if (error instanceof Error) {
     logger.error("Service-layer error", { error, ...context });
-    throw error;
+    return {
+      success: false,
+      error
+    }
   } else {
-    return handleUnknownError();
+    return {
+      success: false,
+      error: new Error("An unexpected error occurred.")
+    }
   }
 }
 

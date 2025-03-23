@@ -4,7 +4,7 @@ const moduleAlias = require('module-alias');
 moduleAlias.addAliases({
   '@features': path.resolve(__dirname, 'src/app/user_interface'),
   '@components': path.resolve(__dirname, 'component_library'),
-  '@data': path.resolve(__dirname, 'src/data'),
+  '@postgres': path.resolve(__dirname, 'src/server/postgres'),
   '@errors': path.resolve(__dirname, 'src/server/errors'),
   '@logger': path.resolve(__dirname, 'src/server/services/logger'),
   '@domains': path.resolve(__dirname, 'src/server/domains'),

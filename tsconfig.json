@@ -18,14 +18,16 @@
         "name": "next"
       }
     ],
+    "baseUrl": "src",
     "paths": {
-      "@/*": ["./src/*"],
       "@logger": ["./server/services/logger"],
       "@logger/*": ["./server/services/logger/*"],
       "@domains/*": ["./server/domains/*"],
       "@errors": ["./server/errors"],
       "@errors/*": ["./server/errors/*"],
       "@server-services/*": ["./server/services/*"],
+      "@postgres": ["./server/postgres"],
+      "@postgres/*": ["./server/postgres/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

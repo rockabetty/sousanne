@@ -3,35 +3,35 @@ import axios from 'axios';
 export const getServerSideProps: GetServerSideProps = async () => {
   try {
     const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
-    const response = await axios.get(`${NEXT_PUBLIC_API_URL}/api/ingredients`);
+    const response = await axios.get(`${NEXT_PUBLIC_API_URL}/api/recipes`);
     return {
       props: {
-        ingredients: response.data || []
+        recipes: response.data || []
       },
     };
   } catch (error) {
     console.log(error);
     return {
       props: {
-        ingredients: ["error!"]
+        recipes: ["error!"]
       },
     };
   }
 };
 
-interface IngredientProps {
-  ingredients: any[];
+interface RecipesProps {
+  recipes: any[];
 };
 
-const Ingredients: NextPage<IngredientProps> = ({ ingredients }) => {
+const Recipes: NextPage<IngredientProps> = ({ recipes }) => {
   return (
     <div>
-      <h1>Ingredients</h1>
-      {ingredients?.map(ingredient => (
-        <div key={ingredient.id}>{ingredient.name}</div>
+      <h1>Recipes</h1>
+      {recipes?.map(recipe => (
+        <div key={recipe.id}>{recipe.name}</div>
       ))}
     </div>
   )
 };
 
-export default Ingredients;
+export default Recipes;

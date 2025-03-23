@@ -1,4 +1,4 @@
-import { ErrorKeys } from '../errors.types';
+import { ErrorKeys } from './errors.types';
 
 interface ErrorInfo {
   message: string;
