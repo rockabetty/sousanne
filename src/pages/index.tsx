@@ -38,7 +38,7 @@ const Recipes: NextPage<RecipesProps> = ({ recipes }) => {
       <h1>Recipes</h1>
       <ul>
       {recipes?.map(recipe => (
-        <li key={recipe.id}><Link href={`/recipe/${recipe.name}`}>{recipe.name}</Link></li>
+        <li key={recipe.id}><Link href={`/recipe/${recipe.slug}`}>{recipe.name}</Link></li>
       ))}
       </ul>
     </div>

@@ -6,20 +6,42 @@ const Recipe: NextPage<RecipeProps> = ({ recipe }) => {
   const router = useRouter();
   const {slug} = router.query
 
+  const [loading, setLoading] = useState<boolean>(true)
+
   const [recipeData, setRecipeData] = useState()
 
   useEffect(() => {
     if (slug) {
       axios.get(`/api/recipe/${slug}`)
-      .then((data) => {
+      .then((response) => {
+        const {data} = response
         console.log(data)
+        setRecipeData(data)
+        setLoading(false)
       })
     }
   },
   [slug]);
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
   return (
     <div>
-      <h1>Recipe {slug}</h1>
+      <h1>{recipeData.name}</h1>
+      <h2>Ingredients</h2>
+      <ul>
+      {recipeData.ingredients.map((ingredient) => {
+        return <li key={`recipe-ingredient-${ingredient.id}`}>{ingredient.amount} {ingredient.unit} of {ingredient.name}</li>
+      })}
+      </ul>
+      <h2>Instructions</h2>
+      <ol>
+      {recipeData.instructions.map((instruction, idx) => {
+        return <li key ={`recipe-instruction-${idx}`} >{instruction}</li>
+      })}
+      </ol>
     </div>
   )
 };
