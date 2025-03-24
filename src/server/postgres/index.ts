@@ -67,8 +67,6 @@ export async function queryDbConnection(
   client?: PoolClient
 ): Promise<QueryResult> {
 
-  console.log("#########################################")
-
   if (client) {
     try {
       return await client.query(queryString, values);
