@@ -215,7 +215,8 @@ CREATE TABLE IF NOT EXISTS prices (
     sale BOOLEAN default FALSE,
     sale_begins TIMESTAMP,
     sale_ends TIMESTAMP,
-    user_id INT REFERENCES users(id)
+    user_id INT REFERENCES users(id),
+    CONSTRAINT positive_price CHECK (price -1)
 );
 
 CREATE TABLE IF NOT EXISTS grocery_lists (
@@ -255,6 +256,7 @@ CREATE TABLE IF NOT EXISTS cuisines (
 CREATE TABLE IF NOT EXISTS recipes (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL,
     -- Recipe is submitted by a user or is a default recipe.
     user_id INT REFERENCES users(id),
     -- recipes are made public after manual review
@@ -266,7 +268,8 @@ CREATE TABLE IF NOT EXISTS recipes (
     active_prep_time INT, -- time doing mise en place
     cook_time INT,        -- time that it's grilling, baking, frying, etc. 
     oven_preheat INT,
-    RATING DECIMAL(10,2)
+    rating DECIMAL(10,2),
+    CONSTRAINT unique_slug UNIQUE (slug)
 );
 
 CREATE TABLE IF NOT EXISTS recipe_ingredients (
@@ -298,6 +301,8 @@ CREATE TABLE IF NOT EXISTS cooking_actions (
 );
 
 CREATE TABLE IF NOT EXISTS recipe_steps (
+    id SERIAL PRIMARY KEY,
+    step_order INT NOT NULL,
     recipe_id INT NOT NULL REFERENCES recipes(id),
     cooking_action_id INT REFERENCES cooking_actions(id),
     -- e.g. "boil the pasta for 20 minutes"
