@@ -31,14 +31,15 @@ const Recipe: NextPage<RecipeProps> = ({ recipe }) => {
     <div>
       <h1>{recipeData.name}</h1>
       <h2>Ingredients</h2>
+      <p>Serves {recipeData.base_serving_size}</p>
       <ul>
-      {recipeData.ingredients.map((ingredient) => {
-        return <li key={`recipe-ingredient-${ingredient.id}`}>{ingredient.amount} {ingredient.unit} of {ingredient.name}</li>
+      {recipeData.ingredients?.map((ingredient) => {
+        return <li key={`recipe-ingredient-${ingredient.id}`}>{ingredient.amount} {ingredient.unit !== 'Whole' ? `${ingredient.unit} of` : null } {ingredient.name}</li>
       })}
       </ul>
       <h2>Instructions</h2>
       <ol>
-      {recipeData.instructions.map((instruction, idx) => {
+      {recipeData.instructions?.map((instruction, idx) => {
         return <li key ={`recipe-instruction-${idx}`} >{instruction}</li>
       })}
       </ol>
