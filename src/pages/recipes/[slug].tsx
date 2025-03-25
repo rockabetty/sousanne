@@ -21,7 +21,7 @@ const Recipe: NextPage<RecipeProps> = ({ recipe }) => {
         const updatedIngredients = [...data.ingredients]
       
         for (let i = 0; i < updatedIngredients.length; i++) {
-          const optionResponse = await axios.get(`/api/ingredients/${updatedIngredients[i].id}/options`)
+          const optionResponse = await axios.get(`/api/ingredients/${updatedIngredients[i].id}/options`, {params: {pantry: true, seasonal: true}})
           if (optionResponse.data.length > 0) {
             updatedIngredients[i].options = optionResponse.data
           }
@@ -48,6 +48,10 @@ const Recipe: NextPage<RecipeProps> = ({ recipe }) => {
   }
 
   const OptionSelector = function ({defaultValue, options}) {
+    if (options.length == 1) {
+      return <span>{options[0].name}</span>
+    }
+
     return (
       <select>
         {options?.map((option, idx) => <option key={`option-${idx}`}>{option.name}</option>)}
@@ -64,7 +68,7 @@ const Recipe: NextPage<RecipeProps> = ({ recipe }) => {
       {recipeData.ingredients?.map((ingredient) => {
         return (
             <li key={`recipe-ingredient-${ingredient.id}`}>
-              {ingredient.amount} {ingredient.unit !== 'Whole' ? `${ingredient.unit} of ` : null } 
+              {ingredient.amount} {ingredient.unit !== 'Whole' ? `${ingredient.unit} of ` : null }
               {ingredient.options ? <OptionSelector options={ingredient.options} /> : ingredient.name}
             </li>
           )
