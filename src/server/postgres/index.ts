@@ -66,7 +66,6 @@ export async function queryDbConnection(
   values: any[] = [],
   client?: PoolClient
 ): Promise<QueryResult> {
-
   if (client) {
     try {
       return await client.query(queryString, values);

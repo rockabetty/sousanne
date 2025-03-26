@@ -63,7 +63,7 @@ export async function selectIngredientOptionsWithSeasonality(ingredientId: numbe
                   SELECT ist.status
                   FROM ingredient_seasonality ist
                   WHERE 
-                    ist.ingredient_id = child_i.id AND
+                    ist.ingredient_hierarchy_id = child_i.id AND
                     ist.region_id = 1 AND
                     ist.month = EXTRACT(MONTH FROM CURRENT_DATE)::integer
                 ))

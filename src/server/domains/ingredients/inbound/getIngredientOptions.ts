@@ -20,9 +20,9 @@ const handler: NextApiHandler = async (req, res) => {
       return sendErrorResponse(res, options.error)
     }
     
-    if (!!pantry && pantry === 'true') {
-      console.log("gone chack")
-      options = await excludeIngredientsNotInPantry(options.data)
+    // reject if no pantry since that's the user's pantry 
+    if (!!pantry) {
+      options = await excludeIngredientsNotInPantry(options.data, pantry)
       if (!options.success) {
         return sendErrorResponse(res, options.error)
       }

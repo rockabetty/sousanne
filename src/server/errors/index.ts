@@ -92,6 +92,7 @@ export function handleServiceError(error: unknown, context?: object): never {
  * });
  */
 export function sendErrorResponse(res: NextApiResponse, errorKey, details?: any) {
+  console.log(errorKey)
   const errorInfo = getErrorInfo(errorKey);
   return res.status(errorInfo.statusCode).json(errorResponse(errorKey, details));
 }

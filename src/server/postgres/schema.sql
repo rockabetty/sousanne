@@ -72,13 +72,9 @@ CREATE TABLE IF NOT EXISTS units (
     abbreviation VARCHAR(6)
 );
 
-CREATE TABLE ingredients (
+CREATE TABLE ingredient_hierarchy (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    ingredient_hierarchy_id INT NOT NULL REFERENCES ingredient_hierarchy(id),
-    description TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    path ltree,
     -- shelf life is measured in days
     shelf_life_room_temp INT,
     shelf_life_refrigerated_opened INT,
@@ -90,18 +86,24 @@ CREATE TABLE ingredients (
       Though recipes have variable units themselves (e.g. a tablespoon vs a cup)
       we will use how much a cup of X weighs to figure out how much you're rid of.
       With produce items e.g. onions, peppers, the avg. weight of one is for 
-    
     */
-    weight_of_one_cup INT,
-    average_weight INT,
+    weight_of_one_diced_cup DECIMAL(5,2),
+    average_weight DECIMAL(5,2),
+    edible_percentage DECIMAL (5,2) DEFAULT 100.0, -- e.g. chicken drumsticks have a bone in 'em, you can't eat it all.
+    cooking_yield_percentage DECIMAL(5,2) DEFAULT 1.0, -- e.g. rice triples in size, so you buy 1 lb and can cook 3 lbs of it.
+    description VARCHAR(512),
     unit_id INT REFERENCES units(id) 
+);
+
+CREATE TABLE ingredients (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    ingredient_hierarchy_id INT NOT NULL REFERENCES ingredient_hierarchy(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 );
 alter table ingredients add constraint uc_name unique (name);
 
-CREATE TABLE ingredient_hierarchy (
-    id SERIAL PRIMARY KEY,
-    path ltree
-);
 
 -- To generate a list of dietary restrictions e.g. 'vegan', 'kosher'.
 CREATE TABLE dietary_restrictions (
@@ -216,7 +218,8 @@ CREATE TABLE IF NOT EXISTS prices (
     sale_begins TIMESTAMP,
     sale_ends TIMESTAMP,
     user_id INT REFERENCES users(id),
-    CONSTRAINT positive_price CHECK (price -1)
+    price_by_measurement BOOLEAN DEFAULT FALSE,
+    CONSTRAINT positive_price CHECK (price > 0)
 );
 
 CREATE TABLE IF NOT EXISTS grocery_lists (
@@ -272,6 +275,21 @@ CREATE TABLE IF NOT EXISTS recipes (
     CONSTRAINT unique_slug UNIQUE (slug)
 );
 
+
+CREATE TYPE preparation AS ENUM (
+    'WHOLE',
+    'SLICE',
+    'CHOP',
+    'DICE',
+    'MINCE',
+    'JULIENNE',
+    'BRUNOISE',
+    'PUREE',
+    'CUBE',
+    'CHIFFONADE',
+    'MELT'
+);
+
 CREATE TABLE IF NOT EXISTS recipe_ingredients (
     recipe_id INT NOT NULL REFERENCES recipes(id),
     ingredient_id INT NOT NULL REFERENCES ingredients(id),
@@ -279,6 +297,7 @@ CREATE TABLE IF NOT EXISTS recipe_ingredients (
     unit_id INT NOT NULL REFERENCES units(id),
     -- in our 3 tablespoons example, amount would be 3.
     amount DECIMAL(10,2) NOT NULL,
+    variant preparation,
     from_scratch_recipe_id INT REFERENCES recipes(id)
 );
 
@@ -316,7 +335,7 @@ CREATE TYPE storage_type AS ENUM (
     'REFRIGERATED_OPEN', -- sliced produced counts as 'open'
     'FROZEN',
     'EXPIRED',
-    'USED'
+    'CONSUMED'
 );
 
 CREATE TABLE IF NOT EXISTS pantries (
@@ -332,7 +351,6 @@ CREATE TABLE IF NOT EXISTS pantries (
 -- For hierarchy operations using ltree
 CREATE INDEX idx_ingredient_hierarchy_path ON ingredient_hierarchy USING GIST (path);
 CREATE INDEX idx_ingredient_hierarchy_path_btree ON ingredient_hierarchy USING BTREE (path);
-CREATE INDEX idx_ingredient_hierarchy_ingredient ON ingredient_hierarchy(ingredient_id);
 
 -- For composition lookups (finding what contains a specific ingredient)
 CREATE INDEX idx_ingredient_composition_contains ON ingredient_composition(contains_ingredient_id);
