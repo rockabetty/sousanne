@@ -1,7 +1,8 @@
 export type Ingredient = {
     id?: number;
     name?: string;
-    path?: string
+    path?: string;
+    seasonality_status: 'STORAGE' | 'IN_SEASON' | 'NON_SEASONAL';
 }
 
 export type RecipeIngredient = {
