@@ -155,15 +155,19 @@ const confirmQuantitiesAreAvailableInPantry = async function (
  * @throws {Error} This function throws the original error from the database.
  *                 Lacking such info, it'll throw an "unknown error" Error. 
  */
-export async function consumePantryItemsFIFOStyle(user_id: number, ingredients: PantryIngredient[]) {
-  const hasItems = await confirmItemsAreAvailableInPantry(user_id, ingredients)
-  // if (!hasItems) {
-  //   throw new Error(ErrorKeys.ITEMS_NOT_IN_PANTRY)
-  // }
-  const hasEnough = await confirmQuantitiesAreAvailableInPantry(user_id, ingredients)
-  // if (!hasEnough) {
-  //   throw new Error(ErrorKeys.ITEMS_NOT_IN_PANTRY)
-  // }
+export async function consumePantryItemsFEFOStyle(user_id: number, ingredients: PantryIngredient[]) {
+  try {
+    const hasItems = await confirmItemsAreAvailableInPantry(user_id, ingredients)
+    // if (!hasItems) {
+    //   throw new Error(ErrorKeys.ITEMS_NOT_IN_PANTRY)
+    // }
+    const hasEnough = await confirmQuantitiesAreAvailableInPantry(user_id, ingredients)
+    // if (!hasEnough) {
+    //   throw new Error(ErrorKeys.ITEMS_NOT_IN_PANTRY)
+    // }
+  } catch (error) {
+    handleDatabaseError(error)
+  } 
 }
 
 /** 

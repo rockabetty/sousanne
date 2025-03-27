@@ -51,6 +51,15 @@ const unitMap = {
   'kiligram': 'kg'
 };
 
+/**
+ * Determines what standard unit type a given unit belongs to for the database.
+ * All liquid measurements in the pantry is stored in fl-oz. (e.g. 32 fl oz oil).
+ * All solid measurements in the pantry are stored in oz (e.g. 16 oz beef).
+ * Fresh produce items sold loose (e.g. onions, potatoes) are stored are 'count'. 
+ * So are eggs; nobody buys '12 ounces of eggs', they buy 12 eggs straight up.
+ * @param unit The unit name to categorize
+ * @returns Standard unit type: 'fl-oz' for volume, 'oz' for mass, or 'count' for items
+ */
 const identifyTargetUnit = function (unit: string) {
   const lcUnit = unit.toLowerCase()
   if (volumeSet.has(lcUnit)) {
@@ -61,6 +70,19 @@ const identifyTargetUnit = function (unit: string) {
   }
   return 'count'
 }
+
+/**
+ * Converts a list of recipe ingredients to pantry update quantities. Any given
+ * recipe might call for "1 tablespoon of flour" or "8 ounces of flour" or
+ * "JUST BUNG THE WHOLE BAGGO FLOUR IN THE POT, LUV" or whatever the hell while
+ * the database is strictly thinking of things in ounces/fluid ounces or counts.
+ * This is not intended to be scientifically accurate, just practical estimates
+ * to help do automatic ingredient deductions to later prompt you to buy more.
+ * So if you're trying to improve this function and give it SCIENTIFIC ACCURACY
+ * please don't.
+ * @param ingredients List of recipe ingredients with conversion data
+ * @returns List of pantry updates with converted amounts
+ */
 
 export const convertForPantryUpdate = function (ingredients: PantryIngredient[]): PantryIngredientUpdate[] {
   let updates = [];
@@ -89,6 +111,7 @@ export const convertForPantryUpdate = function (ingredients: PantryIngredient[])
       default:
         const recipeUnit = originalUnit;
         const pantryUnit = ing.convert_to_unit.toLowerCase();
+
         if (volumeSet.has(recipeUnit)) {
           const amountInCups = convert(ing.recipe_amount).from(unitMap[recipeUnit]).to('cup');
           if (pantryUnit === 'count') { 
@@ -111,7 +134,7 @@ export const convertForPantryUpdate = function (ingredients: PantryIngredient[])
     updates.push(pantryChange);
   }
   return updates;
-}
+};
 
 export const getConversionData = async function(ingredients: PantryIngredient[]): Promise<ApiResponse<PantryIngredient[]>> {
   let convertibleIngredients = []
@@ -154,7 +177,7 @@ export const getConversionData = async function(ingredients: PantryIngredient[])
  * //   102 => { ingredient_id: 102, recipe_amount: 1 }
  * // }
  * 
- * @throws - never, it insteadt skips entries without a valid ingredient_id
+ * @throws - never, it instead skips entries without a valid ingredient_id
  */
 export const collapseRepeatIngredients = function (ingredients: PantryIngredient[]): Map<number,PantryIngredient>{
   const ingredientMap = new Map<number, PantryIngredient>()
@@ -168,7 +191,7 @@ export const collapseRepeatIngredients = function (ingredients: PantryIngredient
       ingredientMap.set(key, value)
     }
   }
-  return ingredientMap
+  return ingredientMap;
 }
 
 export const convertIngredientAmounts = async function (ingredients: PantryIngredient[]): Promise<PantryIngredientUpdate[]> {

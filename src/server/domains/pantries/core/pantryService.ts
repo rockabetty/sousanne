@@ -1,7 +1,7 @@
 import { RecipeIngredient } from '@domains/ingredients/ingredients.types';
 import { convertIngredientAmounts, getConversionData } from './conversionService';
 import { PantryIngredient, PantryUpdateObject } from '../pantries.types';
-import { selectAvailableAmountInPantry, consumePantryItemsFIFOStyle, selectConversionData } from '../outbound/pantryRepository';
+import { selectAvailableAmountInPantry, consumePantryItemsFEFOStyle, selectConversionData } from '../outbound/pantryRepository';
 import { handleServiceError } from "@errors";
 import { ErrorKeys } from "../errors.types";
 import { ErrorKeys as CoreErrors } from "@errors/errors.types";
@@ -109,10 +109,9 @@ export async function countIngredientAmountInPantry (ingredientId: number, user_
 
 export async function updatePantryWithConsume (update: PantryUpdateObject) {
   const {itemList, user_id} = update;
-  const ingredientsToConsume = convertIngredientAmounts(itemList)
-  // console.log("Converted amounts")
+  const ingredientsToConsume = await convertIngredientAmounts(itemList)
   try {
-    // const result = await consumePantryItemsFIFOStyle(user_id, ingredientsToConsume)
+    const result = await consumePantryItemsFEFOStyle(user_id, ingredientsToConsume)
     return { success: true }
   } catch (error) {
     handleServiceError(error)
