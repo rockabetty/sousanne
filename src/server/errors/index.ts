@@ -2,7 +2,7 @@ import { CORE_ERROR_MAP } from './errorMap';
 import { ApplicationErrorKey, ApiErrorResponse } from './apiResponse.types';
 import {t} from 'i18next';
 import {logger} from '@logger';
-
+import { NextApiResponse } from 'next';
 export const APPLICATION_ERROR_MAP: Record<ApplicationErrorKey, { message: string, statusCode: number }> = {
   ...CORE_ERROR_MAP
 };
@@ -93,7 +93,6 @@ export function handleServiceError(error: unknown, context?: object): never {
  * });
  */
 export function sendErrorResponse(res: NextApiResponse, errorKey, details?: any) {
-  console.log(errorKey)
   const errorInfo = getErrorInfo(errorKey);
   return res.status(errorInfo.statusCode).json(errorResponse(errorKey, details));
 }
