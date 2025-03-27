@@ -89,17 +89,15 @@ export async function countIngredientAmountsInPantry (ingredients: RecipeIngredi
 }
 
 export async function countIngredientAmountInPantry (ingredientId: number, user_id:number) {
-  console.log(ingredientId)
-  console.log(user_id)
   try {
     const amountRequest = await selectAvailableAmountInPantry([ingredientId], user_id);
     if (!!amountRequest && amountRequest[0]) {
-      const {recipe_amount} = amountRequest[0];
-        return {
-          success: true,
-          data: recipe_amount
-        }
+      const {pantry_amount} = amountRequest[0];
+      return {
+        success: true,
+        data: pantry_amount
       }
+    }
     return {
       success: true,
       data: 0

@@ -39,7 +39,7 @@ export async function selectAvailableAmountInPantry(
     const excludedStatuses = _buildPracticalExclusions(excludeFrozen);
     const query = `SELECT 
       ingredient_id as id,
-      amount_purchased - amount_consumed as amount
+      amount_purchased - amount_consumed as pantry_amount
     FROM pantries
     WHERE
       user_id = $1 AND 
