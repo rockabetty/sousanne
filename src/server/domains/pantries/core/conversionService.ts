@@ -1,9 +1,10 @@
 import convert from 'convert-units'
 import { selectConversionData } from '../outbound/pantryRepository';
 import { handleServiceError } from '@errors';
-import { PantryIngredientCollection, PantryIngredientUpdate } from '../pantries.types';
+import { PantryIngredient, PantryIngredientCollection, PantryIngredientUpdate } from '../pantries.types';
 import { ApiResponse } from "@errors/apiResponse.types"
 import { ErrorKeys } from "../errors.types";
+import { ErrorKeys as CoreErrors } from "@errors/errors.types";
 
 export const volumeSet = new Set([
   'fluid ounce',
@@ -130,7 +131,47 @@ export const getConversionData = async function(ingredients: PantryIngredient[])
   }
 };
 
-export const convertIngredientAmounts = async function (ingredients: PantryIngredient[]): Promise<ApiResponse<PantryIngredientUpdate[]>> {
+
+/**
+ * Combines duplicate ingredients in a list and aggregates their amounts.
+ * It's meant for scenarios where an ingredient appears multiple times in different
+ * contexts like recipes that use the same ingredient multiple times, like a
+ * tablespoon of flour to dust something + a cup of flour to mix with other stuff.
+ * You also can use it to combine ingredients from multiple recipes.
+ * 
+ * @param ingredients - may contain duplicates, the point is to collapse 'em.'
+ * @returns a map to make operations on a specific item easy-access. 
+ * 
+ * @example
+ * // Input: [
+ *   { ingredient_id: 1, recipe_amount: 2 },
+ *   { ingredient_id: 2, recipe_amount: 1 },
+ *   { ingredient_id: 1, recipe_amount: 3 } e
+ * ];
+ * 
+ * // Output: Map(2) {
+ * //   101 => { ingredient_id: 101, recipe_amount: 5 },
+ * //   102 => { ingredient_id: 102, recipe_amount: 1 }
+ * // }
+ * 
+ * @throws - never, it insteadt skips entries without a valid ingredient_id
+ */
+export const collapseRepeatIngredients = function (ingredients: PantryIngredient[]): Map<number,PantryIngredient>{
+  const ingredientMap = new Map<number, PantryIngredient>()
+  for (let ingredient of ingredients) {
+    const key = ingredient.ingredient_id;
+    if (!!key) {
+      const value = ingredientMap.get(key) || { ingredient_id: key, recipe_amount: 0 }
+      let newAmount = value.recipe_amount || 0;
+      newAmount += ingredient.recipe_amount || 0;
+      value.recipe_amount = newAmount
+      ingredientMap.set(key, value)
+    }
+  }
+  return ingredientMap
+}
+
+export const convertIngredientAmounts = async function (ingredients: PantryIngredient[]): Promise<PantryIngredientUpdate[]> {
   try {
     const result = await getConversionData(ingredients);
     if (!result.success || !result.data || result.data.length === 0) {

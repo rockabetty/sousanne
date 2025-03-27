@@ -1,10 +1,21 @@
 import { queryDbConnection } from "@postgres";
-import { QueryResult } from 'pg';
 import { handleDatabaseError } from "@errors"
-import { RecipeIngredient } from '../ingredients.types';
+import { RecipeIngredient } from '@domains/ingredients/ingredients.types';
 import { PantryIngredient } from '../pantries.types';
 import { ErrorKeys } from "../errors.types";
+import { collapseRepeatIngredients } from "../core/conversionService";
 
+/**
+ * Builds a comma-separated string of excluded statuses for SQL queries.
+ * Always excludes EXPIRED and CONSUMED statuses, and optionally FROZEN.
+ */
+const _buildPracticalExclusions = function(excludeFrozen: boolean) {
+  const excludedStatuses = ['EXPIRED', 'CONSUMED'];
+    if (excludeFrozen) {
+      excludedStatuses.push('FROZEN');
+    }
+  return excludedStatuses.map(s => `'${s}'`).join(', ')
+}
 
 /**
  * Selects the available amount of specified ingredients in a user's pantry, 
@@ -25,6 +36,7 @@ export async function selectAvailableAmountInPantry(
   excludeFrozen: boolean = false
 ): Promise<PantryIngredient[] | null> {
   try {
+    const excludedStatuses = _buildPracticalExclusions(excludeFrozen);
     const query = `SELECT 
       ingredient_id as id,
       amount_purchased - amount_consumed as amount
@@ -33,7 +45,7 @@ export async function selectAvailableAmountInPantry(
       user_id = $1 AND 
       ingredient_id = ANY($2) AND 
       amount_purchased - amount_consumed > 0 AND
-      (status IS NULL OR status NOT IN ('CONSUMED', 'EXPIRED'))`;
+      (status IS NULL OR status NOT IN (${excludedStatuses}))`;
     const values = [user_id, ingredientIds];
     const queryResult = await queryDbConnection(query, values)
     return queryResult.rows 
@@ -63,7 +75,8 @@ const confirmItemsAreAvailableInPantry = async function (
   excludeFrozen: boolean = true
 ): Promise<boolean> {
   try {
-    const ingredientIds: number[] = ingredients.map((ingredient) => { return ingredient.ingredient_id})
+    const ingredientIds: number[] = ingredients.map((ingredient) => { return Number(ingredient.ingredient_id)})
+    const excludedStatuses = _buildPracticalExclusions(excludeFrozen);
     const query = `SELECT 
       count(1) 
       FROM pantries
@@ -71,7 +84,7 @@ const confirmItemsAreAvailableInPantry = async function (
         user_id = $1 AND 
         ingredient_id = ANY($2) AND
         amount_purchased - amount_consumed > 0 AND
-        (status IS NULL OR status NOT IN (${excludeFrozen ? 'FROZEN, ' : null}'CONSUMED', 'EXPIRED'))`;
+        (status IS NULL OR status NOT IN (${excludedStatuses}))`;
     const values = [user_id, ingredientIds];
     const queryResult = await queryDbConnection(query, values)
     return queryResult.rows[0].count >= ingredientIds.length
@@ -84,16 +97,26 @@ const confirmItemsAreAvailableInPantry = async function (
  * Confirms if a specific pantry ingredient has at least a specific amount.
  * An ingredient is available if its status is neither "CONSUMED" nor "EXPIRED".
  * @param user_id is the user owning the query.
- * @returns true if a user pantry has a nonzero value  of every queried ingredient. 
+ * @param excludeFrozen defaults to false because the main use case for this
+ *        function is to determine if you can cook something, which gives you
+ *        the opportunity to thaw something out.
+ * @returns true if a user pantry has an amount >= recipe_amount for each item.
  * @see confirmItemsAreAvailableInPantry to confirm if something exists at all. 
  * @throws {Error} This function throws the original error from the database.
  *                 Lacking such info, it'll throw an "unknown error" Error. 
+ * 
+ * 
  */
-const confirmQuantitiesAreAvailableInPantry = async function (user_id: number, ingredients: PantryIngredient[]): Promise<boolean> {
+const confirmQuantitiesAreAvailableInPantry = async function (
+  user_id: number,
+  ingredients: PantryIngredient[],
+  excludeFrozen: boolean = false
+): Promise<boolean> {
   try {
 
     const ingredientsToConfirm = collapseRepeatIngredients(ingredients);
     const ingredientIdList: number[] = Array.from(ingredientsToConfirm.keys());
+    const excludedStatuses = _buildPracticalExclusions(excludeFrozen);
     const sumAmountsQuery = `
       SELECT 
         ingredient_id, 
@@ -103,7 +126,7 @@ const confirmQuantitiesAreAvailableInPantry = async function (user_id: number, i
       WHERE 
         user_id = $1 
         AND ingredient_id = ANY($2)
-        AND (status IS NULL OR status NOT IN ('EXPIRED', 'CONSUMED'))
+        AND (status IS NULL OR status NOT IN (${excludedStatuses}))
       GROUP BY 
         ingredient_id
     `;
@@ -112,8 +135,8 @@ const confirmQuantitiesAreAvailableInPantry = async function (user_id: number, i
     const result = await queryDbConnection(sumAmountsQuery, values);
 
     for (const row of result.rows) {
-      const requiredAmount = ingredientsToConfirm.get(row.ingredient_id);
-      if (!requiredAmount || row.available_amount < requiredAmount) {
+      const ingredient = ingredientsToConfirm.get(row.ingredient_id);
+      if (!ingredient || !ingredient.recipe_amount || row.available_amount < ingredient.recipe_amount) {
         return false;
       }
     }

@@ -7,16 +7,16 @@ import { acceptPutOnly } from "@errors/methodgatekeeper";
 
 const handler: NextApiHandler = async (req, res) => {
   try {
-    acceptPutOnly(req)
+    acceptPutOnly(req, res)
     const {user_id} = req.query;
     const {itemList, action} = req.body;
     if (!action) {
-      return sendErrorResponse(res, Errorkeys.PANTRY_ACTION_MISSING)
+      return sendErrorResponse(res, ErrorKeys.PANTRY_ACTION_MISSING)
     }
     if (!itemList) {
-      return sendErrorResponse(res, Errorkeys.ITEM_LIST_MISSING)
+      return sendErrorResponse(res, ErrorKeys.ITEM_LIST_MISSING)
     }
-    if (!user_id) {
+    if (!user_id || typeof user_id === 'object') {
       return sendErrorResponse(res, CoreErrors.AUTHENTICATION_FAILED)
     }
     const update = {
@@ -25,7 +25,7 @@ const handler: NextApiHandler = async (req, res) => {
       action
     }
     await updateIngredientAmountsInPantry(update)
-    return res.status(200).send()
+    return res.status(200).send("OK")
   } catch (error) {
     return sendErrorResponse(res, error);
   }

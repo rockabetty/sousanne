@@ -4,22 +4,28 @@ import { PantryIngredient, PantryUpdateObject } from '../pantries.types';
 import { selectAvailableAmountInPantry, consumePantryItemsFIFOStyle, selectConversionData } from '../outbound/pantryRepository';
 import { handleServiceError } from "@errors";
 import { ErrorKeys } from "../errors.types";
+import { ErrorKeys as CoreErrors } from "@errors/errors.types";
 import { ApiResponse } from '@errors/apiResponse.types';
+import { Ingredient } from '@domains/ingredients/ingredients.types';
 
-export async function excludeIngredientsNotInPantry (ingredients: RecipeIngredient[], user_id: number): Promise<ApiResponse<RecipeIngredient[]>> {
+export async function excludeIngredientsNotInPantry (ingredients: RecipeIngredient[], user_id: number): Promise<ApiResponse<PantryIngredient[]>> {
   try {
-    const ingredientIds: number = ingredients.map(ingredient => parseInt(ingredient.id));
+    const ingredientIds: number[] = ingredients.map(ingredient => Number(ingredient.id));
    
     const pantryItems = await selectAvailableAmountInPantry(ingredientIds, user_id);
 
     const pantryMap = new Map();
+    if (!pantryItems) {
+      return handleServiceError(CoreErrors.INVALID_REQUEST)
+    }
+
     pantryItems.forEach(item => {
       pantryMap.set(item.ingredient_id, {
-        amount: item.amount,
+        recipe_amount: item.recipe_amount,
       });
     });
 
-    const inStockIngredients = []
+    const inStockIngredients: PantryIngredient[] = []
 
     ingredients.map(ingredient => {
       const pantryItem = pantryMap.get(ingredient.id);
@@ -27,7 +33,7 @@ export async function excludeIngredientsNotInPantry (ingredients: RecipeIngredie
         inStockIngredients.push(
         {
             ...ingredient,
-            amount: pantryItem.amount
+            recipe_amount: pantryItem.amount
         })
       }
     });
@@ -44,17 +50,21 @@ export async function excludeIngredientsNotInPantry (ingredients: RecipeIngredie
 
 export async function countIngredientAmountsInPantry (ingredients: RecipeIngredient[], user_id: number) {
   try {
-    const ingredientIds = ingredients.map(ingredient => parseInt(ingredient.id));
+    const ingredientIds = ingredients.map(ingredient => Number(ingredient.id));
     const pantryItems = await selectAvailableAmountInPantry(ingredientIds, user_id);
     const pantryMap = new Map();
+    if (!pantryItems) {
+      return handleServiceError(CoreErrors.INVALID_REQUEST);
+    }
+
     pantryItems.forEach(item => {
       pantryMap.set(item.ingredient_id, {
-        amount: item.amount
+        recipe_amount: item.recipe_amount
       });
     });
 
     const markedIngredients = ingredients.map(ingredient => {
-      const pantryItem = pantryMap.get(parseInt(ingredient.id));
+      const pantryItem = pantryMap.get(Number(ingredient.id));
       if (!!pantryItem) {
         return {
             ...ingredient,
