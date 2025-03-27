@@ -4,10 +4,11 @@ import { PantryIngredient, PantryUpdateObject } from '../pantries.types';
 import { selectAvailableAmountInPantry, consumePantryItemsFIFOStyle, selectConversionData } from '../outbound/pantryRepository';
 import { handleServiceError } from "@errors";
 import { ErrorKeys } from "../errors.types";
+import { ApiResponse } from '@errors/apiResponse.types';
 
-export async function excludeIngredientsNotInPantry (ingredients: RecipeIngredient[], user_id: number) {
+export async function excludeIngredientsNotInPantry (ingredients: RecipeIngredient[], user_id: number): Promise<ApiResponse<RecipeIngredient[]>> {
   try {
-    const ingredientIds = ingredients.map(ingredient => parseInt(ingredient.id));
+    const ingredientIds: number = ingredients.map(ingredient => parseInt(ingredient.id));
    
     const pantryItems = await selectAvailableAmountInPantry(ingredientIds, user_id);
 
@@ -82,11 +83,11 @@ export async function countIngredientAmountInPantry (ingredientId: number, user_
   console.log(user_id)
   try {
     const amountRequest = await selectAvailableAmountInPantry([ingredientId], user_id);
-    if (!!amountRequest[0]) {
-      const {amount} = amountRequest[0]
+    if (!!amountRequest && amountRequest[0]) {
+      const {recipe_amount} = amountRequest[0];
         return {
           success: true,
-          data: amount || 0
+          data: recipe_amount
         }
       }
     return {
@@ -153,7 +154,7 @@ export async function updateIngredientAmountsInPantry (update: PantryUpdateObjec
     case "decrease":
       return await updatePantryWithDecrease(update);
       break;
-    case "increment":
+    case "increase":
       return await updatePantryWithIncrease(update);
       break;
     case "spoil":

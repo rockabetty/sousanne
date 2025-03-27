@@ -3,24 +3,25 @@ import { getIngredientOptionsWithSeasonality, getIngredientOptions } from "../co
 import { excludeIngredientsNotInPantry } from "@domains/pantries/core/pantryService";
 import { sendErrorResponse } from "@errors";
 import { acceptGetOnly } from "@errors/methodgatekeeper";
+import { parseRecipeIngredient } from "../ingredients.types";
 
 const handler: NextApiHandler = async (req, res) => {
   try {
-    acceptGetOnly(req)
+    acceptGetOnly(req, res);
     const {ingredient_id, seasonal, pantry} = req.query;
     let options;
-    
+    const id = Number(ingredient_id)
+
     if (!!seasonal && seasonal === 'true') {
-      options = await getIngredientOptionsWithSeasonality(ingredient_id)
+      options = await getIngredientOptionsWithSeasonality(id)
     } else {
-      options = await getIngredientOptions(ingredient_id)
+      options = await getIngredientOptions(id)
     }
     
     if (!options.success) {
       return sendErrorResponse(res, options.error)
     }
     
-    // reject if no pantry since that's the user's pantry 
     if (!!pantry) {
       options = await excludeIngredientsNotInPantry(options.data, pantry)
       if (!options.success) {

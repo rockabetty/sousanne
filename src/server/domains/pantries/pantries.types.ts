@@ -1,5 +1,5 @@
 export type  PantryIngredient = {
-    id: number;
+    ingredient_id?: number;
     unit?: string;
     recipe_amount?: number;
     convert_to_unit?: string;
@@ -19,7 +19,7 @@ export type PantryIngredientUpdate = {
 }
 
 export type PantryUpdateObject = {
-    user: string | number;
+    user_id: string | number;
     action: "purchase"  
       | "consume"
       | "decrease"   

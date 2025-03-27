@@ -50,7 +50,7 @@ const unitMap = {
   'kiligram': 'kg'
 };
 
-const identifyTargetUnit = function (unit) {
+const identifyTargetUnit = function (unit: string) {
   const lcUnit = unit.toLowerCase()
   if (volumeSet.has(lcUnit)) {
     return 'fl-oz'

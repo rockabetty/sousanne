@@ -1,7 +1,6 @@
 import { queryDbConnection } from "@postgres";
-import { QueryResult } from 'pg';
 import { handleDatabaseError } from "@errors"
-import { IngredientOption } from '../ingredients.types';
+import { Ingredient } from "../ingredients.types";
 
 export async function selectIngredientOptions(ingredientId: number): Promise<Ingredient[]> {
   try {
@@ -38,7 +37,7 @@ export async function selectIngredientOptions(ingredientId: number): Promise<Ing
   }
 }
 
-export async function selectIngredientOptionsWithSeasonality(ingredientId: number): Promise<IngredientOption[]> {
+export async function selectIngredientOptionsWithSeasonality(ingredientId: number): Promise<Ingredient[]> {
   try {
     const query = `
       WITH relevant_hierarchy AS (
