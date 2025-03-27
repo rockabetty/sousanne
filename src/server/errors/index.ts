@@ -1,6 +1,7 @@
 import { CORE_ERROR_MAP } from './errorMap';
 import { ApplicationErrorKey, ApiErrorResponse } from './apiResponse.types';
 import {t} from 'i18next';
+import {logger} from '@logger';
 
 export const APPLICATION_ERROR_MAP: Record<ApplicationErrorKey, { message: string, statusCode: number }> = {
   ...CORE_ERROR_MAP

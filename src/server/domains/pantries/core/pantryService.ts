@@ -1,7 +1,7 @@
 import { RecipeIngredient } from '@domains/ingredients/ingredients.types';
-import { convertForPantry } from './conversionService';
+import { convertIngredientAmounts, getConversionData } from './conversionService';
 import { PantryIngredient, PantryUpdateObject } from '../pantries.types';
-import { selectAvailableAmountInPantry, consumePantryItemsFIFOStyle } from '../outbound/pantryRepository';
+import { selectAvailableAmountInPantry, consumePantryItemsFIFOStyle, selectConversionData } from '../outbound/pantryRepository';
 import { handleServiceError } from "@errors";
 import { ErrorKeys } from "../errors.types";
 
@@ -15,7 +15,6 @@ export async function excludeIngredientsNotInPantry (ingredients: RecipeIngredie
     pantryItems.forEach(item => {
       pantryMap.set(item.ingredient_id, {
         amount: item.amount,
-    //    unit: item.unit
       });
     });
 
@@ -78,9 +77,11 @@ export async function countIngredientAmountsInPantry (ingredients: RecipeIngredi
   }
 }
 
-export async function countIngredientAmountInPantry (ingredientId: number) {
+export async function countIngredientAmountInPantry (ingredientId: number, user_id:number) {
+  console.log(ingredientId)
+  console.log(user_id)
   try {
-    const amountRequest = await selectAvailableAmountInPantry([ingredientId]);
+    const amountRequest = await selectAvailableAmountInPantry([ingredientId], user_id);
     if (!!amountRequest[0]) {
       const {amount} = amountRequest[0]
         return {
@@ -88,7 +89,6 @@ export async function countIngredientAmountInPantry (ingredientId: number) {
           data: amount || 0
         }
       }
-
     return {
       success: true,
       data: 0
@@ -98,25 +98,13 @@ export async function countIngredientAmountInPantry (ingredientId: number) {
   }
 }
 
-const convertIngredientAmounts = function (itemList: PantryIngredient[]) {
-  const convertedList = []
-  for (let ingredient of itemList) {
-    const amount = convertForPantry(ingredient.unit, ingredient.amount)
-    convertedList.push({
-        amount,
-        ingredient_id: ingredient.id
-    })
-  }
-  return convertedList
-}
-
 export async function updatePantryWithConsume (update: PantryUpdateObject) {
   const {itemList, user_id} = update;
   const ingredientsToConsume = convertIngredientAmounts(itemList)
-  console.log("Converted amounts")
+  // console.log("Converted amounts")
   try {
-    const result = await consumePantryItemsFIFOStyle(user_id, ingredientsToConsume)
-    return { success: true, result }
+    // const result = await consumePantryItemsFIFOStyle(user_id, ingredientsToConsume)
+    return { success: true }
   } catch (error) {
     handleServiceError(error)
   }
@@ -153,11 +141,13 @@ export async function updatePantryWithShelve (update: PantryUpdateObject) {
 
 export async function updateIngredientAmountsInPantry (update: PantryUpdateObject) {
   const {action} = update;
+
   switch (action) {
     case "purchase":
       return await updatePantryWithPurchase(update);
       break;
     case "consume":
+      getConversionData(update.itemList);
       return await updatePantryWithConsume(update)
       break;
     case "decrease":
@@ -185,28 +175,3 @@ export async function updateIngredientAmountsInPantry (update: PantryUpdateObjec
       }
   }
 }
-
-  // try {
-
-  //   for (let ingredient of ingredients) {
-  //     const amount = convertForPantry(ingredient.unit,ingredient.amount)
-  //     if (amount < 0) {
-  //       consumptionList.push({
-  //         user_id: 2,
-  //         amount: Math.abs(amount),
-  //         ingredient_id: ingredient.id
-  //       })
-  //     } else {
-  //       purchaseList.push({
-  //         user_id: 2,
-  //         amount,
-  //         ingredient_id: ingredient.id
-  //       })
-  //     }
-  //   }
-  //   const purchaseUpdates = await addIngredientsToPantry(purchaseList)
-  //   const consumptionUpdates = await consumeIngredientsInPantry(consumptionList)
-  //   return { success: true }
-  // } catch (error) {
-  //   handleServiceError(error)
-  // }

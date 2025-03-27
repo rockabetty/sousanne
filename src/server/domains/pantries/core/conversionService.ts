@@ -1,4 +1,7 @@
 import convert from 'convert-units'
+import { selectConversionData } from '../outbound/pantryRepository';
+import { handleServiceError } from '@errors';
+import { PantryIngredientCollection, PantryIngredientUpdate } from '../pantries.types';
 
 export const volumeSet = new Set([
   'fluid ounce',
@@ -56,12 +59,67 @@ const identifyTargetUnit = function (unit) {
   return 'count'
 }
 
-export const convertForPantry = function (unit, amount) {
-  const newUnit = identifyTargetUnit(unit)
-  if (unit.toLowerCase() === 'dash') {
-    return 0.035  // ~ 1 gram to ounces 
+export const convertForPantryUpdate = function (ingredients: PantryIngredient[]): PantryIngredientUpdate[] {
+  let updates = [];
+  for (let ing of ingredients) {
+    const originalUnit = ing.unit.toLowerCase();
+    let pantryChange = { id: ing.id };
+    switch (originalUnit) {
+      case 'clove':
+        pantryChange.amount = ing.recipe_amount * 0.2; // A clove is ~0.2 ounces.
+        break;
+      case'dash': 
+        pantryChange.amount = ing.recipe_amount * 0.035; // A 'dash' is 1 gram, which is ~0.35 oz.
+        break;
+      case 'self':
+        if (ing.convert_to_unit === 'self') {
+          pantryChange.amount = ing.recipe_amount;
+        } else {
+          pantryChange.amount = ing.average_weight * ing.multiplier * ing.recipe_amount
+        }
+        break;
+      default:
+        const oldUnit = originalUnit;
+        const newUnit = ing.convert_to_unit.toLowerCase();
+        if (volumeSet.has(oldUnit) && massSet.has(newUnit)) { // a solid ingredient is likely measured in cups, tbsp, etc. like flour.
+          const amountInCups = convert(ing.recipe_amount).from(unitMap[oldUnit]).to('cup');
+          pantryChange.amount = amountInCups * ing.cup_weight
+        } else {
+          pantryChange.amount = convert(ing.recipe_amount).from(unitMap[oldUnit]).to(unitMap[newUnit])
+        }
+    }
+    updates.push(pantryChange);
   }
-  if (newUnit === 'count') return amount
-  const oldUnit = unitMap[unit.toLowerCase()]
-  return convert(amount).from(oldUnit).to(newUnit)
+  console.log(updates)
+  return updates;
+}
+
+export const getConversionData = async function(ingredients: PantryIngredient[]): PantryIngredient[] {
+  let convertibleIngredients = []
+  try {
+    const ingredientIDList = ingredients.map((ing) => { return ing.id })
+    const ingredientsWithConversionData = await selectConversionData(ingredientIDList);
+    for (let ing of ingredients) {
+      const key = ing.id;
+      let item = ingredientsWithConversionData[key]
+      if (!!item) {
+        convertibleIngredients.push({ ...item, ...ing })
+      }
+    }
+    return { success: true, data: convertibleIngredients }
+  } catch (error) {
+    handleServiceError(error)
+  }
+};
+
+export const convertIngredientAmounts = async function (ingredients: PantryIngredient[]): PantryIngredientUpdate[] {
+  console.log("CONVERT")
+  console.log(ingredients)
+  const {data} = await getConversionData(ingredients);
+  console.log("Conversion data")
+  console.log(data)
+  if (data.length > 0) {
+    const updateList = convertForPantryUpdate(data);
+    console.log(updateList)
+  }
 }

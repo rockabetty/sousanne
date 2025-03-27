@@ -62,21 +62,6 @@ const confirmItemsAreAvailableInPantry = async function (user_id: number, ingred
 }
 
 /**
-* Sometimes, the same ingredient appears multiple times in a list.
-* e.g., you reserve butter in a baking recipe for multiple uses.
-*/
-const collapseRepeatIngredients = function (ingredients: PantryIngredient[]): Map<number, PantryIngredient> { 
-  const collapsedIngredientList = new Map<number, PantryIngredient>();
-  ingredients.forEach(ing => {
-    const currentIngredient = collapsedIngredientList.get(ing.ingredient_id) || { ingredient_id: ing.ingredient_id, amount: 0 }
-    const {amount} = currentIngredient
-    currentIngredient.amount += ing.amount
-    collapsedIngredientList.set(ing.ingredient_id, currentIngredient);
-  });
-  return collapsedIngredientList;
-}
-
-/**
  * Confirms if a specific pantry ingredient has at least a specific amount.
  * An ingredient is available if its status is neither "CONSUMED" nor "EXPIRED".
  * 
@@ -123,7 +108,7 @@ const confirmQuantitiesAreAvailableInPantry = async function (user_id: number, i
 /**
  * Records the consumption of one or more ingredients in a pantry.
  * Items are prioritized by their soonest expiration date. 
- * Frozen items are excluded from this function. 
+ * Frozen items are excluded from this function by default.
  *
  * @throws {Error} This function throws the original error from the database.
  *                 Lacking such info, it'll throw an "unknown error" Error. 
@@ -139,3 +124,39 @@ export async function consumePantryItemsFIFOStyle(user_id: number, ingredients: 
   // }
   console.log("VERRNICE")
 }
+
+/** 
+ * Selects necessary information for functions converting ingredients in recipes.
+ * It's not always the case a recipe calls for an ingredient in the same measuring
+ * unit that the database stores it in. For example, an onion might be called for
+ * whole, or a half a cup of it diced, or maybe in terms of pounds!
+ *
+ * @throws {Error} This function throws the original error from the database.
+ *                 Lacking such info, it'll throw an "unknown error" Error. 
+ */
+export async function selectConversionData(ingredient_ids: number[]) {
+  try {
+    const query = `
+      SELECT 
+        jsonb_object_agg(i.id, jsonb_build_object(
+        'multiplier', i.weight_multiplier,
+        'convert_to_unit', u.name,
+        'cup_weight', ih.weight_of_one_diced_cup,
+        'average_weight', ih.average_weight
+      )) AS data
+      FROM
+        ingredients i
+      JOIN ingredient_hierarchy ih
+        ON ih.id = i.ingredient_hierarchy_id
+      JOIN units u
+        ON u.id = ih.unit_id
+      WHERE i.id = ANY($1)
+    `;
+    const values = [ingredient_ids]
+    const result = await queryDbConnection(query,values)
+    const {data} = result.rows[0]
+    return data
+  } catch (error) {
+    handleDatabaseError(error)
+  }
+};

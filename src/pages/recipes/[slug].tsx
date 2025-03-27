@@ -17,7 +17,7 @@ const Recipe: NextPage<RecipeProps> = ({ recipe }) => {
         update.itemList.push({
           id: ingredient.id,
           unit: ingredient.unit,
-          amount: 0 - ingredient.amount
+          recipe_amount: ingredient.amount
         })
     }
     await axios.put(`/api/pantries/1`, update)

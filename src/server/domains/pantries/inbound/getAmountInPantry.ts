@@ -6,6 +6,7 @@ import { acceptGetOnly } from "@errors/methodgatekeeper";
 const handler: NextApiHandler = async (req, res) => {
   try {
     acceptGetOnly(req)
+    console.log(req.query)
     const {ingredient_id, user_id} = req.query;
     const ingredientCount = await countIngredientAmountInPantry(ingredient_id, user_id)
 
