@@ -34,17 +34,21 @@ const Recipe: NextPage<RecipeProps> = ({ recipe }) => {
         const updatedIngredients = [...data.ingredients]
       
         for (let i = 0; i < updatedIngredients.length; i++) {
-          const amount = updatedIngredients[i].amount;
-          const optionResponse = await axios.get(`/api/ingredients/${updatedIngredients[i].id}/options`, {params: {pantry: 1, seasonal: true, amount }})
-          if (optionResponse.data.length > 0) {
+          if (updatedIngredients[i].name === 'Water') {
             updatedIngredients[i].inPantry = true
-            updatedIngredients[i].options = optionResponse.data
           } else {
-            const {data} = await axios.get(`/api/pantries/1/${updatedIngredients[i].id}`)
-            updatedIngredients[i].inPantry = !!data
-          }
-          if (updatedIngredients[i].inPantry == false) {
-            setCanMakeNow(false)
+            const amount = updatedIngredients[i].amount;
+            const optionResponse = await axios.get(`/api/ingredients/${updatedIngredients[i].id}/options`, {params: {pantry: 1, seasonal: true, amount }})
+            if (optionResponse.data.length > 0) {
+              updatedIngredients[i].inPantry = true
+              updatedIngredients[i].options = optionResponse.data
+            } else {
+              const {data} = await axios.get(`/api/pantries/1/${updatedIngredients[i].id}`)
+              updatedIngredients[i].inPantry = !!data
+            }
+            if (updatedIngredients[i].inPantry == false) {
+              setCanMakeNow(false)
+            }
           }
         }
         

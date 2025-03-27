@@ -10,11 +10,20 @@ import { ErrorKeys } from "../errors.types";
  * Selects the available amount of specified ingredients in a user's pantry, 
  * regardless of their storage state (e.g., frozen items are still considered).
  * An ingredient is available if its status is neither "CONSUMED" nor "EXPIRED".
- * 
+ * It is not available if the amount_consumed >= amount_purchased.
+ * @param user_id is the user owning the query.
+ * @param ingredientIds refers to the database's ingredients table.
+ * @param excludeFrozen defaults to false because the main use case for this
+ *        function is to determine if you can cook something, which gives you
+ *        the opportunity to thaw something out.
  * @throws {Error} This function throws the original error from the database.
  *                 Lacking such info, it'll throw an "unknown error" Error. 
  */
-export async function selectAvailableAmountInPantry(ingredientIds: number[], user_id: number): Promise<PantryIngredient[] | null> {
+export async function selectAvailableAmountInPantry(
+  ingredientIds: number[],
+  user_id: number,
+  excludeFrozen: boolean = false
+): Promise<PantryIngredient[] | null> {
   try {
     const query = `SELECT 
       ingredient_id as id,
@@ -23,6 +32,7 @@ export async function selectAvailableAmountInPantry(ingredientIds: number[], use
     WHERE
       user_id = $1 AND 
       ingredient_id = ANY($2) AND 
+      amount_purchased - amount_consumed > 0 AND
       (status IS NULL OR status NOT IN ('CONSUMED', 'EXPIRED'))`;
     const values = [user_id, ingredientIds];
     const queryResult = await queryDbConnection(query, values)
@@ -37,11 +47,21 @@ export async function selectAvailableAmountInPantry(ingredientIds: number[], use
  * An ingredient is available if its status is neither "CONSUMED" nor "EXPIRED".
  * This is to be used to prevent expensive computations that would be pointless
  * if the user doesn't have the ingredient in the first place.
- * 
+ * @param excludeFrozen defaults to false because the main use case for this
+ *        function is to determine if you can cook something, which gives you
+ *        the opportunity to thaw something out. If this function is called in
+ *        the context of a user cooking something (e.g. pantry auto deductions)
+ *        then excludeFrozen should be true to prevent auto-deduction of an item
+ *        that is technically not a reasonable candidate. 
+ * @returns false if any one single item in the list is not available.
  * @throws {Error} This function throws the original error from the database.
  *                 Lacking such info, it'll throw an "unknown error" Error. 
  */
-const confirmItemsAreAvailableInPantry = async function (user_id: number, ingredients: PantryIngredient[]): Promise<boolean> {
+const confirmItemsAreAvailableInPantry = async function (
+  user_id: number,
+  ingredients: PantryIngredient[],
+  excludeFrozen: boolean = true
+): Promise<boolean> {
   try {
     const ingredientIds: number[] = ingredients.map((ingredient) => { return ingredient.ingredient_id})
     const query = `SELECT 
@@ -49,12 +69,11 @@ const confirmItemsAreAvailableInPantry = async function (user_id: number, ingred
       FROM pantries
       WHERE 
         user_id = $1 AND 
-        ingredient_id = ANY($2) AND 
-        (status IS NULL OR status NOT IN ('CONSUMED', 'EXPIRED'))`;
+        ingredient_id = ANY($2) AND
+        amount_purchased - amount_consumed > 0 AND
+        (status IS NULL OR status NOT IN (${excludeFrozen ? 'FROZEN, ' : null}'CONSUMED', 'EXPIRED'))`;
     const values = [user_id, ingredientIds];
     const queryResult = await queryDbConnection(query, values)
-    console.log(queryResult.rows)
-    console.log(ingredients)
     return queryResult.rows[0].count >= ingredientIds.length
   } catch (error) {
     handleDatabaseError(error)
@@ -64,7 +83,8 @@ const confirmItemsAreAvailableInPantry = async function (user_id: number, ingred
 /**
  * Confirms if a specific pantry ingredient has at least a specific amount.
  * An ingredient is available if its status is neither "CONSUMED" nor "EXPIRED".
- * 
+ * @param user_id is the user owning the query.
+ * @returns true if a user pantry has a nonzero value  of every queried ingredient. 
  * @see confirmItemsAreAvailableInPantry to confirm if something exists at all. 
  * @throws {Error} This function throws the original error from the database.
  *                 Lacking such info, it'll throw an "unknown error" Error. 
@@ -90,7 +110,6 @@ const confirmQuantitiesAreAvailableInPantry = async function (user_id: number, i
 
     const values = [user_id, ingredientIdList];
     const result = await queryDbConnection(sumAmountsQuery, values);
-    console.log(result.rows)
 
     for (const row of result.rows) {
       const requiredAmount = ingredientsToConfirm.get(row.ingredient_id);
@@ -122,7 +141,6 @@ export async function consumePantryItemsFIFOStyle(user_id: number, ingredients: 
   // if (!hasEnough) {
   //   throw new Error(ErrorKeys.ITEMS_NOT_IN_PANTRY)
   // }
-  console.log("VERRNICE")
 }
 
 /** 
