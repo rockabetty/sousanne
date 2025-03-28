@@ -1,10 +1,12 @@
 import { CORE_ERROR_MAP } from './errorMap';
+import { PANTRY_ERROR_MAP } from "@domains/pantries/errorMap"
 import { ApplicationErrorKey, ApiErrorResponse } from './apiResponse.types';
 import {t} from 'i18next';
 import {logger} from '@logger';
 import { NextApiResponse } from 'next';
 export const APPLICATION_ERROR_MAP: Record<ApplicationErrorKey, { message: string, statusCode: number }> = {
-  ...CORE_ERROR_MAP
+  ...CORE_ERROR_MAP,
+  ...PANTRY_ERROR_MAP
 };
 
 /**

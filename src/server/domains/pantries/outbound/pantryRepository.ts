@@ -1,4 +1,4 @@
-import { queryDbConnection } from "@postgres";
+import { queryDbConnection, withTransaction } from "@postgres";
 import { handleDatabaseError } from "@errors"
 import { RecipeIngredient } from '@domains/ingredients/ingredients.types';
 import { PantryIngredient } from '../pantries.types';
@@ -9,9 +9,9 @@ import { collapseRepeatIngredients } from "../core/conversionService";
  * Builds a comma-separated string of excluded statuses for SQL queries.
  * Always excludes EXPIRED and CONSUMED statuses, and optionally FROZEN.
  */
-const _buildPracticalExclusions = function(excludeFrozen: boolean) {
+const _buildPracticalExclusions = function(excludeFrozen) {
   const excludedStatuses = ['EXPIRED', 'CONSUMED'];
-    if (excludeFrozen) {
+    if (!!excludeFrozen) {
       excludedStatuses.push('FROZEN');
     }
   return excludedStatuses.map(s => `'${s}'`).join(', ')
@@ -104,8 +104,6 @@ const confirmItemsAreAvailableInPantry = async function (
  * @see confirmItemsAreAvailableInPantry to confirm if something exists at all. 
  * @throws {Error} This function throws the original error from the database.
  *                 Lacking such info, it'll throw an "unknown error" Error. 
- * 
- * 
  */
 const confirmQuantitiesAreAvailableInPantry = async function (
   user_id: number,
@@ -113,7 +111,6 @@ const confirmQuantitiesAreAvailableInPantry = async function (
   excludeFrozen: boolean = false
 ): Promise<boolean> {
   try {
-
     const ingredientsToConfirm = collapseRepeatIngredients(ingredients);
     const ingredientIdList: number[] = Array.from(ingredientsToConfirm.keys());
     const excludedStatuses = _buildPracticalExclusions(excludeFrozen);
@@ -130,13 +127,23 @@ const confirmQuantitiesAreAvailableInPantry = async function (
       GROUP BY 
         ingredient_id
     `;
-
+   
     const values = [user_id, ingredientIdList];
     const result = await queryDbConnection(sumAmountsQuery, values);
-
     for (const row of result.rows) {
       const ingredient = ingredientsToConfirm.get(row.ingredient_id);
+      console.log(row)
+      console.log(ingredient)
       if (!ingredient || !ingredient.recipe_amount || row.available_amount < ingredient.recipe_amount) {
+        if (!ingredient) {
+          console.log("no ingredient")
+        }
+        if (!ingredient.recipe_amount) {
+          console.log("No reicpe amt")
+        }
+        if (row.available_amount < ingredient.recipe_amount) {
+          console.log("Availalbe amt less than recipe calls for.")
+        }
         return false;
       }
     }
@@ -148,23 +155,44 @@ const confirmQuantitiesAreAvailableInPantry = async function (
 };
 
 /**
- * Records the consumption of one or more ingredients in a pantry.
- * Items are prioritized by their soonest expiration date. 
- * Frozen items are excluded from this function by default.
+ * Records the consumption of one or more ingredients in a pantry! 
+ * FEFO is First Expiring, First Out.
+ * Before consuming the ingredients outright this function confirms the ingredients
+ * are available and will refuse to run if not everything is available. 
+ * 
+ * The underlying SQL function `reduce_pantry_fefo` is defined in pantryFunctions.sql.
+ * It reduces quantities, then updates status of an ingredient in terms of storage.
+ * If all of an item is used up, it's 'CONSUMED', and if it was partially used but
+ * marked as 'SEALED' (due to being bran new), becomes 'OPEN'.  When status changes, the
+ * expiration dates are recalculated by a database trigger.
  *
+ * @param user_id - The ID of the user whose pantry is being updated
+ * @param ingredients - Array of ingredients to consume with their amounts
+ * @param excludeFrozen - Whether to exclude frozen items (defaults to true)
+ * @returns boolean success status
  * @throws {Error} This function throws the original error from the database.
  *                 Lacking such info, it'll throw an "unknown error" Error. 
  */
-export async function consumePantryItemsFEFOStyle(user_id: number, ingredients: PantryIngredient[]) {
+export async function consumePantryItemsFEFOStyle(user_id: number, ingredients: PantryIngredient[], excludeFrozen: boolean = true) {
   try {
     const hasItems = await confirmItemsAreAvailableInPantry(user_id, ingredients)
-    // if (!hasItems) {
-    //   throw new Error(ErrorKeys.ITEMS_NOT_IN_PANTRY)
-    // }
+    if (!hasItems) {
+      return false;
+    
+    }
     const hasEnough = await confirmQuantitiesAreAvailableInPantry(user_id, ingredients)
-    // if (!hasEnough) {
-    //   throw new Error(ErrorKeys.ITEMS_NOT_IN_PANTRY)
-    // }
+    if (!hasEnough) {
+      return false;
+    }
+    return withTransaction(async (client) => {
+    for (const item of ingredients) {
+      await client.query(
+        'SELECT reduce_pantry_fefo($1, $2, $3, $4)',
+        [user_id, item.ingredient_id, item.recipe_amount, excludeFrozen]
+      );
+    }
+    return true
+  });
   } catch (error) {
     handleDatabaseError(error)
   } 

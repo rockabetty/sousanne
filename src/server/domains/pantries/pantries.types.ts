@@ -14,7 +14,7 @@ export type PantryIngredientCollection = {
 }
 
 export type PantryIngredientUpdate = {
-    id: number;
+    ingredient_id: number;
     amount: number;
 }
 

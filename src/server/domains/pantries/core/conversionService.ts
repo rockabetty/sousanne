@@ -88,7 +88,7 @@ export const convertForPantryUpdate = function (ingredients: PantryIngredient[])
   let updates = [];
   for (let ing of ingredients) {
     const originalUnit = ing.unit.toLowerCase();
-    let pantryChange = { id: ing.id };
+    let pantryChange = { ingredient_id: ing.id };
     switch (originalUnit) {
       /*
       'clove of garlic' opens the possibility for other 'piece of produce that
@@ -96,16 +96,16 @@ export const convertForPantryUpdate = function (ingredients: PantryIngredient[])
       here>'. We'll take 'em as they come but I expect this to grow. 
       */
       case 'clove of garlic':
-        pantryChange.amount = ing.recipe_amount * 0.2; // A clove is ~0.2 ounces.
+        pantryChange.recipe_amount = ing.recipe_amount * 0.2; // A clove is ~0.2 ounces.
         break;
       case'dash': 
-        pantryChange.amount = ing.recipe_amount * 0.035; // A 'dash' is 1 gram, which is ~0.35 oz.
+        pantryChange.recipe_amount = ing.recipe_amount * 0.035; // A 'dash' is 1 gram, which is ~0.35 oz.
         break;
       case 'count':
         if (ing.convert_to_unit === 'count') {
-          pantryChange.amount = ing.recipe_amount;
+          pantryChange.recipe_amount = ing.recipe_amount;
         } else {
-          pantryChange.amount = ing.average_weight * ing.multiplier * ing.recipe_amount
+          pantryChange.recipe_amount = ing.average_weight * ing.multiplier * ing.recipe_amount
         }
         break;
       default:
@@ -117,18 +117,18 @@ export const convertForPantryUpdate = function (ingredients: PantryIngredient[])
           if (pantryUnit === 'count') { 
               // Recipe calls for a volume of an item that is measured by item
               // e.g. recipe: "1/2 cup onions" pantry: "You have 3 onions" 
-              pantryChange.amount * ing.average_weight;
+              pantryChange.recipe_amount * ing.average_weight;
           } else if (massSet.has(pantryUnit)) {
             // Recipe calls for a volume of an item that is measured by mass
             // e.g. recipe: "1/4 cup of flour" pantry: "You have 32 oz of flour"
-            pantryChange.amount = amountInCups * ing.cup_weight;
+            pantryChange.recipe_amount = amountInCups * ing.cup_weight;
           } else {
             // The only left over possibility is that it's a volume to volume conversion
-            pantryChange.amount = amountInCups;
+            pantryChange.recipe_amount = amountInCups;
           }
         }
         else {
-          pantryChange.amount = convert(ing.recipe_amount).from(unitMap[recipeUnit]).to(unitMap[pantryUnit])
+          pantryChange.recipe_amount = convert(ing.recipe_amount).from(unitMap[recipeUnit]).to(unitMap[pantryUnit])
         }
     }
     updates.push(pantryChange);
@@ -200,7 +200,8 @@ export const convertIngredientAmounts = async function (ingredients: PantryIngre
     if (!result.success || !result.data || result.data.length === 0) {
       handleServiceError(ErrorKeys.ITEMS_NOT_IN_PANTRY)
     } 
-    return convertForPantryUpdate(result.data);
+    const conversion = convertForPantryUpdate(result.data);
+    return conversion
   } catch (error) {
     handleServiceError(error);
   }

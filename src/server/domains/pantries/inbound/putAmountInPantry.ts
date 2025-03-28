@@ -24,8 +24,11 @@ const handler: NextApiHandler = async (req, res) => {
       itemList,
       action
     }
-    await updateIngredientAmountsInPantry(update)
-    return res.status(200).send("OK")
+    const result = await updateIngredientAmountsInPantry(update)
+    if (result.success) {
+      return res.status(200).send("OK")
+    }
+    return sendErrorResponse(res, result.error);
   } catch (error) {
     return sendErrorResponse(res, error);
   }

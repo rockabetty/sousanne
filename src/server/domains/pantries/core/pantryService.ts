@@ -111,8 +111,14 @@ export async function updatePantryWithConsume (update: PantryUpdateObject) {
   const {itemList, user_id} = update;
   const ingredientsToConsume = await convertIngredientAmounts(itemList)
   try {
-    const result = await consumePantryItemsFEFOStyle(user_id, ingredientsToConsume)
-    return { success: true }
+    const sucessfullyConsumedAll = await consumePantryItemsFEFOStyle(user_id, ingredientsToConsume)
+    if (sucessfullyConsumedAll) {
+      return { success: true }
+    }
+    return {
+      success: false,
+      error: ErrorKeys.ITEMS_NOT_IN_PANTRY
+    }
   } catch (error) {
     handleServiceError(error)
   }
