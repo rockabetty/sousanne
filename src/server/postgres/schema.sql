@@ -293,6 +293,7 @@ CREATE TYPE preparation AS ENUM (
 );
 
 CREATE TABLE IF NOT EXISTS recipe_ingredients (
+    id SERIAL PRIMARY KEY,
     recipe_id INT NOT NULL REFERENCES recipes(id),
     ingredient_id INT NOT NULL REFERENCES ingredients(id),
     -- if a recipe callsf or '3 tablespoons', then unit_id would be for the id of 'tablespoon'

@@ -37,6 +37,40 @@ export async function selectIngredientOptions(ingredientId: number): Promise<Ing
   }
 }
 
+export async function selectIngredientById(id: number): Promise<Ingredient> {
+  try {
+    const query = `
+    SELECT 
+      i.id,
+      i.name,
+      description,
+      shelf_life_room_temp_sealed,
+      shelf_life_room_temp_open,
+      shelf_life_refrigerated_sealed,
+      shelf_life_refrigerated_open,
+      shelf_life_frozen,
+      average_weight,
+      edible_percentage,
+      cooking_yield_percentage,
+      cup_weight,
+      u.name as unit
+    FROM 
+      ingredients i
+    JOIN
+      ingredient_hierarchy ih ON ih.id = i.ingredient_hierarchy_id
+    JOIN
+      units u ON u.id = ih.unit_id
+    WHERE 
+        i.id = $1
+    `;
+    const values = [id]
+    const queryResult = await queryDbConnection(query, values)
+    return queryResult.rows[0]
+  } catch (error) {
+    handleDatabaseError(error)
+  }
+}
+
 export async function selectIngredientOptionsWithSeasonality(ingredientId: number): Promise<Ingredient[]> {
   try {
     const query = `
@@ -57,7 +91,7 @@ export async function selectIngredientOptionsWithSeasonality(ingredientId: numbe
             child_i.id,
             child_i.name,
             CASE 
-              WHEN child_ih.path::text LIKE '%freshproduce%' OR child_ih.path::text LIKE '%freshseafood%' THEN
+              WHEN child_ih.path::text LIKE '%produce%' OR child_ih.path::text LIKE '%seafood%' OR child_ih.path::text LIKE '%wildgame%' THEN
                 COALESCE((
                   SELECT ist.status
                   FROM ingredient_seasonality ist

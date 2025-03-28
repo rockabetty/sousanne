@@ -1,4 +1,4 @@
-import { selectIngredientOptions, selectIngredientOptionsWithSeasonality } from '../outbound/ingredientRepository';
+import { selectIngredientById, selectIngredientOptions, selectIngredientOptionsWithSeasonality } from '../outbound/ingredientRepository';
 import { ErrorKeys as CoreErrors } from "@errors/errors.types";
 import { handleServiceError } from "@errors";
 import { acceptGetOnly } from "@errors/methodgatekeeper";
@@ -50,3 +50,14 @@ export async function getIngredientOptionsWithSeasonality(id: number): Promise<A
   }
 }
 
+export async function getIngredientById(id: number): Promise<ApiResponse<Ingredient>> {
+  try {
+    const ingredient = await selectIngredientById(id);
+    return {
+      success: true,
+      data: ingredient
+    }
+  } catch (error) {
+    return handleServiceError(error)
+  }
+}
