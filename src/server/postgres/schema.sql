@@ -76,7 +76,8 @@ CREATE TABLE ingredient_hierarchy (
     id SERIAL PRIMARY KEY,
     path ltree,
     -- shelf life is measured in days
-    shelf_life_room_temp INT,
+    shelf_life_room_temp_whole INT,
+    shelf_life_room_temp_open INT,
     shelf_life_refrigerated_opened INT,
     shelf_life_refrigerated_sealed INT,
     shelf_life_frozen INT,
