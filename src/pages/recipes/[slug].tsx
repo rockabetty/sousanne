@@ -10,10 +10,13 @@ const Recipe: NextPage<RecipeProps> = ({ recipe }) => {
   const [loadingSecondaries, setLoadingSecondaries] = useState<boolean>(true)
   const [recipeData, setRecipeData] = useState()
   const [canMakeNow, setCanMakeNow] = useState<boolean>(true)
-
+  const [selectedIngredients, setSelectedIngredients] = useState();
+  // Water is always assumed to be on hand and is not in pantries
+  const [displayOnlyIngredients, setDisplayOnlyIngredients] = useState([]);
+  
   const deductFromPantry = async function() {
     let update = { action: "consume", itemList: [] }
-    for (let ingredient of recipeData.ingredients) {
+    for (let ingredient of selectedIngredients.ingredients) {
         update.itemList.push({
           id: ingredient.id,
           unit: ingredient.unit,
@@ -31,32 +34,35 @@ const Recipe: NextPage<RecipeProps> = ({ recipe }) => {
         setRecipeData(data)
         setLoading(false)
 
-        const updatedIngredients = [...data.ingredients]
+        const {ingredients} = data;
+        const updatedIngredients = []
       
-        for (let i = 0; i < updatedIngredients.length; i++) {
-          if (updatedIngredients[i].name === 'Water') {
-            updatedIngredients[i].inPantry = true
-          } else {
-            const amount = updatedIngredients[i].amount;
-            const optionResponse = await axios.get(`/api/ingredients/${updatedIngredients[i].id}/options`, {params: {pantry: 1, seasonal: true, amount }})
+        for (let i = 0; i < ingredients.length; i++) {
+          if (ingredients[i].name !== 'Water') {
+            let nextIngredient = ingredients[i];
+            console.log(nextIngredient)
+            const amount = nextIngredient.amount;
+            const optionResponse = await axios.get(`/api/ingredients/${nextIngredient.id}/options`, {params: {pantry: 1, seasonal: true, amount }})
             if (optionResponse.data.length > 0) {
-              updatedIngredients[i].inPantry = true
-              updatedIngredients[i].options = optionResponse.data
+              nextIngredient.inPantry = true
+              nextIngredient.options = optionResponse.data
             } else {
-              const {data} = await axios.get(`/api/pantries/1/${updatedIngredients[i].id}`)
-              updatedIngredients[i].inPantry = !!data
+              const {data} = await axios.get(`/api/pantries/1/${nextIngredient.id}`)
+              nextIngredient.inPantry = !!data
             }
-            if (updatedIngredients[i].inPantry == false) {
+            updatedIngredients.push(nextIngredient);
+            if (nextIngredient.inPantry == false) {
               setCanMakeNow(false)
             }
           }
+          else {
+            const newList = [...displayOnlyIngredients];
+            newList.push(ingredients[i])
+            setDisplayOnlyIngredients(newList)
+          }
         }
         
-        setRecipeData(prevData => ({
-          ...prevData,
-          ingredients: updatedIngredients
-        }))
-
+        setSelectedIngredients(updatedIngredients);
         setLoadingSecondaries(false)
         
       } catch (error) {
@@ -93,7 +99,15 @@ const Recipe: NextPage<RecipeProps> = ({ recipe }) => {
       {!loadingSecondaries && !!canMakeNow ? <p>You have everything to make this!</p>: null}
       <p>Serves {recipeData.base_serving_size}</p>
       <ul>
-      {recipeData.ingredients?.map((ingredient) => {
+      {!loadingSecondaries && displayOnlyIngredients?.map((ingredient) => {
+        return (
+            <li key={`recipe-ingredient-${ingredient.id}`}>
+              {ingredient.amount} {ingredient.unit !== 'self' ? `${ingredient.unit} of ` : null }
+              {!loadingSecondaries && ingredient.options ? <OptionSelector options={ingredient.options} /> : ingredient.name}
+            </li>
+          )
+      })}
+      {selectedIngredients?.map((ingredient) => {
         return (
             <li key={`recipe-ingredient-${ingredient.id}`}>
               {ingredient.amount} {ingredient.unit !== 'self' ? `${ingredient.unit} of ` : null }

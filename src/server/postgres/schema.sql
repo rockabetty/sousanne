@@ -102,6 +102,7 @@ CREATE TABLE ingredients (
     ingredient_hierarchy_id INT NOT NULL REFERENCES ingredient_hierarchy(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    archetype BOOLEAN DEFUALT FALSE
 );
 alter table ingredients add constraint uc_name unique (name);
 

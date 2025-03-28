@@ -38,7 +38,7 @@ export async function selectAvailableAmountInPantry(
   try {
     const excludedStatuses = _buildPracticalExclusions(excludeFrozen);
     const query = `SELECT 
-      ingredient_id as id,
+      ingredient_id,
       amount_purchased - amount_consumed as pantry_amount
     FROM pantries
     WHERE
@@ -132,17 +132,12 @@ const confirmQuantitiesAreAvailableInPantry = async function (
     const result = await queryDbConnection(sumAmountsQuery, values);
     for (const row of result.rows) {
       const ingredient = ingredientsToConfirm.get(row.ingredient_id);
-      console.log(row)
-      console.log(ingredient)
       if (!ingredient || !ingredient.recipe_amount || row.available_amount < ingredient.recipe_amount) {
         if (!ingredient) {
-          console.log("no ingredient")
         }
         if (!ingredient.recipe_amount) {
-          console.log("No reicpe amt")
         }
         if (row.available_amount < ingredient.recipe_amount) {
-          console.log("Availalbe amt less than recipe calls for.")
         }
         return false;
       }
