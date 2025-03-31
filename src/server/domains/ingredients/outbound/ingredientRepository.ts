@@ -99,6 +99,7 @@ export async function selectIngredientOptionsWithSeasonality(ingredientId: numbe
                     ist.ingredient_hierarchy_id = child_i.id AND
                     ist.region_id = 1 AND
                     ist.month = EXTRACT(MONTH FROM CURRENT_DATE)::integer
+                  LIMIT 1
                 ))
               ELSE 'NON_SEASONAL'
             END AS seasonality_status
