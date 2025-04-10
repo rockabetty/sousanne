@@ -11,20 +11,16 @@ import { Ingredient } from '@domains/ingredients/ingredients.types';
 export async function excludeIngredientsNotInPantry (ingredients: RecipeIngredient[], user_id: number): Promise<ApiResponse<PantryIngredient[]>> {
   try {
     const ingredientIds: number[] = ingredients.map(ingredient => Number(ingredient.id));
-   
     const pantryItems = await selectAvailableAmountInPantry(ingredientIds, user_id);
-
-    const pantryMap = new Map();
     if (!pantryItems) {
       return handleServiceError(CoreErrors.INVALID_REQUEST)
     }
+    const pantryMap = new Map();
 
     pantryItems.forEach(item => {
-      pantryMap.set(item.ingredient_id, {
-        recipe_amount: item.recipe_amount,
-      });
+      pantryMap.set(item.ingredient_id, item.pantry_amount);
     });
-
+ 
     const inStockIngredients: PantryIngredient[] = []
 
     ingredients.map(ingredient => {
@@ -33,11 +29,11 @@ export async function excludeIngredientsNotInPantry (ingredients: RecipeIngredie
         inStockIngredients.push(
         {
             ...ingredient,
-            recipe_amount: pantryItem.amount
+            pantry_amount: pantryItem
         })
       }
     });
-
+ 
     return {
       success: true,
       data: inStockIngredients 

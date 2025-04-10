@@ -2,7 +2,19 @@ export type Ingredient = {
     id?: number;
     name?: string;
     path?: string;
-    seasonality_status: 'STORAGE' | 'IN_SEASON' | 'NON_SEASONAL';
+    description?: string;
+    seasonality_status?: 'STORAGE' | 'IN_SEASON' | 'NON_SEASONAL';
+    shelf_life_room_temp_sealed?: number;
+    shelf_life_room_temp_open?: number;
+    shelf_life_refrigerated_sealed?: number;
+    shelf_life_refrigerated_open?: number;
+    shelf_life_frozen?: number;
+    average_weight?: number;
+    edible_percentage?: number;
+    cup_weight?: number;
+    cooking_yield_percentage?: number;
+    unit: string;
+
 }
 
 type _RecipeIngredient = {
