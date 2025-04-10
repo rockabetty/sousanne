@@ -12,9 +12,11 @@ const NewRecipeForm = () => {
 	}
 
 	useEffect(() => {
-		const getUnits = () => {
-			const units = axios.get(`/api/units`)
+		const getUnits = async () => {
+			const units = await axios.get(`/api/units`)
+			console.log(units)
 		}
+		getUnits()
 	},
 	[])
 
