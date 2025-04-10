@@ -2,6 +2,7 @@ import { NextApiHandler } from "next";
 import { sendErrorResponse } from "@errors";
 import { acceptGetOnly } from "@errors/methodgatekeeper";
 import { ErrorKeys } from "@errors/errors.types";
+import { getUnits } from "../core/unitService";
 
 const handler: NextApiHandler = async (req, res) => {
   try {
