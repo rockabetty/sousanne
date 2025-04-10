@@ -1,5 +1,86 @@
+// 5 strobs in 1 cup
+// I chopped it, it's 3/4 cup.
+
 const ingredientHierarchy = {
    paths: {
+      /*
+         Buckwheat (for soba)
+         Dried egg noodles
+         Spaetzle noodles
+         Panko breadcrumbs
+         Regular breadcrumbs
+         Dried chilies (ancho, guajillo, árbol, etc.)
+         Dried mushrooms (see detailed section below)
+      */
+
+      "grains:": {
+         "gluten": {
+            "barley": {
+               "Barley": {
+                  variants: ["Pearled Barley"],
+               },
+            },
+            "wheat": {
+               "flour": {
+                  "Semolina": {
+                     variants: ["Semolina"],
+                  },
+                  "Wheat Flour": {
+                     variants: [
+                        "All-Purpose Flour",
+                        "Bread Flour",
+                        "00 Pizza Flour"
+                     ],
+                  },
+               },
+            },
+            "rye": {
+               "Rye Flour": {
+                  variants: ["Rye Flour"]
+               },
+            },
+         },
+         "nongluten": {
+            "buckwheat": {
+               "flour": {
+                  variants: ["Buckwheat Flour"]
+               },
+               "groats": {
+                  variants: ["Buckwheat"]
+               },
+            },
+            "corn": {
+               "Corn Meal": { variants: ["Corn Meal"] },
+               "hominy": {
+                  "Masa Harina": { variants: ["Masa Flour"] },
+                  "Hominy": { variants: ["Dried Hominy", "Canned Hominy"], },
+                  "Grits": {
+                     variants: ["Grits"],
+                  },
+               },
+            },
+            "rice": {
+               "flour": {
+                  "Rice Flour": {
+                     variants: ["Rice Flour"]
+                  },
+               },
+               "white_rice": {
+                  "White Rice": {
+                     variants: ["Long Grain White Rice", "Short Grain White Rice", "Medium Grain White Rice"]
+                  },
+                  "Jasmine Rice": { variants: ["Jasmine Rice"] },
+                  "Sushi Rice": { variants: ["Sushi Rice"]},
+               },
+               "brown_rice": {
+                  variants: ["Brown Rice"]
+               },
+               "wild_rice": {
+                  variants: ["Wild Rice"]
+               },
+            },
+         }
+      },
       "produce": { 
          "vegetables" : {
             "amaryllidaceae": {
@@ -298,9 +379,9 @@ const ingredientHierarchy = {
 
       "functional_ingredients": { 
          "thickeners": { 
-            "vegan": ["Filé Powder", "Arrowroot", "Cornstarch", "Tapioca Starch"]},
-            "vegetarian": ["Egg Yolk", "Egg Whites"]},
-            "non_vegetarian": ["Pig's Blood", "Duck's Blood"]},
+            "vegan": variants: {["Filé Powder", "Arrowroot", "Potato Starch", "Corn Starch", "Tapioca Starch"]},
+            "vegetarian": variants: {["Egg Yolk", "Egg Whites"]},
+            "non_vegetarian": variants: {["Pig's Blood", "Duck's Blood"]},
          },
          "emulsifiers": {
             "vegetarian": ["Egg Yolk"]},
@@ -333,38 +414,38 @@ const ingredientHierarchy = {
             },
             "spice_blends": { 
                "earthy_aromatic": {
-                  "variants": ["Chili Powder"]},
+                  "variants": ["Chili Powder"],
                },
                "hot_n_spicy": {
-                  "variants": ["Shichimi Togarashi"]},
+                  "variants": ["Shichimi Togarashi"],
                },
             },
             "earthy_pungent": {
                "nutty": {
-                  "variants": ["Poppy Seeds", "Nutmeg", "Mace", "Cumin Seed", "Ground Cumin"]},
+                  "variants": ["Poppy Seeds", "Nutmeg", "Mace", "Cumin Seed", "Ground Cumin"],
                },
                "sweet": {
-                  "variants": ["Cinnamon", "Whole Cloves", "Ground Cloves", "Allspice", "Anise Seed"]},
+                  "variants": ["Cinnamon", "Whole Cloves", "Ground Cloves", "Allspice", "Anise Seed"],
                },
                "musky_aromatics": {
-                  "variants": ["Coriander", "Cardamom"]},
+                  "variants": ["Coriander", "Cardamom"],
                },
             },
             "herbal_greens": {
                "grassy_floral_notes": {
-                  "variants": ["Thyme", "Rosemary", "Lavender", "Bay Leaf", "Dill Leaf", "Saffron"]},
+                  "variants": ["Thyme", "Rosemary", "Lavender", "Bay Leaf", "Dill Leaf", "Saffron"],
                },
                "sweet_anise_notes": {
-                  "variants": ["Chervil", "Tarragon", "Shiso Leaf", "Caraway Seeds", "Dill Seed", "Fennel Seed", "Thai Basil", "Star Anise"]},
+                  "variants": ["Chervil", "Tarragon", "Shiso Leaf", "Caraway Seeds", "Dill Seed", "Fennel Seed", "Thai Basil", "Star Anise"],
                },
-               "minty_and_peppery":
-                  "variants": ["French Parsley", "Minari", "Basil"]},
+               "minty_and_peppery": {
+                  "variants": ["French Parsley", "Minari", "Basil"],
                },
                "bright_and_citrusy": {
-                  "variants": ["Cilantro", "Mexican Oregano", "Italian Parsley", "Mitsuba", "Lemon Thyme"]},
+                  "variants": ["Cilantro", "Mexican Oregano", "Italian Parsley", "Mitsuba", "Lemon Thyme"],
                },
                "earthy_minty": {
-                  "variants": ["Oregano", "Marjoram"]},
+                  "variants": ["Oregano", "Marjoram"],
                },
             },
          },
@@ -374,26 +455,6 @@ const ingredientHierarchy = {
 /*
 
 
-Rice (long grain white, short grain Japanese, brown)
-Barley
-Cornmeal
-Grits
-Masa harina
-Dried hominy
-Rye flour
-All-purpose flour
-Bread flour
-Semolina
-Rice flour
-Potato starch
-Corn starch
-Buckwheat (for soba)
-Dried egg noodles
-Spaetzle noodles
-Panko breadcrumbs
-Regular breadcrumbs
-Dried chilies (ancho, guajillo, árbol, etc.)
-Dried mushrooms (see detailed section below)
 
 Canned & Jarred Goods
 

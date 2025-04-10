@@ -3,7 +3,7 @@ import { getIngredientOptionsWithSeasonality, getIngredientOptions } from "../co
 import { excludeIngredientsNotInPantry } from "@domains/pantries/core/pantryService";
 import { sendErrorResponse } from "@errors";
 import { acceptGetOnly } from "@errors/methodgatekeeper";
-import { parseRecipeIngredient } from "../ingredients.types";
+import { parseRecipeIngredient, RecipeIngredient } from "../ingredients.types";
 
 const handler: NextApiHandler = async (req, res) => {
   try {
@@ -23,7 +23,14 @@ const handler: NextApiHandler = async (req, res) => {
     }
     
     if (!!pantry) {
-      options = await excludeIngredientsNotInPantry(options.data, pantry)
+      const {data} = options;
+      const parsedData = []
+      for (let i = 0; i < data.length; i++) {
+        const parsedIngredient: RecipeIngredient = parseRecipeIngredient(data[i]);
+        parsedData.push(parsedIngredient)
+      }
+
+      options = await excludeIngredientsNotInPantry(parsedData, pantry)
       if (!options.success) {
         return sendErrorResponse(res, options.error)
       }

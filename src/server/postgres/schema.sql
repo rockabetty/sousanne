@@ -296,6 +296,7 @@ CREATE TABLE IF NOT EXISTS recipe_ingredients (
     id SERIAL PRIMARY KEY,
     recipe_id INT NOT NULL REFERENCES recipes(id),
     ingredient_id INT NOT NULL REFERENCES ingredients(id),
+    component_id INT REFERENCES recipe_components(id),
     -- if a recipe callsf or '3 tablespoons', then unit_id would be for the id of 'tablespoon'
     unit_id INT NOT NULL REFERENCES units(id),
     -- in our 3 tablespoons example, amount would be 3.
@@ -322,9 +323,17 @@ CREATE TABLE IF NOT EXISTS cooking_actions (
     requirement accessibility_concern
 );
 
+CREATE TABLE IF NOT EXISTS recipe_components (
+    -- For recipes that have multiple parts, e.g. a cheesecake:
+    -- "For the batter" vs "for the filling" vs "For the crust"
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50)
+)
+
 CREATE TABLE IF NOT EXISTS recipe_steps (
     id SERIAL PRIMARY KEY,
     step_order INT NOT NULL,
+    component_id INT REFERENCES recipe_components(id),
     recipe_id INT NOT NULL REFERENCES recipes(id),
     cooking_action_id INT REFERENCES cooking_actions(id),
     -- e.g. "boil the pasta for 20 minutes"
