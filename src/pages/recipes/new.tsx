@@ -6,7 +6,7 @@ const NewRecipeForm = () => {
 	const defaultState = {
 		name: "",
 		servingSize: 1,
-		components: [],
+		sections: [],
 		steps: [],
 		ingredients: []
 	}
@@ -46,7 +46,7 @@ const NewRecipeForm = () => {
 			/>
 
 			<label
-			  htmlFore="recipe_serving-size"
+			  htmlFor="recipe_serving-size"
 			>
 			  Serving Size
 			</label>
