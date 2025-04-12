@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Button } from 'el-cuc-ui';
 
 const NewRecipeForm = () => {
 
-	const defaultState = {
+  const defaultState = {
 		name: "",
 		servingSize: 1,
 		sections: [],
@@ -11,39 +12,39 @@ const NewRecipeForm = () => {
 		ingredients: []
 	}
 
-	useEffect(() => {
-		const getUnits = async () => {
-			const units = await axios.get(`/api/units`)
-			console.log(units)
-		}
-		getUnits()
-	},
-	[])
+  const [units, setUnits] = useState([])
 
-	const [recipe, setRecipe] = useState(defaultState);
+  useEffect(() => {
+    const getUnits = async () => {
+      try {
+        const units = await axios.get(`/api/units`)
+        const {data} = units
+        setUnits(data)
+      } catch(error) {
+        console.log(error)
+      }
+      
+    }
+    getUnits()
+  },
+  [])
 
-	const handleInput = (event: React.FormEvent<HTMLInputElement>) => {
-		const {target, value} = event;
-		const {name} = target;
-		const update = {...recipe}; 
-		update[name] = value
-		setRecipe(update)
-	}
+  const [recipe, setRecipe] = useState(defaultState);
 
-	const submitRecipe = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-	}
+  const handleInput = (event: React.FormEvent<HTMLInputElement>) => {
+    const {target, value} = event;
+    const {name} = target;
+    const update = {...recipe}; 
+    update[name] = value
+    setRecipe(update)
+  }
 
-	return (	
-		<form onSubmit={submitRecipe}>
+  const submitRecipe = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+  }
 
-			<label htmlFor="recipe_name">Name</label>
-			<input
-			  type="text"
-			  name="name"
-			  onChange={handleInput}
-			  value={recipe.name}
-			/>
+  return (  
+    <form onSubmit={submitRecipe}>
 
 			<label
 			  htmlFor="recipe_serving-size"
@@ -59,24 +60,43 @@ const NewRecipeForm = () => {
 			  onChange={handleInput}
 			 />
 
-			 <fieldset>
-			   <legend>Add an ingredient</legend>
-			   
-			   <label htmlFor="ingredient_x_count">Amount</label>
-			   <input id="ingredient_x_count" type="number" min="0" />
 
-			   <label htmlFor="ingredient_x_unit">Unit</label>
-			   <select id="ingredient_x_unit">
-			     <option value="ounces">ounces</option>
-			   </select>
+      <label
+        htmlFor="recipe_serving-size"
+      >
+        Serving Size
+      </label>
+      <input
+        min={1}
+        id="recipe_serving-size"
+        name="servingSize"
+        type="number"
+        value={recipe.servingSize}
+        onChange={handleInput}
+       />
 
-			   <label htmlFor="igredient_x_name">Ingredient</label>
-			   <input id="ingredeint_x_name" type="text" />
-			  
-			 </fieldset>
-			<button type="submit">Save</button>	
-		</form>
-		)
+       <fieldset>
+         <legend>Add an ingredient</legend>
+         
+         <label htmlFor="ingredient_x_count">Amount</label>
+         <input id="ingredient_x_count" type="number" min="0" />
+
+         <label htmlFor="ingredient_x_unit">Unit</label>
+         <select id="ingredient_x_unit">
+            {units.map((unit, idx) => {
+            return (
+              <option value="ounces">{unit.abbreviation}</option>
+            )
+            })}
+         </select>
+
+         <label htmlFor="igredient_x_name">Ingredient</label>
+         <input id="ingredeint_x_name" type="text" />
+        
+       </fieldset>
+      <Button type="submit">Save</Button>  
+    </form>
+    )
 }
 
 export default NewRecipeForm
