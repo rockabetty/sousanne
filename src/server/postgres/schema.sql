@@ -1,5 +1,5 @@
 CREATE TYPE seasonality AS ENUM ('IN_SEASON', 'STORAGE', 'NON_SEASONAL');
-
+    
 CREATE EXTENSION IF NOT EXISTS ltree;
 
 CREATE TABLE IF NOT EXISTS currencies(
@@ -102,7 +102,7 @@ CREATE TABLE ingredients (
     ingredient_hierarchy_id INT NOT NULL REFERENCES ingredient_hierarchy(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    archetype BOOLEAN DEFUALT FALSE
+    archetype BOOLEAN DEFAULT FALSE
 );
 alter table ingredients add constraint uc_name unique (name);
 
@@ -292,19 +292,6 @@ CREATE TYPE preparation AS ENUM (
     'MELT'
 );
 
-CREATE TABLE IF NOT EXISTS recipe_ingredients (
-    id SERIAL PRIMARY KEY,
-    recipe_id INT NOT NULL REFERENCES recipes(id),
-    ingredient_id INT NOT NULL REFERENCES ingredients(id),
-    component_id INT REFERENCES recipe_components(id),
-    -- if a recipe callsf or '3 tablespoons', then unit_id would be for the id of 'tablespoon'
-    unit_id INT NOT NULL REFERENCES units(id),
-    -- in our 3 tablespoons example, amount would be 3.
-    amount DECIMAL(10,2) NOT NULL,
-    variant preparation,
-    from_scratch_recipe_id INT REFERENCES recipes(id)
-);
-
 /*
   For the purposes of being able to rule out recipes based on an action that you
   cannot take due to disability.  This is to acommodate people in for example
@@ -323,17 +310,32 @@ CREATE TABLE IF NOT EXISTS cooking_actions (
     requirement accessibility_concern
 );
 
-CREATE TABLE IF NOT EXISTS recipe_components (
+CREATE TABLE IF NOT EXISTS recipe_sections (
     -- For recipes that have multiple parts, e.g. a cheesecake:
     -- "For the batter" vs "for the filling" vs "For the crust"
     id SERIAL PRIMARY KEY,
     name VARCHAR(50)
-)
+);
+
+
+CREATE TABLE IF NOT EXISTS recipe_ingredients (
+    id SERIAL PRIMARY KEY,
+    recipe_id INT NOT NULL REFERENCES recipes(id),
+    ingredient_id INT NOT NULL REFERENCES ingredients(id),
+    section_id INT REFERENCES recipe_sections(id),
+    -- if a recipe callsf or '3 tablespoons', then unit_id would be for the id of 'tablespoon'
+    unit_id INT NOT NULL REFERENCES units(id),
+    -- in our 3 tablespoons example, amount would be 3.
+    amount DECIMAL(10,2) NOT NULL,
+    variant preparation,
+    from_scratch_recipe_id INT REFERENCES recipes(id)
+);
+
 
 CREATE TABLE IF NOT EXISTS recipe_steps (
     id SERIAL PRIMARY KEY,
     step_order INT NOT NULL,
-    component_id INT REFERENCES recipe_components(id),
+    section_id INT REFERENCES recipe_sections(id),
     recipe_id INT NOT NULL REFERENCES recipes(id),
     cooking_action_id INT REFERENCES cooking_actions(id),
     -- e.g. "boil the pasta for 20 minutes"
