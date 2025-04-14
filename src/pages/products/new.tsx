@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import { Form, TextInput, Radio, Checkbox, DropdownSelect } from 'el-cuc-ui';
+import { Form, TextInput, Radio, Checkbox, DropdownSelect, FieldGroup } from 'el-cuc-ui';
 
 
 const NewProductPage = () => {
@@ -63,6 +63,7 @@ const NewProductPage = () => {
 		  placeholderText="can of tuna"
 		  labelText="Ingredient"
 		  onChange={handleGeneralInput}
+		  size="lg"
 		/>
 
 		<Radio
@@ -101,6 +102,8 @@ const NewProductPage = () => {
 		  value="apiece"
 		/>
 
+		<FieldGroup inline={true}>
+
 		<TextInput
 		  labelText="Price"
 		  id="product_price"
@@ -108,8 +111,8 @@ const NewProductPage = () => {
 		  type="number"
 		  min={0}
 		  value={productData.price}
+		  size="sm"
 		/>
-		
 
 		{productData.packageType != "apiece"
 		? (<>
@@ -121,12 +124,13 @@ const NewProductPage = () => {
 				 	? (
 						  <TextInput
 						  	type="number"
-						    labelText="Multipack Count"
+						    labelText="Amount"
 						    id="product_packaging_quantity"
 						    value={productData?.packageCount}
 						    onChange={handleGeneralInput}
 						    name="packageCount"
 						    placeholderText="3"
+						    size="xs"
 						  />
 						)
 				 	: null
@@ -134,12 +138,13 @@ const NewProductPage = () => {
 
 				<TextInput
 				  type="number"
-				  labelText="Package Amount"
+				  labelText="Size"
 				  id="product_item_quantity"
 				  value={productData?.packageAmount}
 				  onChange={handleGeneralInput}
 				  name="packageAmount"
 				  placeholderText="5"
+				  size="sm"
 				/>
 			</>)
 			: null
@@ -151,9 +156,13 @@ const NewProductPage = () => {
 				value={productData?.unitName}
 				options={unitNames[productData.unitType]}
 				onChange={handleGeneralInput}
+				size="md"
 			/>
-
-			<Radio
+		</>)
+		: null
+		}
+		</FieldGroup>		
+		<Radio
 			  onChange = {handleGeneralInput}
 			  id="unit_type_solid"
 			  name="unitType"
@@ -177,16 +186,6 @@ const NewProductPage = () => {
 			  labelText = "By size"
 			  value="size"
 			/>
-		</>)
-
-		: null
-		}
-
-		
-
-		
-
-			
 		</Form>
 	)
 }
