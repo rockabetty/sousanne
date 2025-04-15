@@ -2,6 +2,32 @@ import { queryDbConnection } from "@postgres";
 import { handleDatabaseError } from "@errors"
 import { Ingredient } from "../ingredients.types";
 
+export async function getIngredients ( 
+  offset: number = 0,
+  limit: number = 50): Promise<Ingredient[]> {
+  try {
+    const query = `
+    SELECT
+      i.id,
+      i.name,
+      ih.path
+    FROM
+      ingredients i
+    JOIN
+      ingredient_hierarchy ih ON ih.id = i.ingredient_hierarchy_id
+    OFFSET $1
+    LIMIT $2
+    `;
+
+    const values = [offset, limit]
+    const queryResult = await queryDbConnection(query,values);
+    return queryResult.rows;
+  }
+  catch (error) {
+    handleDatabaseError(error);
+  }
+}
+
 export async function selectIngredientOptions(ingredientId: number): Promise<Ingredient[]> {
   try {
     const query = `WITH relevant_hierarchy AS (
