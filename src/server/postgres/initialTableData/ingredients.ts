@@ -82,6 +82,26 @@ const ingredientHierarchy = {
          }
       },
       "produce": { 
+         "starches": {
+            "potatoes_yams": {
+               "potatoes": { 
+                  "Potato": { "variants": ["Russet Potato"] },
+               },
+               "sweet_or_yam": { 
+                  "Sweet Potatoes": {
+                     "variants": ["Sweet Potato"]
+                  },
+                  "Yams": {
+                     "variants": [
+                        "Yam",
+                        { name: "White Yam", alii: ["Ghana Yam", "African Yam"] },
+                        { name: "Purple Yam", alii: ["Ube"] },
+                        { name: "Chinese Yam", alii: ["Cinnamon Vine"] }
+                     ]
+                  },
+               },
+            },
+         },
          "vegetables" : {
             "amaryllidaceae": {
                "allium": {
@@ -128,6 +148,7 @@ const ingredientHierarchy = {
                "solanum": { 
                   "Tomato": { "variants": ["Roma Tomato", "Cherry Tomato", "Canned Tomato", "Sun-dried Tomatoes"]},
                },
+
                "physalis": { 
                   "Tomatillo": { "variants": ["Tomatillo"]},
                },

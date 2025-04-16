@@ -1,8 +1,8 @@
 import { 
+  selectIngredientArchetypes,
   selectIngredientById,
   selectIngredientOptions,
   selectIngredientOptionsWithSeasonality,
-  selectIngredients
 } from '../outbound/ingredientRepository';
 import { ErrorKeys as CoreErrors } from "@errors/errors.types";
 import { handleServiceError } from "@errors";
@@ -30,7 +30,7 @@ export async function getIngredients(limit: number = 50, page: number = 0) {
     }
     console.log("hi")
     const offset = page * limit
-    const ingredients = await selectIngredients(limit, offset)
+    const ingredients = await selectIngredientArchetypes(limit, offset)
     return { success: true, data: ingredients}    
   } catch(error) {
       return handleServiceError(error)

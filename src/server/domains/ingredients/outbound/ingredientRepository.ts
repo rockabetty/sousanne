@@ -2,7 +2,7 @@ import { queryDbConnection } from "@postgres";
 import { handleDatabaseError } from "@errors"
 import { Ingredient } from "../ingredients.types";
 
-export async function selectIngredients ( 
+export async function selectIngredientArchetypes ( 
   limit: number = 50,
   offset: number = 0,): Promise<Ingredient[]> {
   try {
@@ -15,6 +15,7 @@ export async function selectIngredients (
       ingredients i
     JOIN
       ingredient_hierarchy ih ON ih.id = i.ingredient_hierarchy_id
+    WHERE archetype IS TRUE
     OFFSET $1
     LIMIT $2
     `;

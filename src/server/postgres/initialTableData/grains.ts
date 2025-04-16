@@ -3,7 +3,7 @@
 Almond flour would be under "grains.flours.gluten_free.tree_nuts" and semolina, spelt and AP flour would be under "grains.flours.gluten.wheat".   Masa harina under "grains.flours.gluten_free.hominy", and corn flour (since it's not nixtalmalized like masa) under "grains.flours.gluten_free.corn".   Same deal with corn meal vs grits: grits is "grains.meals.gluten_free.hominy" and corn meal "grains.meals.gluten_free.corn".
 
 */
-export default const: GrainsTableData = {
+const GrainsTableData = {
 	"grains": {
 		"doughs": {
 			"cassava": [
@@ -166,3 +166,5 @@ export default const: GrainsTableData = {
 		}
 	}
 }
+
+export default GrainsTableData
