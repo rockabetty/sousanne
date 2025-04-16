@@ -102,19 +102,7 @@ const NewProductPage = () => {
 		  labelText = "By item count"
 		  value="apiece"
 		/>
-
 		<FieldGroup inline={true}>
-
-		<TextInput
-		  labelText="Price"
-		  id="product_price"
-		  name="price"
-		  type="number"
-		  min={0}
-		  value={productData.price}
-		  size="sm"
-		/>
-
 		{productData.packageType != "apiece"
 		? (<>
 			{
@@ -162,10 +150,26 @@ const NewProductPage = () => {
 		</>)
 		: null
 		}
-		</FieldGroup>		
+		</FieldGroup>	
+
+		<TextInput
+		  labelText="Price"
+		  id="product_price"
+		  name="price"
+		  type="number"
+		  min={0}
+		  value={productData.price}
+		  size="sm"
+		/>	
 		
 		</Form>
 	)
 }
+
+/*
+TODO: 
+next, make a dropdown select that fetches available stores, so you can correspond prices to one or more stores.
+And allow for store creation if not found.
+*/
 
 export default NewProductPage

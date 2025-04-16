@@ -166,8 +166,9 @@ CREATE TABLE IF NOT EXISTS stores (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     address TEXT,
-    origin_id INT REFERENCES origins(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    zipcode INT, -- we'll worry bout something more advanced later
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_locations UNIQUE (address, zipcode)
 );
 
 
