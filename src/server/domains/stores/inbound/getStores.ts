@@ -1,5 +1,6 @@
 import { acceptGetOnly } from "@errors/methodgatekeeper"
 import { NextApiHandler, NextApiRequest, NextApiResponse } from "next"
+import { getStores } from "../core/storeService";
 
 const getStoresHandler = async (req: NextApiRequest, res: NextApiResponse) => {
     acceptGetOnly(req, res)
