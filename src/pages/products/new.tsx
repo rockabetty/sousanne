@@ -1,6 +1,6 @@
 import {useState} from 'react'
 import { Form, TextInput, Radio, Checkbox, DropdownSelect, FieldGroup } from 'el-cuc-ui';
-
+import IngredientSearchBar from '@components/ingredients/IngredientSearchBar';
 
 const NewProductPage = () => {
 	const defaults = {
@@ -52,15 +52,8 @@ const NewProductPage = () => {
 			submitLabel="Save"
 		>
 
-		<TextInput
-		  type="text"
-		  id="product_name"
-		  value={ingredientQuery}
-		  placeholderText="can of tuna"
-		  labelText="Ingredient"
-		  onChange={handleIngredientSearch}
-		  size="lg"
-		/>
+		<IngredientSearchBar />
+
 
 		<Radio
 		  onChange = {handleGeneralInput}

@@ -93,7 +93,10 @@ CREATE TABLE ingredient_hierarchy (
     edible_percentage DECIMAL (5,2) DEFAULT 100.0, -- e.g. chicken drumsticks have a bone in 'em, you can't eat it all.
     cooking_yield_percentage DECIMAL(5,2) DEFAULT 1.0, -- e.g. rice triples in size, so you buy 1 lb and can cook 3 lbs of it.
     description VARCHAR(512),
-    unit_id INT REFERENCES units(id) 
+    unit_id INT REFERENCES units(id),
+    no_room_temp_storage BOOLEAN,
+    no_refrigerated_storage BOOLEAN,
+    no_freezer_storage BOOLEAN
 );
 
 CREATE TABLE ingredients (
@@ -374,4 +377,4 @@ CREATE INDEX idx_ingredient_composition_contains ON ingredient_composition(conta
 CREATE INDEX idx_ingredient_seasonality_lookup ON ingredient_seasonality(region_id, month, status);
 
 -- for fuzzy searching - 
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS   pg_trgm;

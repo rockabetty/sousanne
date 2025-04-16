@@ -20,6 +20,8 @@
     ],
     "baseUrl": "src",
     "paths": {
+      "@components": ["./app/components"],
+      "@components/*": ["./app/components/*"],
       "@logger": ["./server/services/logger"],
       "@logger/*": ["./server/services/logger/*"],
       "@domains/*": ["./server/domains/*"],

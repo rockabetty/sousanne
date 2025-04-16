@@ -59,7 +59,7 @@ export async function selectIngredientArchetypes (
       ingredients i
     JOIN
       ingredient_hierarchy ih ON ih.id = i.ingredient_hierarchy_id
-    WHERE archetype IS TRUE
+    WHERE default_variant IS TRUE
     ORDER BY i.name ASC
     OFFSET $1
     LIMIT $2

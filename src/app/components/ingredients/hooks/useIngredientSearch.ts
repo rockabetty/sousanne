@@ -35,6 +35,21 @@ export function useIngredientSearch(
   const clearSuggestions = useCallback(() => {
     setSuggestions([]);
   }, []);
+
+  const getIngredientSuggestions = async (
+    searchQuery: string,
+  ) => {
+      axios.get(`/api/ingredients?search=${encodeURIComponent(searchQuery)}`)
+      .then((response) => {
+        const {data} = response;
+        setSuggestions(data)
+      })
+      .catch((error) => {
+        setError(error.error || "Couldn't find ingredients!")
+        setSuggestions([])
+      })
+      .finally(() => setLoading(false))
+  };
   
   useEffect(() => {
     if (!query.trim() || query.trim().length < minChars) {
@@ -46,25 +61,11 @@ export function useIngredientSearch(
     setError(null);
     
     const debounceTimeout = setTimeout(() => {
-      fetchIngredientSuggestions(query);
+      getIngredientSuggestions(query);
     }, debounceTime);
     
     return () => clearTimeout(debounceTimeout);
   }, [query, debounceTime, minChars]);
-  
-  const fetchIngredientSuggestions = async (
-    searchQuery: string,
-  ) => {
-      axios.get(`/api/ingredients?query=${encodeURIComponent(searchQuery)}`)
-      .then((response) => {
-        const {data} = response;
-      })
-      .catch((error) => {
-        setError(error.error || "Couldn't find ingredients!")
-        setSuggestions([])
-      })
-      .finally(() => setLoading(false))
-  };
   
   return {
     query,
