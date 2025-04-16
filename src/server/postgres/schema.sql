@@ -373,3 +373,5 @@ CREATE INDEX idx_ingredient_composition_contains ON ingredient_composition(conta
 -- For seasonality queries
 CREATE INDEX idx_ingredient_seasonality_lookup ON ingredient_seasonality(region_id, month, status);
 
+-- for fuzzy searching - 
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
