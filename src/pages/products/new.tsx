@@ -1,21 +1,60 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import { Form, TextInput, Radio, Checkbox, DropdownSelect, FieldGroup } from 'el-cuc-ui';
 import IngredientSearchBar from '@components/ingredients/IngredientSearchBar';
+import { Store } from '@domains/stores/stores.types';
+import axios from 'axios'
+
+type StorePrice = {
+	storeId: number;
+	price: number;
+}
+
+type ProductData = {
+	name?: string;
+	ingredient_id?: string;
+	packageType: "single" | "multiple" | "weight" | "apiece";
+	packageAmount?: number;
+	unitName: string;
+}
 
 const NewProductPage = () => {
-	const defaults = {
+	const productDefaults = {
 		name: "",
 		ingredient_id: "",
 		packageType: "single",
 		packageCount: undefined,
 		packageAmount: undefined,
-		unitType: "solid",
 		unitName: "oz",
-		price: 0.00
 	}
 
-	const [productData, setProductData] = useState(defaults)
-	const [isLoading, setIsLoading] = useState(false);
+	const priceDefaults = [
+		{ store_id: "", price: 0.00 }
+	]
+
+	useEffect(() => {
+		axios.get(`/api/stores`)
+		.then((storeList) => {
+			const storeOptions = []
+			console.log(storeList)
+			if (storeList.data) {
+				for (let store of storeList.data) {
+					console.log(store)
+					storeOptions.push({
+						labelText: store.name,
+						value: store.id
+					})
+				}
+			  setStores(storeOptions)	
+			}
+		}).catch((error) => {
+			console.error("No stores available due to error")
+		})
+	},[])
+
+	const [stores, setStores] = useState<Store[]>([])
+	const [productData, setProductData] = useState(productDefaults)
+	const [prices, setPrices] = useState<StorePrice[]>(priceDefaults)
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [ingredientQuery, setIngredientQuery] = useState<string>("")
 
 	const handleSelectIngredient = (event) => {
@@ -152,16 +191,31 @@ const NewProductPage = () => {
 		}
 		</FieldGroup>	
 
-		<TextInput
-		  labelText="Price"
-		  id="product_price"
-		  name="price"
-		  type="number"
-		  min={0}
-		  value={productData.price}
-		  size="sm"
-		/>	
-		
+		{prices.map((price) => {
+			return (
+				<FieldGroup inline={true}>
+					<TextInput
+					  labelText="Price"
+					  id="product_price"
+					  name="price"
+					  type="number"
+					  min={0}
+					  value={price.price}
+					  size="sm"
+					/>
+
+					<DropdownSelect
+				  	  name="store"
+					  id="price_found_at_store"
+					  labelText="Store"
+					  value={price.storeId}
+					  size="xl"
+					  options={stores}
+					/>
+				</FieldGroup>
+			)
+		})}
+
 		</Form>
 	)
 }
