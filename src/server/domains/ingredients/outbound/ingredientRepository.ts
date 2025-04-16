@@ -2,9 +2,9 @@ import { queryDbConnection } from "@postgres";
 import { handleDatabaseError } from "@errors"
 import { Ingredient } from "../ingredients.types";
 
-export async function getIngredients ( 
-  offset: number = 0,
-  limit: number = 50): Promise<Ingredient[]> {
+export async function selectIngredients ( 
+  limit: number = 50,
+  offset: number = 0,): Promise<Ingredient[]> {
   try {
     const query = `
     SELECT

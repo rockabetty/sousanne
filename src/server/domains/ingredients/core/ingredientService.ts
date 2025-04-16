@@ -1,9 +1,40 @@
-import { selectIngredientById, selectIngredientOptions, selectIngredientOptionsWithSeasonality } from '../outbound/ingredientRepository';
+import { 
+  selectIngredientById,
+  selectIngredientOptions,
+  selectIngredientOptionsWithSeasonality,
+  selectIngredients
+} from '../outbound/ingredientRepository';
 import { ErrorKeys as CoreErrors } from "@errors/errors.types";
 import { handleServiceError } from "@errors";
 import { acceptGetOnly } from "@errors/methodgatekeeper";
 import { ApiResponse } from '@errors/apiResponse.types';
 import { Ingredient } from '../ingredients.types';
+
+/**
+ * Retrieves a list of ingredient IDs, names, and paths. 
+ * Results are paginated.
+ * 
+ * @param limit - The max number of entries per page
+ * @param page - the 'page' that you should be on, e.g. page 2
+ * @returns a promise resolving to a standardized API response with an array
+ *          of ingredient IDs, names, and path strings if successful. An error
+ *          response if not successful.
+ */
+export async function getIngredients(limit: number, page: number) {
+  try {
+    if (isNaN(limit) || isNaN(page)) {
+      return {
+        success: false,
+        error: CoreErrors.INVALID_REQUEST
+      }
+    }
+    const offset = page * limit
+    const ingredients = await selectIngredients(limit, offset)
+    return { success: true, data: ingredients}    
+  } catch(error) {
+      return handleServiceError(error)
+  }
+}
 
 /**
  * Retrieves available ingredient options for a given, ingredient ID.
