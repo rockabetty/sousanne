@@ -6,7 +6,6 @@ import {
 } from '../outbound/ingredientRepository';
 import { ErrorKeys as CoreErrors } from "@errors/errors.types";
 import { handleServiceError } from "@errors";
-import { acceptGetOnly } from "@errors/methodgatekeeper";
 import { ApiResponse } from '@errors/apiResponse.types';
 import { Ingredient } from '../ingredients.types';
 
@@ -28,7 +27,6 @@ export async function getIngredients(limit: number = 50, page: number = 0) {
         error: CoreErrors.INVALID_REQUEST
       }
     }
-    console.log("hi")
     const offset = page * limit
     const ingredients = await selectIngredientArchetypes(limit, offset)
     return { success: true, data: ingredients}    

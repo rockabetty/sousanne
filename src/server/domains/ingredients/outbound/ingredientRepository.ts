@@ -16,6 +16,7 @@ export async function selectIngredientArchetypes (
     JOIN
       ingredient_hierarchy ih ON ih.id = i.ingredient_hierarchy_id
     WHERE archetype IS TRUE
+    ORDER BY i.name ASC
     OFFSET $1
     LIMIT $2
     `;
@@ -66,6 +67,7 @@ export async function selectIngredientOptions(ingredientId: number): Promise<Ing
 
 export async function selectIngredientById(id: number): Promise<Ingredient> {
   try {
+    console.log(id)
     const query = `
     SELECT 
       i.id,

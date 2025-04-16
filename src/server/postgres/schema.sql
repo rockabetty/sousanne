@@ -76,9 +76,9 @@ CREATE TABLE ingredient_hierarchy (
     id SERIAL PRIMARY KEY,
     path ltree,
     -- shelf life is measured in days
-    shelf_life_room_temp_whole INT,
+    shelf_life_room_temp_sealed INT,
     shelf_life_room_temp_open INT,
-    shelf_life_refrigerated_opened INT,
+    shelf_life_refrigerated_open INT,
     shelf_life_refrigerated_sealed INT,
     shelf_life_frozen INT,
     /* 
@@ -88,7 +88,7 @@ CREATE TABLE ingredient_hierarchy (
       we will use how much a cup of X weighs to figure out how much you're rid of.
       With produce items e.g. onions, peppers, the avg. weight of one is for 
     */
-    weight_of_one_diced_cup DECIMAL(5,2),
+    cup_weight DECIMAL(5,2),
     average_weight DECIMAL(5,2),
     edible_percentage DECIMAL (5,2) DEFAULT 100.0, -- e.g. chicken drumsticks have a bone in 'em, you can't eat it all.
     cooking_yield_percentage DECIMAL(5,2) DEFAULT 1.0, -- e.g. rice triples in size, so you buy 1 lb and can cook 3 lbs of it.
