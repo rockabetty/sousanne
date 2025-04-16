@@ -1,8 +1,17 @@
 import React from 'react';
-import { TextInput } from 'el-cuc-ui'
+import { TextInput, Radio } from 'el-cuc-ui'
 import { useIngredientSearch } from "./hooks/useIngredientSearch";
+import { Ingredient } from '@domains/ingredients/ingredients.types';
 
-const IngredientSearchBar = function () {
+type IngredientSearchProps = {
+  onSelect: (event) => {};
+  selection: number;
+}
+
+
+
+const IngredientSearchBar = function (props: IngredientSearchProps) {
+  const {onSelect, selection} = props
   const {query, setQuery, suggestions} = useIngredientSearch();
 
   const handleSearch = (event) => {
@@ -22,13 +31,28 @@ const IngredientSearchBar = function () {
         size="lg"
       />
 
-      <ul>
+      {suggestions.length > 0 ? (
+        <fieldset>
+      <legend>Select an ingredient...</legend>
+
         {suggestions.map((suggestion) => {
           return (
-            <li key={`ingredient_result_${suggestion.id}`}>{suggestion.name}</li>
+            <Radio
+              labelText={suggestion.name}
+              onChange={onSelect}
+              value={suggestion.id}
+              name="selected_ingredient_search_result"
+              id={`ingredient_id_${suggestion.id}`}
+              checked={selection == suggestion.id}
+              key={`ingredient_result_${suggestion.id}`}/>
             )
         })}
-      </ul>
+
+        </fieldset>
+        
+        ) : null}
+
+
       </>
     )
 }

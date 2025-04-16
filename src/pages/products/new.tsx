@@ -5,6 +5,7 @@ import IngredientSearchBar from '@components/ingredients/IngredientSearchBar';
 const NewProductPage = () => {
 	const defaults = {
 		name: "",
+		ingredient_id: "",
 		packageType: "single",
 		packageCount: undefined,
 		packageAmount: undefined,
@@ -16,6 +17,14 @@ const NewProductPage = () => {
 	const [productData, setProductData] = useState(defaults)
 	const [isLoading, setIsLoading] = useState(false);
 	const [ingredientQuery, setIngredientQuery] = useState<string>("")
+
+	const handleSelectIngredient = (event) => {
+		console.log("onselect is running!")
+		console.log(event.target)
+		const {value} = event.target;
+		console.log("I found " + value)
+		setProductData({ ...productData, ingredient_id: value })
+	}
 
 	const togglePackaged = () => {
 		const packaged = !productData.packaged
@@ -52,7 +61,10 @@ const NewProductPage = () => {
 			submitLabel="Save"
 		>
 
-		<IngredientSearchBar />
+		<IngredientSearchBar
+		  selection={productData.ingredient_id}
+		  onSelect={handleSelectIngredient}
+		/>
 
 
 		<Radio
