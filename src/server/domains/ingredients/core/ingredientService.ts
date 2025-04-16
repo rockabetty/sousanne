@@ -1,4 +1,5 @@
 import { 
+    queryIngredientsByName,
   selectIngredientArchetypes,
   selectIngredientById,
   selectIngredientOptions,
@@ -8,6 +9,39 @@ import { ErrorKeys as CoreErrors } from "@errors/errors.types";
 import { handleServiceError } from "@errors";
 import { ApiResponse } from '@errors/apiResponse.types';
 import { Ingredient } from '../ingredients.types';
+
+/**
+ * Retrieves a list of ingredient IDs, names, and paths matching a query. 
+ * Results are paginated.
+ * 
+ * @param query - the search string, e.g. "banana"
+ * @param limit - The max number of entries per page
+ * @param page - the 'page' that you should be on, e.g. page 2
+ * @returns a promise resolving to a standardized API response with an array
+ *          of ingredient IDs, names, and path strings if successful. An error
+ *          response if not successful.
+ */
+export async function searchIngredients(query: string = "", limit: number = 10, page: number = 0) {
+  try {
+    if (!query) {
+      return {
+        success: false,
+        error: CoreErrors.INVALID_REQUEST
+      }
+    }
+    if (isNaN(limit) || isNaN(page)) {
+      return {
+        success: false,
+        error: CoreErrors.INVALID_REQUEST
+      }
+    }
+    const offset = page * limit
+    const ingredients = await queryIngredientsByName(query, limit, offset)
+    return { success: true, data: ingredients}    
+  } catch(error) {
+      return handleServiceError(error)
+  }
+}
 
 /**
  * Retrieves a list of ingredient IDs, names, and paths. 

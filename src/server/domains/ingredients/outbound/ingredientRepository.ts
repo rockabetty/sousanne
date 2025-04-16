@@ -2,7 +2,11 @@ import { queryDbConnection } from "@postgres";
 import { handleDatabaseError } from "@errors"
 import { Ingredient } from "../ingredients.types";
 
-export async function selectIngredientsByName (name: string): Promise<Ingredient[]> {
+export async function queryIngredientsByName (
+  name: string,
+  offset: number = 0,
+  limit: number = 10
+): Promise<Ingredient[]> {
   try {
     const query =`
     SELECT
@@ -22,12 +26,16 @@ export async function selectIngredientsByName (name: string): Promise<Ingredient
         ELSE 2                     -- Contains query
       END,
       name ASC
+    OFFSET $3
+    LIMIT $4
     `;
 
     const values = [
       `%${query}%`,    // general LIKE match
       `${query}`,      // exact match
-      `${query}%`      // "starts with"
+      `${query}%`,     // "starts with"
+      offset,
+      limit
     ];
     
     const queryResult = await queryDbConnection(query,values);
