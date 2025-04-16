@@ -2,6 +2,42 @@ import { queryDbConnection } from "@postgres";
 import { handleDatabaseError } from "@errors"
 import { Ingredient } from "../ingredients.types";
 
+export async function selectIngredientsByName (name: string): Promise<Ingredient[]> {
+  try {
+    const query =`
+    SELECT
+      i.id,
+      i.name,
+      ih.path
+    FROM
+      ingredients i
+    JOIN
+      ingredient_hierarchy ih ON ih.id = i.ingredient_hierarchy_id
+    WHERE
+      i.name ILIKE $1
+    ORDER BY
+      CASE
+        WHEN name ILIKE $2 THEN 0  -- Exact match
+        WHEN name ILIKE $3 THEN 1  -- Starts with query
+        ELSE 2                     -- Contains query
+      END,
+      name ASC
+    `;
+
+    const values = [
+      `%${query}%`,    // general LIKE match
+      `${query}`,      // exact match
+      `${query}%`      // "starts with"
+    ];
+    
+    const queryResult = await queryDbConnection(query,values);
+    return queryResult.rows;
+
+  } catch (error) {
+    handleDatabaseError(error)
+  }
+}
+
 export async function selectIngredientArchetypes ( 
   limit: number = 50,
   offset: number = 0,): Promise<Ingredient[]> {
