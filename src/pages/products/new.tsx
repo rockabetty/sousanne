@@ -14,10 +14,17 @@ const NewProductPage = () => {
 	}
 
 	const [productData, setProductData] = useState(defaults)
+	const [isLoading, setIsLoading] = useState(false);
+	const [ingredientQuery, setIngredientQuery] = useState<string>("")
 
 	const togglePackaged = () => {
 		const packaged = !productData.packaged
 		setProductData({...productData, packaged })
+	}
+
+	const handleIngredientSearch = (event) => {
+		const {value} = event.target
+		setIngredientQuery(value)
 	}
 
 	const handleGeneralInput = (event) => {
@@ -27,29 +34,18 @@ const NewProductPage = () => {
 		setProductData(update)
 	}
 
-	const unitNames = {
-		"solid": [
-			{ labelText: "Gram", value: "g" },
-			{ labelText: "Kilogram", value: "kg" },
-			{ labelText: "Ounce", value: "oz" },
-			{ labelText: "Pound", value: "lb" }
-			
-		],
-		"liquid": [
-			{ labelText: "Fluid ounce", value: "fl-oz" },
-			{ labelText: "Gallon", value: "gal" },
-			{ labelText: "Liter", value: "l" },
-			{ labelText: "Milliliter", value: "ml" },
-			{ labelText: "Pint", value: "pt" },
-			{ labelText: "Quart", value: "qt" }
-		],
-		"size": [
-			{ labelText: "Foot", value: "ft"},
-			{ labelText: "Meter", value: "m"},
-			{ labelText: "Square foot", value: "sq-ft"},
-			{ labelText: "Square meter", value: "sq-m"}
-		],
-	}
+	const unitNames = [
+		{ labelText: "Ounce", value: "oz" },
+		{ labelText: "Fluid ounce", value: "fl-oz" },
+		{ labelText: "Gram", value: "g" },
+		{ labelText: "Kilogram", value: "kg" },
+		{ labelText: "Pound", value: "lb" },
+		{ labelText: "Gallon", value: "gal" },
+		{ labelText: "Liter", value: "l" },
+		{ labelText: "Milliliter", value: "ml" },
+		{ labelText: "Pint", value: "pt" },
+		{ labelText: "Quart", value: "qt" }
+	]
 
 	return (
 		<Form
@@ -59,10 +55,10 @@ const NewProductPage = () => {
 		<TextInput
 		  type="text"
 		  id="product_name"
-		  value={productData.name}
+		  value={ingredientQuery}
 		  placeholderText="can of tuna"
 		  labelText="Ingredient"
-		  onChange={handleGeneralInput}
+		  onChange={handleIngredientSearch}
 		  size="lg"
 		/>
 
@@ -154,7 +150,7 @@ const NewProductPage = () => {
 				id="unit_name_selector"
 			    labelText="Unit"
 				value={productData?.unitName}
-				options={unitNames[productData.unitType]}
+				options={unitNames}
 				onChange={handleGeneralInput}
 				size="md"
 			/>
@@ -162,51 +158,9 @@ const NewProductPage = () => {
 		: null
 		}
 		</FieldGroup>		
-		<Radio
-			  onChange = {handleGeneralInput}
-			  id="unit_type_solid"
-			  name="unitType"
-			  checked={productData?.unitType == "solid"}
-			  labelText = "By weight"
-			  value="solid"
-			/>
-			<Radio
-			  onChange = {handleGeneralInput}
-			  id="unit_type_liquid"
-			  name="unitType"
-			  checked={productData?.unitType == "liquid"}
-			  labelText = "By volume"
-			  value="liquid"
-			/>
-			<Radio
-			  onChange = {handleGeneralInput}
-			  id="unit_type_size"
-			  name="unitType"
-			  checked={productData?.unitType == "size"}
-			  labelText = "By size"
-			  value="size"
-			/>
+		
 		</Form>
 	)
 }
 
 export default NewProductPage
-
-/*
-CREATE TABLE IF NOT EXISTS product_templates (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    ingredient_id INT REFERENCES ingredients(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    -- ounces, pounds, grams, millilitres, etc.
-    unit_id INT REFERENCES units(id),
-    -- for comparison purposes, the smallest amount this product can be divided into
-    base_quantity INT DEFAULT 1,
-    -- when false, the item is sold by the unit (e.g. per pound)
-    packaged_item BOOLEAN default FALSE,
-    -- the number of packages in the product.  The 4-pack of tuna cans would be '4', a half gallon of whole milk would be '1'
-    package_count INT,
-    -- the quantity of each package for displaying to the user; 4-pack of tuna cans would be '5', half gallon of milk would be '64' (ounces)
-    display_quantity INT
-);
-*/

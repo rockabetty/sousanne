@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Link } from 'el-cuc-ui';
 const IngredientList = () => {
     const [error, setError] = useState<string>("")
-    const [ingredients, setIngredients] = useState<>([])
+    const [ingredients, setIngredients] = useState([])
         
     useEffect(() => {
         axios.get('/api/ingredients')
