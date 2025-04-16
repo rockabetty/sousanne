@@ -20,7 +20,7 @@ import { Ingredient } from '../ingredients.types';
  *          of ingredient IDs, names, and path strings if successful. An error
  *          response if not successful.
  */
-export async function getIngredients(limit: number, page: number) {
+export async function getIngredients(limit: number = 50, page: number = 0) {
   try {
     if (isNaN(limit) || isNaN(page)) {
       return {
@@ -28,6 +28,7 @@ export async function getIngredients(limit: number, page: number) {
         error: CoreErrors.INVALID_REQUEST
       }
     }
+    console.log("hi")
     const offset = page * limit
     const ingredients = await selectIngredients(limit, offset)
     return { success: true, data: ingredients}    

@@ -7,16 +7,17 @@ import { ErrorKeys } from "@errors/errors.types";
 const handler: NextApiHandler = async (req, res) => {
   try {
     acceptGetOnly(req, res);
-    const {limit, page} = req.params;
+    const {limit, page} = req.query;
 
-    if (isNaN(limit) || isNaN(page)) {
-      return sendErrorResponse(res, ErrorKeys.INVALID_REQUEST);
+    const parsedLimit = !!limit ? Number(limit) : undefined;
+    const parsedPage = !!page ? Number(page): undefined;
+
+    const ingredients = await getIngredients(parsedLimit, parsedPage);
+  
+    if (!ingredients.success) {
+      return sendErrorResponse(res, ingredients.error)
     }
-    const ingredients = await getIngredients(limit, page);
-    if (!ingredient.success) {
-      return sendErrorResponse(res, ingredient.error)
-    }
-    return res.status(200).send(ingredient.data)
+    return res.status(200).send(ingredients.data)
     
   } catch (error) {
     return sendErrorResponse(res, error);
