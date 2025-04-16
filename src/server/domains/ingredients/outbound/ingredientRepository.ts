@@ -3,7 +3,7 @@ import { handleDatabaseError } from "@errors"
 import { Ingredient } from "../ingredients.types";
 
 export async function queryIngredientsByName (
-  name: string,
+  searchString: string,
   offset: number = 0,
   limit: number = 10
 ): Promise<Ingredient[]> {
@@ -21,19 +21,19 @@ export async function queryIngredientsByName (
       i.name ILIKE $1
     ORDER BY
       CASE
-        WHEN name ILIKE $2 THEN 0  -- Exact match
-        WHEN name ILIKE $3 THEN 1  -- Starts with query
-        ELSE 2                     -- Contains query
+        WHEN i.name ILIKE $2 THEN 0
+        WHEN i.name ILIKE $3 THEN 1
+        ELSE 2
       END,
-      name ASC
-    OFFSET $3
-    LIMIT $4
+      i.name ASC
+    OFFSET $4
+    LIMIT $5
     `;
 
     const values = [
-      `%${query}%`,    // general LIKE match
-      `${query}`,      // exact match
-      `${query}%`,     // "starts with"
+      `%${searchString}%`,    // general LIKE match
+      `${searchString}`,      // exact match
+      `${searchString}%`,     // "starts with"
       offset,
       limit
     ];

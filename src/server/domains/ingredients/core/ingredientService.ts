@@ -21,9 +21,9 @@ import { Ingredient } from '../ingredients.types';
  *          of ingredient IDs, names, and path strings if successful. An error
  *          response if not successful.
  */
-export async function searchIngredients(query: string = "", limit: number = 10, page: number = 0) {
+export async function searchIngredients(unsafeQuery: string = "", limit: number = 10, page: number = 0) {
   try {
-    if (!query) {
+    if (!unsafeQuery) {
       return {
         success: false,
         error: CoreErrors.INVALID_REQUEST
@@ -35,8 +35,9 @@ export async function searchIngredients(query: string = "", limit: number = 10, 
         error: CoreErrors.INVALID_REQUEST
       }
     }
-    const offset = page * limit
-    const ingredients = await queryIngredientsByName(query, limit, offset)
+    const offset = page * limit;
+    const query = unsafeQuery.replace(/[^0-9a-zA-Z]/g, '');
+    const ingredients = await queryIngredientsByName(query, offset, limit)
     return { success: true, data: ingredients}    
   } catch(error) {
       return handleServiceError(error)
