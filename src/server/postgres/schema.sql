@@ -186,7 +186,8 @@ CREATE TABLE IF NOT EXISTS product_templates (
     -- the number of packages in the product.  The 4-pack of tuna cans would be '4', a half gallon of whole milk would be '1'
     package_count INT,
     -- the quantity of each package for displaying to the user; 4-pack of tuna cans would be '5', half gallon of milk would be '64' (ounces)
-    display_quantity INT
+    display_quantity INT,
+    CONSTRAINT unique_product_templates UNIQUE (ingredient_id, unit_id, packaged_item, package_count, display_quantity)
 );
 
 -- Brands are vendors like "Niman Ranch", "Sarah Lee"
@@ -352,19 +353,28 @@ CREATE TYPE storage_type AS ENUM (
     'SHELF_OPEN', -- sliced produced counts as 'open'
     'REFRIGERATED_SEALED',
     'REFRIGERATED_OPEN', -- sliced produced counts as 'open'
-    'FROZEN',
+    'FROZEN_SEALED',
+    'FROZEN_OPEN'
     'EXPIRED',
     'CONSUMED'
 );
 
-CREATE TABLE IF NOT EXISTS pantries (
+/*
+If for some reason you need to add constraints to this table
+keep in mind you should be able to put multiple instances of the
+exact same ingredient in the same user's pantry, e.g. "I bought
+2 lbs of chicken on Monday" and, as a separate record, "I bought
+1 lb of chicken on Friday".
+*/
+CREATE TABLE IF NOT EXISTS pantry_items (
+    id SERIAL PRIMARY KEY,
     user_id INT NOT NULL REFERENCES users(id),
     ingredient_id INT NOT NULL REFERENCES ingredients(id),
     purchased_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status storage_type,
+    status storage_type NOT NULL DEFAULT "SHELF_SEALED"
     amount_purchased DECIMAL(10,2) NOT NULL DEFAULT 1.0,
     amount_consumed DECIMAL(10,2) NOT NULL DEFAULT 0.0,
-    expires_on TIMESTAMP
+    expires_on TIMESTAMP NOT NULL
 );
 
 -- For hierarchy operations using ltree

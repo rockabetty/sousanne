@@ -12,7 +12,7 @@ import { collapseRepeatIngredients } from "../core/conversionService";
 const _buildPracticalExclusions = function(excludeFrozen) {
   const excludedStatuses = ['EXPIRED', 'CONSUMED'];
     if (!!excludeFrozen) {
-      excludedStatuses.push('FROZEN');
+      excludedStatuses.push('FROZEN_SEALED', 'FROZEN_OPEN');
     }
   return excludedStatuses.map(s => `'${s}'`).join(', ')
 }
@@ -37,18 +37,20 @@ export async function selectAvailableAmountInPantry(
 ): Promise<PantryIngredient[] | null> {
   try {
     const excludedStatuses = _buildPracticalExclusions(excludeFrozen);
-    const query = `SELECT 
-      ingredient_id,
-      amount_purchased - amount_consumed as pantry_amount
-    FROM pantries
+    const query = `
+    SELECT
+      ingredient_id as id,
+      SUM(amount_purchased - amount_consumed) as amount
+    FROM pantry_items
     WHERE
-      user_id = $1 AND 
-      ingredient_id = ANY($2) AND 
-      amount_purchased - amount_consumed > 0 AND
-      (status IS NULL OR status NOT IN (${excludedStatuses}))`;
+      user_id = $1 AND
+      ingredient_id = ANY($2) AND
+      status NOT IN (${excludedStatuses})
+    GROUP BY ingredient_id`;
+    
     const values = [user_id, ingredientIds];
-    const queryResult = await queryDbConnection(query, values)
-    return queryResult.rows 
+    const queryResult = await queryDbConnection(query, values);
+    return queryResult.rows;
   } catch (error) {
     handleDatabaseError(error);
   }
@@ -79,7 +81,7 @@ const confirmItemsAreAvailableInPantry = async function (
     const excludedStatuses = _buildPracticalExclusions(excludeFrozen);
     const query = `SELECT 
       count(1) 
-      FROM pantries
+      FROM pantry_items
       WHERE 
         user_id = $1 AND 
         ingredient_id = ANY($2) AND
@@ -119,7 +121,7 @@ const confirmQuantitiesAreAvailableInPantry = async function (
         ingredient_id, 
         SUM(amount_purchased - amount_consumed) as available_amount
       FROM 
-        pantries 
+        pantry_items 
       WHERE 
         user_id = $1 
         AND ingredient_id = ANY($2)

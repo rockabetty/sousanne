@@ -21,28 +21,25 @@ DECLARE
   v_consume_amount DECIMAL;
   rec RECORD;
 BEGIN
-  -- Process each pantry item in order of expiration
+  -- this is processing things in order of expiration see line 36
   FOR rec IN (
     SELECT 
       id,
       amount_purchased,
       amount_consumed,
       (amount_purchased - amount_consumed) AS available_amount
-    FROM pantries
+    FROM pantry_items
     WHERE user_id = p_user_id 
       AND ingredient_id = p_ingredient_id
       AND status NOT IN ('CONSUMED', 'EXPIRED')
-      AND (NOT p_exclude_frozen OR status != 'FROZEN')
+      AND (NOT p_exclude_frozen OR status NOT IN ('FROZEN', 'FROZEN_OPEN', 'FROZEN_SEALED'))  -- Updated to handle new status values
     ORDER BY expires_on ASC NULLS LAST
   ) LOOP
-    -- Skip if we've already consumed everything we need
     EXIT WHEN v_remaining_needed <= 0;
     
-    -- Take either what's available or what's still needed, whichever is less
     v_consume_amount := LEAST(rec.available_amount, v_remaining_needed);
     
-    -- Update this pantry item
-    UPDATE pantries
+    UPDATE pantry_items  
     SET 
       amount_consumed = amount_consumed + v_consume_amount,
       status = CASE 
@@ -52,16 +49,16 @@ BEGIN
           THEN 'SHELF_OPEN'::storage_type
         WHEN status = 'REFRIGERATED_SEALED'
           THEN 'REFRIGERATED_OPEN'::storage_type
+        WHEN status = 'FROZEN_SEALED'
+          THEN 'FROZEN_OPEN'::storage_type
         ELSE status
       END
     WHERE id = rec.id;
     
-    -- Reduce the remaining amount needed
     v_remaining_needed := v_remaining_needed - v_consume_amount;
   END LOOP;
 END;
 $$ LANGUAGE plpgsql;
-
 
 /*
   Function to update expiration dates of pantry items! It's triggered
@@ -72,16 +69,16 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION update_pantry_expiration()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- Check if status changed in a way that would affect expiration
   IF (OLD.status = 'SHELF_SEALED' AND NEW.status = 'SHELF_OPEN') OR
-     (OLD.status != 'FROZEN' AND NEW.status = 'FROZEN') OR
-     (OLD.status = 'FROZEN' AND NEW.status != 'FROZEN') OR
-     (OLD.status = 'REFRIGERATED_SEALED' AND NEW.status = 'REFRIGERATED_OPEN') THEN
+     (OLD.status = 'REFRIGERATED_SEALED' AND NEW.status = 'REFRIGERATED_OPEN') OR
+     (OLD.status = 'FROZEN_SEALED' AND NEW.status = 'FROZEN_OPEN') OR
+     (OLD.status NOT LIKE 'FROZEN%' AND NEW.status LIKE 'FROZEN%') OR
+     (OLD.status LIKE 'FROZEN%' AND NEW.status NOT LIKE 'FROZEN%') THEN
     
     -- This joins to ingredient_hierarchy to get the shelf life data
-    UPDATE pantries
+    UPDATE pantry_items
     SET expires_on = CASE
-        WHEN NEW.status = 'FROZEN' THEN
+        WHEN NEW.status IN ('FROZEN', 'FROZEN_SEALED', 'FROZEN_OPEN') THEN
           NEW.purchased_on + (ih.shelf_life_frozen * INTERVAL '1 day') 
         WHEN NEW.status = 'SHELF_OPEN' THEN 
           NEW.purchased_on + (ih.shelf_life_room_temp_open * INTERVAL '1 day')
@@ -92,11 +89,11 @@ BEGIN
         WHEN NEW.status = 'REFRIGERATED_SEALED' THEN
           NEW.purchased_on + (ih.shelf_life_refrigerated_sealed * INTERVAL '1 day')
         ELSE
-          NEW.expires_on -- Keep current expiration if status is something else
+          NEW.expires_on 
       END
     FROM ingredients i
     JOIN ingredient_hierarchy ih ON i.ingredient_hierarchy_id = ih.id
-    WHERE pantries.id = NEW.id AND i.id = NEW.ingredient_id;
+    WHERE pantry_items.id = NEW.id AND i.id = NEW.ingredient_id;
   END IF;
   
   RETURN NEW;
@@ -104,7 +101,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER pantry_status_change_trigger
-AFTER UPDATE OF status ON pantries
+AFTER UPDATE OF status ON pantry_items
 FOR EACH ROW
 WHEN (OLD.status IS DISTINCT FROM NEW.status)
 EXECUTE FUNCTION update_pantry_expiration();
