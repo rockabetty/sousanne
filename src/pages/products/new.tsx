@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import { Form, TextInput, Radio, Checkbox, DropdownSelect, FieldGroup } from 'el-cuc-ui';
+import { Form, TextInput, Radio, Button, Badge, DropdownSelect, FieldGroup } from 'el-cuc-ui';
 import IngredientSearchBar from '@components/ingredients/IngredientSearchBar';
 import { Store } from '@domains/stores/stores.types';
 import axios from 'axios'
@@ -18,6 +18,27 @@ type ProductData = {
 }
 
 const NewProductPage = () => {
+
+  const toggleAddNewStore = () => {
+  	setAddStore(!addStore)
+  }
+
+  const priceDefaults = [
+    { store_id: "", price: 0.00 },
+  ]
+
+  const addPrice = () => {
+  	setPrices([...prices, ...priceDefaults])
+  }
+  const removePrice = (event) => {
+  	const {id} = event.target
+  	const priceIndex = id.charAt(id.length - 1)
+  	console.log(priceIndex)
+  	const update = [...prices]
+  	update.splice(priceIndex, 1)
+  	setPrices(update)
+  }
+
   const productDefaults = {
     name: "",
     ingredient_id: "",
@@ -35,9 +56,6 @@ const NewProductPage = () => {
   	state: "CA",
   }
 
-  const priceDefaults = [
-    { store_id: "", price: 0.00 },
-  ]
 
   useEffect(() => {
     axios.get(`/api/stores`)
@@ -245,22 +263,9 @@ const NewProductPage = () => {
             onChange={handlePriceInput}
           />
 
-          <DropdownSelect
-            name="store"
-            id={`price_store_${idx}`}
-            labelText="Store"
-            value={price.storeId}
-            size="xl"
-            options={stores}
-            onChange={handleStoreSelection}
-          />
-        </FieldGroup>
-      )
-    })}
-
-    {}
-
-    <FieldGroup inline={true}>
+        {addStore 
+    ? (
+    	<FieldGroup inline={true}>
 
 	    <TextInput
 	      labelText="Store name"
@@ -289,16 +294,51 @@ const NewProductPage = () => {
 	      onChange={handleNewStoreInput}
 	    />
 
+	    <Badge
+	      labelText="add store"
+	      icon="add"
+	     />
+	    <Badge
+	      labelText="add store"
+	      icon="close"
+	      onClick={toggleAddNewStore}
+	    />
 	</FieldGroup>
+    )
+	: (<div>
+		<DropdownSelect
+            name="store"
+            id={`price_store_${idx}`}
+            labelText="Store"
+            value={price.storeId}
+            size="xl"
+            options={stores}
+            onChange={handleStoreSelection}
+          />
+        <Badge
+	      labelText="add store"
+	      icon="close"
+	      id={`remove_price_${idx}`}
+	      onClick={removePrice}
+	    />
+        </div>)
+     }
+        </FieldGroup>
+      )
+    })}
 
+    <Button
+      inline="true"
+      id="button-prices-add"
+      type="button"
+      onClick={addPrice}
+    >Add price</Button>
+
+    
     </Form>
   )
 }
 
-/*
-TODO: 
-next, make a dropdown select that fetches available stores, so you can correspond prices to one or more stores.
-And allow for store creation if not found.
-*/
+
 
 export default NewProductPage

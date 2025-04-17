@@ -269,6 +269,70 @@ const ingredientHierarchy = {
             },
          },
 
+         "dairy": {
+            "Sour Cream": { "variants": ["Sour Cream"] },
+            "Kefir": {"variants": ["Kefir"]},
+            "Buttermilk": {"variants": ["Buttermilk"]},
+            "Heavy Cream": {"variants": ["Heavy Cream"]},
+            "cheeses": { 
+               "fresh_and_creamy": {
+                  "soft_fresh": {
+                     "variants": ["Ricotta", "Mascarpone", "Cottage Cheese", "Quark", "Queso Fresco", "Unaged Cotija", "Queso Blanco"]
+                  },
+                  "moist_melty": {
+                     "variants": ["Mozzarella", "Burrata", "Stracciatella", "Halloumi", "Oaxaca", "Asadero"]
+                  },
+                  "spreadable": { 
+                     "variants": ["Cream Cheese", "Neufchâtel", "Boursin", "Fromage Blanc"]
+                  },
+               },
+               "soft_and_rind_ripened": {
+                  "bloomy_rind": {
+                     "variants": ["Brie", "Camembert", "Triple Cream Cheese", "Coulommiers"]
+                  },
+                  "washed_rind": { 
+                     "variants": ["Muenster (French)", "Taleggio", "Limburger", "Epoisses"]
+                  }
+               },
+               "semi_soft_and_meltable": { 
+                  "buttery_melters": {
+                     "variants": ["Havarti", "Fontina", "Monterey Jack", "Muenster (American)"]
+                  },
+                  "stinky_and_pungent": {
+                     "variants": ["Reblochon", "Raclette", "Morbier", "Munster (Alsatian)"]
+                  }
+               },
+               "semi_firm_and_sliceable": { 
+                  "mild_and_nutty": {
+                     "variants": ["Gouda", "Edam", "Emmentaler", "Jarlsberg", "Swiss", "Butterkäse"]
+                  },
+                  "sharp_and_tangy": {
+                     "variants": ["Cheddar", "Colby", "Provolone", "Cantal"]
+                  }
+               },
+               "hard_aged_and_grating": { 
+                  "dry_and_savory": { 
+                     "variants": [ 
+                        { name: "Parmigiano Reggiano", alii: ["Parmesan"] },
+                         "Grana Padano",
+                         "Pecorino Romano",
+                         "Asiago"
+                        ],
+                  },
+                  "crumbly_and_salting": {
+                     "variants": ["Cotija (Aged)", "Feta", "Blue Stilton", "Gorgonzola"]
+                  }
+               },
+               "bold_and_funky": { 
+                  "blue_veined": {
+                     "variants": ["Roquefort", "Gorgonzola", "Danish Blue", "Cambozola"]
+                  },
+                  "smoked_and_intense": { 
+                     "variants": ["Smoked Gouda", "Smoked Cheddar", "Scamorza Affumicata"]
+                  }
+               }
+            },
+         }
       },
 
       "drinks": {
@@ -283,7 +347,7 @@ const ingredientHierarchy = {
          },
       },
 
-      "pickled_foods": { 
+      "pickled_foods": {
          "produce": { 
             "cucurbitaceae": { 
                "cucumis": { 
@@ -297,71 +361,12 @@ const ingredientHierarchy = {
             },
             "brassicaceae": {
                "brassica": { 
-                  "Cabbage": ["Sauerkraut"]},
+                  "Cabbage": { variants: ["Sauerkraut"]},
                },
             },
-         },
+         }
       },
 
-      "dairy": {
-         "Sour Cream": { "variants": ["Sour Cream"] },
-         "Kefir": {"variants": ["Kefir"]},
-         "Buttermilk": {"variants": ["Buttermilk"]},
-         "Heavy Cream": {"variants": ["Heavy Cream"]},
-         "cheeses": { 
-            "fresh_and_creamy": {
-               "soft_fresh": {
-                  "variants": ["Ricotta", "Mascarpone", "Cottage Cheese", "Quark", "Queso Fresco", "Unaged Cotija", "Queso Blanco"]
-               },
-               "moist_melty": {
-                  "variants": ["Mozzarella", "Burrata", "Stracciatella", "Halloumi", "Oaxaca", "Asadero"]
-               },
-               "spreadable": { 
-                  "variants": ["Cream Cheese", "Neufchâtel", "Boursin", "Fromage Blanc"]
-               },
-            },
-            "soft_and_rind_ripened": {
-               "bloomy_rind": {
-                  "variants": ["Brie", "Camembert", "Triple Cream Cheese", "Coulommiers"]
-               },
-               "washed_rind": { 
-                  "variants": ["Muenster (French)", "Taleggio", "Limburger", "Epoisses"]
-               }
-            },
-            "semi_soft_and_meltable": { 
-               "buttery_melters": {
-                  "variants": ["Havarti", "Fontina", "Monterey Jack", "Muenster (American)"]
-               },
-               "stinky_and_pungent": {
-                  "variants": ["Reblochon", "Raclette", "Morbier", "Munster (Alsatian)"]
-               }
-            },
-            "semi_firm_and_sliceable": { 
-               "mild_and_nutty": {
-                  "variants": ["Gouda", "Edam", "Emmentaler", "Jarlsberg", "Swiss", "Butterkäse"]
-               },
-               "sharp_and_tangy": {
-                  "variants": ["Cheddar", "Colby", "Provolone", "Cantal"]
-               }
-            },
-            "hard_aged_and_grating": { 
-               "dry_and_savory": { 
-                  "variants": ["Parmesan", "Grana Padano", "Pecorino Romano", "Asiago"]
-               },
-               "crumbly_and_salting": {
-                  "variants": ["Cotija (Aged)", "Feta", "Blue Stilton", "Gorgonzola"]
-               }
-            },
-            "bold_and_funky": { 
-               "blue_veined": {
-                  "variants": ["Roquefort", "Gorgonzola", "Danish Blue", "Cambozola"]
-               },
-               "smoked_and_intense": { 
-                  "variants": ["Smoked Gouda", "Smoked Cheddar", "Scamorza Affumicata"]
-               }
-            }
-         },
-      },
       "fats_and_oils": {
          "cooking_fats": {
             "low_smoke_point": { "variants":  ["Bacon Fat", "Sesame Oil"]},
