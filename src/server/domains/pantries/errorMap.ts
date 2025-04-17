@@ -1,9 +1,5 @@
 import { ErrorKeys } from './errors.types';
-
-interface ErrorInfo {
-  message: string;
-  statusCode: number;
-}
+import { ErrorInfo } from '@errors/errors.types';
 
 export const PANTRY_ERROR_MAP: Record<ErrorKeys, ErrorInfo> = {
   [ErrorKeys.ITEM_LIST_MISSING]: {

@@ -61,15 +61,15 @@ const NewProductPage = () => {
   };
 
   const handleSubmit = (event) => {
-    event.preventDefault();
-    setIsLoading(true);
+    //event.preventDefault();
+    // setIsLoading(true);
     
     console.log("Form submitted with data:", {
       product: productData,
       prices: prices
     });
     
-    setIsLoading(false);
+    // setIsLoading(false);
   };
 
   return (

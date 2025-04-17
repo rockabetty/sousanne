@@ -10,3 +10,8 @@ export enum ErrorKeys {
     METHOD_NOT_ALLOWED = "server.errors.methodNotAllowed",
     ACCESS_DENIED = "server.errors.accessDenied"
 }
+
+export interface ErrorInfo {
+  message: string;
+  statusCode: number;
+}

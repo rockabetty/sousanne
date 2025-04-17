@@ -20,6 +20,7 @@ const ProductPackagingForm: React.FC<ProductPackagingFormProps> = ({
   const unitNames = [
     { labelText: "Ounce", value: "oz" },
     { labelText: "Fluid ounce", value: "fl-oz" },
+    { labelText: "Count", value: "count" },
     { labelText: "Gram", value: "g" },
     { labelText: "Kilogram", value: "kg" },
     { labelText: "Pound", value: "lb" },
