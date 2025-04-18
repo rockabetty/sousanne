@@ -31,3 +31,30 @@ export const recipeModelColumns: RecipeModelColumn[] = [
 ];
 
 export const recipeModelColumnSet: Set<RecipeModelColumn> = new Set(recipeModelColumns);
+
+export type RecipeIngredientModel = {
+    id: number;
+    recipe_id: number;
+    ingredient_id: number;
+    section_id?: number;
+    unit_id: number;
+    amount: number;
+    variant?: string; // This is an enum in the DB
+    from_scratch_recipe_id?: number;
+}
+
+export type RecipeIngredientModelColumn = keyof RecipeIngredientModel;
+
+export const recipeIngredientModelColumns: RecipeIngredientModelColumn[] = [
+    "id",
+    "recipe_id",
+    "ingredient_id",
+    "section_id",
+    "unit_id",
+    "amount",
+    "variant",
+    "from_scratch_recipe_id"
+];
+
+export const recipeIngredientModelColumnSet: Set<RecipeIngredientModelColumn> = 
+    new Set(recipeIngredientModelColumns);
