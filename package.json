@@ -15,6 +15,7 @@
     "axios": "^1.5.1",
     "convert-units": "^2.3.4",
     "el-cuc-ui": "github:rockabetty/react-component-library",
+    "fuzzball": "^2.2.2",
     "i18next": "^23.6.0",
     "i18next-browser-languagedetector": "^8.0.0",
     "i18next-http-backend": "^2.5.2",

@@ -24,7 +24,7 @@ export async function insertOrSelectOneProduct(productData) {
       display_quantity,
       packaged_item,
       brand_id,
-      product_id
+      product_id,
     )
     VALUES
     (

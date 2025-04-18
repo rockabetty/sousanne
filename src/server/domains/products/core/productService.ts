@@ -49,6 +49,28 @@ const generateDefaultProductNameFromData = async function (
 }
 
 export async function addProduct(productData) {
+    /* Since Products are in an adjacency list,
+     we want to create the generic version first if it
+     doesn't exist, then create the branded one.
+    */
+    try {
+      const genericProductParent =  await addGenericProduct(productData);
+      const roduct_id = genericProductParent.data
+
+      const brand = await selectBrandByName(productData.brand)
+     
+      if (genericProductParent.success) {
+        const data = {
+            product_id: genericProductParent.data.product_id,
+            brand_id: brand.data.id
+        }
+        const brandedProduct = await 
+      }
+    }
+}
+
+
+export async function addGenericProduct(productData) {
   try {
     const {
       ingredient_id,
@@ -56,7 +78,6 @@ export async function addProduct(productData) {
       packageCount,
       packageType,
       unitName,
-      brand_id,
       product_template_id,
     } = productData
 
@@ -65,6 +86,7 @@ export async function addProduct(productData) {
       name: '',
       ingredient_id: -1,
       unit_id: -1,
+      brand_id: null
     }
 
     const parsedPackageType = parsePackageTypeOrThrow(packageType) // Removed second parameter
