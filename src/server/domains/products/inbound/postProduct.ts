@@ -6,36 +6,36 @@ import { addProduct } from '../core/productService'
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPostOnly(req, res)
   const { body } = req
+  try {
+    const {
+      name,
+      ingredient_id,
+      packageAmount,
+      packageCount,
+      packageType,
+      unitName,
+    } = body.product
 
-  const {
-    name,
-    ingredient_id,
-    packageAmount,
-    packageCount,
-    packageType,
-    unitName,
-  } = body.product
-  console.log(body)
+    if (!ingredient_id || !packageType) {
+      res.status(400).send(CoreErrorKeys.INVALID_REQUEST)
+    }
 
-  if (!ingredient_id || !packageType) {
-    res.status(400).send(CoreErrorKeys.INVALID_REQUEST)
+    const newProduct = await addProduct({
+      name,
+      ingredient_id,
+      packageAmount,
+      packageCount,
+      packageType,
+      unitName,
+    })
+
+    if (newProduct.success) {
+      res.status(200).send(newProduct.data)
+    }
+    res.status(400).send(newProduct?.error)
+  } catch (error) {
+    res.status(500).send(ErrorKeys.GENERAL_SERVER_ERROR)
   }
-
-  const newProduct = await addProduct({
-    name,
-    ingredient_id,
-    packageAmount,
-    packageCount,
-    packageType,
-    unitName,
-  })
-
-  console.log(newProduct)
-
-  if (newProduct.success) {
-    res.status(200).send('ok')
-  }
-  res.status(500).send(newProduct?.error)
 }
 
 export default handler

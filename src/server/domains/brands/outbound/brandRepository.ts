@@ -1,5 +1,7 @@
 import { BrandModel } from '@domains/products/products.types'
 import { handleDatabaseError } from '@errors'
+import { ErrorKeys } from '@errors/errors.types'
+import { queryDbConnection } from '@postgres'
 import { parseStringOrThrow } from '@server-services/sanitizer'
 import { ratio } from 'fuzzball/ultra_lite'
 
@@ -12,7 +14,9 @@ import { ratio } from 'fuzzball/ultra_lite'
  */
 export async function selectSimilarBrands(
   brandName: string,
-  threshold: number = 80
+  threshold: number = 80,
+  offset: number = 0,
+  limit: number = 10
 ): Promise<BrandModel[]> {
   try {
     const normalizedInput = parseStringOrThrow(brandName).toLowerCase()
@@ -23,16 +27,42 @@ export async function selectSimilarBrands(
       FROM brands
       WHERE NAME like $1
       ORDER BY name
+      OFFSET $2
+      LIMIT $3
     `
-    const result = await queryDbConnection(query, [`${firstTwoCharacters}%`])
+    const values = [`${firstTwoCharacters}%`]
+    const result = await queryDbConnection(query, values)
 
-    const similarBrands = result.rows.filter((brand) => {
+    const similarBrands = result.rows.filter((brand: BrandModel) => {
       const normalizedBrand = brand.name.toLowerCase()
-      const similarity = ratio(normalizedInput)
+      const similarity = ratio(normalizedInput, normalizedBrand)
       return similarity >= threshold
     })
 
     return similarBrands
+  } catch (error) {
+    handleDatabaseError(error)
+  }
+}
+
+/**
+ * Identifies a brand ID and confirms the name match.
+ *
+ * @param brandName The brand name to check
+ * @returns Promise<Brand> - the brand found in the database.
+ */
+export async function selectBrandByName(brandName: string) {
+  try {
+    const query = `
+      SELECT id, name
+      FROM brands
+      WHERE lower(NAME) = $1
+    `
+
+    const normalizedInput = parseStringOrThrow(brandName).toLowerCase()
+    const values = [normalizedInput]
+    const result = await queryDbConnection(query, values)
+    return result.rows
   } catch (error) {
     handleDatabaseError(error)
   }

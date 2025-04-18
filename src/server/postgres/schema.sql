@@ -189,7 +189,8 @@ CREATE TABLE IF NOT EXISTS products (
     display_quantity INT,
     brand_id INT references brands(id),
     product_template_id INT references product_templates(id),
-    CONSTRAINT unique_product_templates UNIQUE (ingredient_id, unit_id, packaged_item, package_count, display_quantity)
+    CONSTRAINT unique_products UNIQUE (ingredient_id, unit_id, packaged_item, package_count, display_quantity),
+    CONSTRAINT unique_product_brands UNIQUE (brand_id, product_id)
 );
 
 -- Brands are vendors like "Niman Ranch", "Sarah Lee"
