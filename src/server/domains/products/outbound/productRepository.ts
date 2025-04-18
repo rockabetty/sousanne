@@ -1,5 +1,5 @@
-import { handleDatabaseError } from "@errors";
-import { queryDbConnection, withTransaction } from "@postgres";
+import { handleDatabaseError } from '@errors'
+import { queryDbConnection, withTransaction } from '@postgres'
 
 export async function insertOrSelectOneProduct(productData) {
   return withTransaction(async (client) => {
@@ -11,8 +11,8 @@ export async function insertOrSelectOneProduct(productData) {
       display_quantity,
       packaged_item,
       brand_id,
-      product_template_id
-    } = productData;
+      product_id,
+    } = productData
 
     const insertQuery = `
     INSERT INTO products
@@ -24,7 +24,7 @@ export async function insertOrSelectOneProduct(productData) {
       display_quantity,
       packaged_item,
       brand_id,
-      product_template_id
+      product_id
     )
     VALUES
     (
@@ -34,12 +34,13 @@ export async function insertOrSelectOneProduct(productData) {
       $4,
       $5,
       $6,
-      $7
+      $7,
+      $8
     )
     ON CONFLICT ON CONSTRAINT unique_products DO NOTHING
     RETURNING id
-    `;
-    
+    `
+
     const values = [
       name,
       ingredient_id,
@@ -48,14 +49,14 @@ export async function insertOrSelectOneProduct(productData) {
       display_quantity,
       packaged_item,
       brand_id,
-      product_template_id
-    ];
-    
+      product_id,
+    ]
+
     try {
-      let newProduct = await queryDbConnection(insertQuery, values, client);
-      
+      let newProduct = await queryDbConnection(insertQuery, values, client)
+
       // if there's a DO NOTHING it'll not return an ID, as it did nothing
-      // but we still expect to see a product, probably. 
+      // but we still expect to see a product, probably.
       if (newProduct.rows.length === 0) {
         const selectQuery = `
           SELECT id
@@ -68,18 +69,19 @@ export async function insertOrSelectOneProduct(productData) {
             AND COALESCE(display_quantity, -1) = COALESCE($5, -1)
             AND packaged_item = $6
             AND COALESCE(brand_id, -1) = COALESCE($7, -1)
-        `;
-        
-        newProduct = await queryDbConnection(selectQuery, values, client);
+            AND COALESCE(product_id, -1) = COALESCE($8, -1)
+        `
+
+        newProduct = await queryDbConnection(selectQuery, values, client)
       }
-      
+
       if (newProduct.rows.length === 0) {
-        handleDatabaseError(ErrorKeys.FAILURE_TO_FINDSERT);
+        handleDatabaseError(ErrorKeys.FAILURE_TO_FINDSERT)
       }
-      
-      return newProduct.rows[0];
+
+      return newProduct.rows[0]
     } catch (error) {
-      handleDatabaseError(error);
+      handleDatabaseError(error)
     }
-  });
+  })
 }

@@ -1,6 +1,6 @@
 import { queryDbConnection } from "@postgres";
 import { handleDatabaseError } from "@errors"
-import { IngredientHierarchyModelColumns, IngredientModelColumn, UserFacingIngredient } from "../ingredients.types";
+import { IngredientHierarchyModelColumn, ingredientHierarchyModelColumnSet, IngredientModelColumn, UserFacingIngredient } from "../ingredients.types";
 
 export async function queryIngredientsByName (
   searchString: string,
@@ -11,21 +11,21 @@ export async function queryIngredientsByName (
     const query =`
     SELECT
       i.id,
-      i.name,
-      ih.path
+      name,
+      path
     FROM
       ingredients i
     JOIN
       ingredient_hierarchy ih ON ih.id = i.ingredient_hierarchy_id
     WHERE
-      i.name ILIKE $1
+      name ILIKE $1
     ORDER BY
       CASE
-        WHEN i.name ILIKE $2 THEN 0
-        WHEN i.name ILIKE $3 THEN 1
+        WHEN name ILIKE $2 THEN 0
+        WHEN name ILIKE $3 THEN 1
         ELSE 2
       END,
-      i.name ASC
+      name ASC
     OFFSET $4
     LIMIT $5
     `;
@@ -53,14 +53,14 @@ export async function selectIngredientArchetypes (
     const query = `
     SELECT
       i.id,
-      i.name,
-      ih.path
+      name,
+      path
     FROM
       ingredients i
     JOIN
       ingredient_hierarchy ih ON ih.id = i.ingredient_hierarchy_id
     WHERE default_variant IS TRUE
-    ORDER BY i.name ASC
+    ORDER BY name ASC
     OFFSET $1
     LIMIT $2
     `;
@@ -79,8 +79,8 @@ export async function selectIngredientOptions(ingredientId: number): Promise<Use
     const query = `WITH relevant_hierarchy AS (
       SELECT 
         i.id,
-        i.name,
-        ih.path
+        name,
+        path
       FROM 
         ingredients i
       JOIN
@@ -111,47 +111,41 @@ export async function selectIngredientOptions(ingredientId: number): Promise<Use
 
 export async function selectIngredientById(
   id: number,
-  columns: IngredientModelColumn[] | IngredientHierarchyModelColumns[] = []
+  columns: IngredientHierarchyModelColumn[] = []
 ): Promise<UserFacingIngredient> {
   try {
-
-    let columnString = `i.id,
-      i.name,
-      description,
-      shelf_life_room_temp_sealed,
-      shelf_life_room_temp_open,
-      shelf_life_refrigerated_sealed,
-      shelf_life_refrigerated_open,
-      shelf_life_frozen_sealed,
-      shelf_life_frozen_open,
-      average_weight,
-      edible_percentage,
-      cooking_yield_percentage,
-      cup_weight,
-      u.name as unit`;
-
-    if (columns.length > 0 ) {
-      for (let column of columns) {
-        
-      }
+    // Base columns that are always needed
+    const baseColumns = [`i.id`, `u.name as unit`, `i.name`];
+    
+    // Default columns if none specified
+    const defaultColumns = [
+      `description`,
+      `shelf_life_room_temp_sealed`,
+      `shelf_life_room_temp_open`,
+      `shelf_life_refrigerated_sealed`,
+      `shelf_life_refrigerated_open`,
+      `shelf_life_frozen_sealed`,
+      `shelf_life_frozen_open`,
+      `average_weight`,
+      `edible_percentage`,
+      `cooking_yield_percentage`,
+      `cup_weight`
+    ];
+    
+    let additionalColumns: string[] = defaultColumns;
+    
+    if (columns.length > 0) {
+      additionalColumns = columns.filter(col => 
+        ingredientHierarchyModelColumnSet.has(col)
+      );
     }
+    
+    const allColumns = [...baseColumns, ...additionalColumns];
+    const columnString = allColumns.join(", ");
     
     const query = `
     SELECT 
-      i.id,
-      i.name,
-      description,
-      shelf_life_room_temp_sealed,
-      shelf_life_room_temp_open,
-      shelf_life_refrigerated_sealed,
-      shelf_life_refrigerated_open,
-      shelf_life_frozen_sealed,
-      shelf_life_frozen_open,
-      average_weight,
-      edible_percentage,
-      cooking_yield_percentage,
-      cup_weight,
-      u.name as unit
+      ${columnString}
     FROM 
       ingredients i
     JOIN
@@ -159,16 +153,16 @@ export async function selectIngredientById(
     JOIN
       units u ON u.id = ih.unit_id
     WHERE 
-        i.id = $1
+      i.id = $1
     `;
-    const values = [id]
-    const queryResult = await queryDbConnection(query, values)
-    return queryResult.rows[0]
+    
+    const values = [id];
+    const queryResult = await queryDbConnection(query, values);
+    return queryResult.rows[0];
   } catch (error) {
-    handleDatabaseError(error)
+    handleDatabaseError(error);
   }
 }
-
 export async function selectIngredientOptionsWithSeasonality(ingredientId: number): Promise<UserFacingIngredient[]> {
   try {
     const query = `

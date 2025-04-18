@@ -4,12 +4,12 @@ export type ProductModel = {
     ingredient_id: number;
     created_at?: Date;
     unit_id: number;
-    base_quantity?: number;
-    packaged_item?: boolean;
-    package_count?: number;
-    display_quantity?: number;
-    brand_id?: number;
-    product_template_id?: number;
+    base_quantity?: number | null;
+    packaged_item?: boolean | null;
+    package_count?: number | null;
+    display_quantity?: number | null;
+    brand_id?: number | null;
+    product_template_id?: number | null;
 }
 
 export type ProductModelColumn = keyof ProductModel;

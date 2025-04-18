@@ -26,6 +26,10 @@
     "typescript": "^5.2.2"
   },
   "devDependencies": {
-    "module-alias": "^2.2.3"
+    "eslint": "^9.24.0",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-prettier": "^5.2.6",
+    "module-alias": "^2.2.3",
+    "prettier": "^3.5.3"
   }
 }
