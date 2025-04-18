@@ -1,12 +1,16 @@
 import { CORE_ERROR_MAP } from './errorMap';
 import { PANTRY_ERROR_MAP } from "@domains/pantries/errorMap"
+import { UNIT_ERROR_MAP } from '@domains/units/errorMap';
+import { PRODUCT_ERROR_MAP } from '@domains/products/errorMap';
 import { ApplicationErrorKey, ApiErrorResponse } from './apiResponse.types';
 import {t} from 'i18next';
 import {logger} from '@logger';
 import { NextApiResponse } from 'next';
 export const APPLICATION_ERROR_MAP: Record<ApplicationErrorKey, { message: string, statusCode: number }> = {
   ...CORE_ERROR_MAP,
-  ...PANTRY_ERROR_MAP
+  ...PANTRY_ERROR_MAP,
+  ...UNIT_ERROR_MAP,
+  ...PRODUCT_ERROR_MAP
 };
 
 /**

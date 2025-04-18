@@ -24,8 +24,14 @@ export const isValidNumber = (value: string): boolean => {
   return !isNaN(num) && Number.isFinite(num);
 };
 
-export const parseIntegerOrThrow = (value: string | null | undefined): number | null => {
+export const parseIntegerOrThrow = (
+  value: string | null | undefined,
+  required: boolean = false
+): number | null => {
   if (value === null || value === undefined || value === '') {
+    if (!!required) {
+      throw new Error(ErrorKeys.INVALID_REQUEST);
+    }
     return null;
   }
   if (!isValidInteger(value)) {
@@ -34,8 +40,14 @@ export const parseIntegerOrThrow = (value: string | null | undefined): number | 
   return parseInt(value, 10);
 };
 
-export const parseFloatOrThrow = (value: string | null | undefined): number | null => {
+export const parseFloatOrThrow = (
+  value: string | null | undefined,
+  required: boolean = false
+): number | null => {
   if (value === null || value === undefined || value === '') {
+    if (!!required) {
+      throw new Error(ErrorKeys.INVALID_REQUEST)
+    }
     return null;
   }
   if (!isValidNumber(value)) {

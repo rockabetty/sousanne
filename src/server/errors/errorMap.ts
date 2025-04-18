@@ -1,9 +1,5 @@
 import { ErrorKeys } from './errors.types';
-
-interface ErrorInfo {
-  message: string;
-  statusCode: number;
-}
+import { ErrorInfo } from './errors.types';
 
 export const CORE_ERROR_MAP: Record<ErrorKeys, ErrorInfo> = {
   [ErrorKeys.GENERAL_SERVER_ERROR]: {

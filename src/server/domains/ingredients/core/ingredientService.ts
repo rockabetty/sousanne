@@ -9,6 +9,7 @@ import { ErrorKeys as CoreErrors } from "@errors/errors.types";
 import { handleServiceError } from "@errors";
 import { ApiResponse } from '@errors/apiResponse.types';
 import { Ingredient } from '../ingredients.types';
+import { alphaNumericAndSpacingOnly } from '@server-services/sanitizer';
 
 /**
  * Retrieves a list of ingredient IDs, names, and paths matching a query. 
@@ -36,7 +37,7 @@ export async function searchIngredients(unsafeQuery: string = "", limit: number 
       }
     }
     const offset = page * limit;
-    const query = unsafeQuery.replace(/[^0-9a-zA-Z]/g, '');
+    const query = alphaNumericAndSpacingOnly(unsafeQuery);
     const ingredients = await queryIngredientsByName(query, offset, limit)
     return { success: true, data: ingredients}    
   } catch(error) {

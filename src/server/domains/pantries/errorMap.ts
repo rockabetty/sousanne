@@ -7,7 +7,7 @@ export const PANTRY_ERROR_MAP: Record<ErrorKeys, ErrorInfo> = {
     statusCode: 400
   },
   [ErrorKeys.UNKNOWN_PANTRY_ACTION]: {
-    message: "I don't recognize that type of upate.",
+    message: "I don't recognize that type of update.",
     statusCode: 400
   },
    [ErrorKeys.PANTRY_ACTION_MISSING]: {

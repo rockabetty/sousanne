@@ -14,7 +14,7 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
         packageCount,
         packageType,
         unitName
-    } = body;
+    } = body.product;
 
     if (!ingredient_id || !packageType) {
         res.status(400).send(CoreErrorKeys.INVALID_REQUEST)

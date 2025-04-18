@@ -105,7 +105,7 @@ CREATE TABLE ingredients (
     ingredient_hierarchy_id INT NOT NULL REFERENCES ingredient_hierarchy(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    archetype BOOLEAN DEFAULT FALSE,
+    is_archetype BOOLEAN DEFAULT FALSE,
     weight_multiplier DECIMAL (5,2)
 );
 alter table ingredients add constraint uc_name unique (name);
@@ -172,7 +172,7 @@ CREATE TABLE IF NOT EXISTS stores (
 );
 
 
-CREATE TABLE IF NOT EXISTS product_templates (
+CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     ingredient_id INT REFERENCES ingredients(id),
@@ -187,6 +187,8 @@ CREATE TABLE IF NOT EXISTS product_templates (
     package_count INT,
     -- the quantity of each package for displaying to the user; 4-pack of tuna cans would be '5', half gallon of milk would be '64' (ounces)
     display_quantity INT,
+    brand_id INT references brands(id),
+    product_template_id INT references product_templates(id),
     CONSTRAINT unique_product_templates UNIQUE (ingredient_id, unit_id, packaged_item, package_count, display_quantity)
 );
 
@@ -196,12 +198,7 @@ CREATE TABLE IF NOT EXISTS brands (
     name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS products (
-    id SERIAL PRIMARY KEY,
-    product_template_id INT references product_templates(id),
-    brand_id INT references brands(id),
-    origin_id INT references origins(id)
-);
+
 
 CREATE TABLE tags (
     id SERIAL PRIMARY KEY,

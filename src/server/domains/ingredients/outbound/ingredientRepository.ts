@@ -1,12 +1,12 @@
 import { queryDbConnection } from "@postgres";
 import { handleDatabaseError } from "@errors"
-import { Ingredient } from "../ingredients.types";
+import { IngredientHierarchyModelColumns, IngredientModelColumn, UserFacingIngredient } from "../ingredients.types";
 
 export async function queryIngredientsByName (
   searchString: string,
   offset: number = 0,
   limit: number = 10
-): Promise<Ingredient[]> {
+): Promise<UserFacingIngredient[]> {
   try {
     const query =`
     SELECT
@@ -48,7 +48,7 @@ export async function queryIngredientsByName (
 
 export async function selectIngredientArchetypes ( 
   limit: number = 50,
-  offset: number = 0,): Promise<Ingredient[]> {
+  offset: number = 0,): Promise<UserFacingIngredient[]> {
   try {
     const query = `
     SELECT
@@ -74,7 +74,7 @@ export async function selectIngredientArchetypes (
   }
 }
 
-export async function selectIngredientOptions(ingredientId: number): Promise<Ingredient[]> {
+export async function selectIngredientOptions(ingredientId: number): Promise<UserFacingIngredient[]> {
   try {
     const query = `WITH relevant_hierarchy AS (
       SELECT 
@@ -109,9 +109,33 @@ export async function selectIngredientOptions(ingredientId: number): Promise<Ing
   }
 }
 
-export async function selectIngredientById(id: number): Promise<Ingredient> {
+export async function selectIngredientById(
+  id: number,
+  columns: IngredientModelColumn[] | IngredientHierarchyModelColumns[] = []
+): Promise<UserFacingIngredient> {
   try {
-    console.log(id)
+
+    let columnString = `i.id,
+      i.name,
+      description,
+      shelf_life_room_temp_sealed,
+      shelf_life_room_temp_open,
+      shelf_life_refrigerated_sealed,
+      shelf_life_refrigerated_open,
+      shelf_life_frozen_sealed,
+      shelf_life_frozen_open,
+      average_weight,
+      edible_percentage,
+      cooking_yield_percentage,
+      cup_weight,
+      u.name as unit`;
+
+    if (columns.length > 0 ) {
+      for (let column of columns) {
+        
+      }
+    }
+    
     const query = `
     SELECT 
       i.id,
@@ -121,7 +145,8 @@ export async function selectIngredientById(id: number): Promise<Ingredient> {
       shelf_life_room_temp_open,
       shelf_life_refrigerated_sealed,
       shelf_life_refrigerated_open,
-      shelf_life_frozen,
+      shelf_life_frozen_sealed,
+      shelf_life_frozen_open,
       average_weight,
       edible_percentage,
       cooking_yield_percentage,
@@ -144,7 +169,7 @@ export async function selectIngredientById(id: number): Promise<Ingredient> {
   }
 }
 
-export async function selectIngredientOptionsWithSeasonality(ingredientId: number): Promise<Ingredient[]> {
+export async function selectIngredientOptionsWithSeasonality(ingredientId: number): Promise<UserFacingIngredient[]> {
   try {
     const query = `
       WITH relevant_hierarchy AS (

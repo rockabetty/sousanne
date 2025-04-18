@@ -4,8 +4,8 @@ import IngredientSearchBar from '@components/ingredients/IngredientSearchBar';
 import ProductPackagingForm from '@components/products/ProductPackagingForm';
 import PricesForm from '@components/prices/PricesForm';
 import axios from 'axios';
-import { Store, ProductData, StorePrice } from './types';
-
+import { Store, StorePrice } from '@components/stores/stores.types';
+import { ProductData } from '@components/products/products.types';
 const NewProductPage = () => {
   const [productData, setProductData] = useState<ProductData>({
     name: "",
@@ -60,16 +60,17 @@ const NewProductPage = () => {
     setIngredientQuery(value);
   };
 
-  const handleSubmit = (event) => {
-    //event.preventDefault();
-    // setIsLoading(true);
-    
-    console.log("Form submitted with data:", {
-      product: productData,
-      prices: prices
-    });
-    
-    // setIsLoading(false);
+  const handleSubmit = async (event) => {
+    try {
+        setIsLoading(true)
+	    const response = await axios.post('/api/products/new', {product: productData, prices: prices})
+	    setIsLoading(false)
+	    if (response.data) {
+	    	console.log("successss")
+	    }
+	} catch (error) {
+		console.error("Issue submitting...")
+	}
   };
 
   return (

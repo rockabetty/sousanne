@@ -10,7 +10,8 @@ export async function insertOrSelectOneProduct(productData) {
       package_count,
       display_quantity,
       packaged_item,
-      brand_id
+      brand_id,
+      product_template_id
     } = productData;
 
     const insertQuery = `
@@ -22,7 +23,8 @@ export async function insertOrSelectOneProduct(productData) {
       package_count,
       display_quantity,
       packaged_item,
-      brand_id
+      brand_id,
+      product_template_id
     )
     VALUES
     (
@@ -45,7 +47,8 @@ export async function insertOrSelectOneProduct(productData) {
       package_count,
       display_quantity,
       packaged_item,
-      brand_id
+      brand_id,
+      product_template_id
     ];
     
     try {
