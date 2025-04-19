@@ -91,3 +91,24 @@ export async function selectBrandById(brandId: number) {
     handleDatabaseError(error)
   }
 }
+
+/**
+ * Returns a list of brands
+ *
+ * @param brandId The brand ID to check
+ * @returns Promise<Brand[]>  - later this will narrow down
+ * to brands that have a matching path
+ */
+export async function selectBrands() {
+  try {
+    const query = `
+      SELECT *
+      FROM brands
+    `
+
+    const result = await queryDbConnection(query)
+    return result.rows
+  } catch (error) {
+    handleDatabaseError(error)
+  }
+}

@@ -199,7 +199,14 @@ CREATE TABLE IF NOT EXISTS brands (
     name VARCHAR(255) NOT NULL
 );
 
-
+-- Brands create certain items, like only dairy, etc.
+-- When users are selecting/searching brands within the context
+-- of a particular type of food e.g. 'dairy' this helps filter.
+CREATE TABLE IF NOT EXISTS brands_ingredient_hierarchies (
+    id SERIAL PRIMARY KEY,
+    brand_id INT REFERENCES brands(id),
+    path ltree
+)
 
 CREATE TABLE tags (
     id SERIAL PRIMARY KEY,

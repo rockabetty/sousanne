@@ -10,23 +10,33 @@ import {
 import NewStoreForm from '@components/stores/NewStoreForm'
 import { StorePrice, Store } from '@components/stores/stores.types'
 import axios from 'axios'
+import NewBrandForm from '@components/brands/NewBrandForm'
+import { Brand } from '@components/brands/brands.types'
 
 interface PricesSectionProps {
   prices: StorePrice[]
   setPrices: React.Dispatch<React.SetStateAction<StorePrice[]>>
   stores: Store[]
+  brands: Brand[]
   setStores: React.Dispatch<React.SetStateAction<Store[]>>
   fetchStores: () => Promise<void>
+  fetchBrands: () => Promise<void>
 }
 
 const PricesSection: React.FC<PricesSectionProps> = ({
   prices,
   setPrices,
   stores,
+  brands,
   setStores,
+  fetchBrands,
   fetchStores,
 }) => {
+  const [addBrand, setAddBrand] = useState<boolean>(false)
   const [addStore, setAddStore] = useState<boolean>(false)
+  const [newBrand, setNewBrand] = useState<Brand>({
+    name: '',
+  })
   const [newStore, setNewStore] = useState<Store>({
     name: '',
     zipcode: '',
@@ -35,6 +45,9 @@ const PricesSection: React.FC<PricesSectionProps> = ({
     state: 'CA',
   })
 
+  const toggleAddNewBrand = () => {
+    setAddBrand(!addBrand)
+  }
   const toggleAddNewStore = () => {
     setAddStore(!addStore)
   }
@@ -69,6 +82,18 @@ const PricesSection: React.FC<PricesSectionProps> = ({
     }
   }
 
+  const handleBrandSelection = (event, index: number) => {
+    const { value } = event.target
+    if (value == -1) {
+      setAddBrand(true)
+    } else {
+      setAddBrand(false)
+      const updatedPrices = [...prices]
+      updatedPrices[index].brandId = value
+      setPrices(updatedPrices)
+    }
+  }
+
   const submitNewStore = async () => {
     // Since we don't have POST routes yet, this is just a placeholder
     console.log('New store should be created:', newStore)
@@ -83,6 +108,18 @@ const PricesSection: React.FC<PricesSectionProps> = ({
 
     fetchStores()
     toggleAddNewStore()
+  }
+
+  const submitNewBrand = async () => {
+    // Since we don't have POST routes yet, this is just a placeholder
+    console.log('New brand should be created:', newStore)
+    setAddBrand(false)
+    setNewBrand({
+      name: '',
+    })
+
+    fetchBrands()
+    toggleAddNewBrand()
   }
 
   return (
@@ -102,15 +139,25 @@ const PricesSection: React.FC<PricesSectionProps> = ({
               size="sm"
               onChange={(e) => handlePriceInput(e, idx)}
             />
-            <div className="store-selection">
+            <FieldGroup inline={true}>
               <DropdownSelect
                 name="store"
                 id={`price_store_${idx}`}
                 labelText="Store"
                 value={price.storeId}
-                size="xl"
+                size="lg"
                 options={stores}
                 onChange={(e) => handleStoreSelection(e, idx)}
+              />
+
+              <DropdownSelect
+                name="brand"
+                id={`price_brand_${idx}`}
+                labelText="Brand"
+                value={price.brandId}
+                size="lg"
+                options={brands}
+                onChange={(e) => handleBrandSelection(e, idx)}
               />
 
               <Badge
@@ -119,7 +166,7 @@ const PricesSection: React.FC<PricesSectionProps> = ({
                 id={`remove_price_${idx}`}
                 onClick={() => removePrice(idx)}
               />
-            </div>
+            </FieldGroup>
           </FieldGroup>
         </div>
       ))}
@@ -149,6 +196,25 @@ const PricesSection: React.FC<PricesSectionProps> = ({
           setNewStore={setNewStore}
           onCancel={toggleAddNewStore}
           onSubmit={submitNewStore}
+        />
+      </Modal>
+
+      <Modal
+        actionButtonLabel="Add brand"
+        ariaLabel="Add a new brand to your price book"
+        closeButtonLabel="Cancel"
+        heading="Add a brand"
+        id="modal_add-brand"
+        isOpen={addBrand}
+        onClose={toggleAddNewBrand}
+        onAction={submitNewBrand}
+        size="lg"
+      >
+        <NewBrandForm
+          newBrand={newBrand}
+          setNewBrand={setNewBrand}
+          onCancel={toggleAddNewBrand}
+          onSubmit={submitNewBrand}
         />
       </Modal>
     </div>

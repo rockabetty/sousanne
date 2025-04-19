@@ -61,7 +61,6 @@ export async function insertOrSelectOneProduct(productData: ProductModel) {
     }
 
     try {
-      console.log('Attempting insert')
       let newProduct = await queryDbConnection(insertQuery, values, client)
 
       // if there's a DO NOTHING it'll not return an ID, as it did nothing

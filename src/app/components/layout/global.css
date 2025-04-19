@@ -1,0 +1,19 @@
+:root {
+  --typeface-heading: 'Sour Gummy', sans-serif;
+  --typeface-body: 'Sour Gummy', sans-serif;
+}
+
+html,
+body,
+#__next {
+  height: 100%;
+  background: var(--col-backdrop);
+}
+
+.wrapper {
+  height: 100%;
+  padding: var(--spacing-lg);
+  background: var(--col-background);
+  max-width: var(--grid-maxwidth);
+  margin: 0 auto;
+}

@@ -6,6 +6,7 @@ import PricesForm from '@components/prices/PricesForm'
 import axios from 'axios'
 import { Store, StorePrice } from '@components/stores/stores.types'
 import { ProductData } from '@components/products/products.types'
+import SousanneLayout from '@components/layout/SousannePage'
 const NewProductPage = () => {
   const [productData, setProductData] = useState<ProductData>({
     name: '',
@@ -17,6 +18,7 @@ const NewProductPage = () => {
     organic: false,
   })
 
+  const [brands, setBrands] = useState<Brand[]>([])
   const [stores, setStores] = useState<Store[]>([])
   const [prices, setPrices] = useState<StorePrice[]>([
     { storeId: '', price: 0.0, currencyId: 1 },
@@ -27,7 +29,28 @@ const NewProductPage = () => {
 
   useEffect(() => {
     fetchStores()
+    fetchBrands()
   }, [])
+
+  const fetchBrands = async () => {
+    try {
+      const response = await axios.get('/api/brands')
+      if (response.data) {
+        const brandOptions = response.data.map((brand) => ({
+          labelText: brand.name,
+          value: brand.id,
+        }))
+
+        brandOptions.push({
+          labelText: 'Add new brand',
+          value: -1,
+        })
+        setBrands(brandOptions)
+      }
+    } catch (error) {
+      console.error('No brands found due to error', error)
+    }
+  }
 
   const fetchStores = async () => {
     try {
@@ -78,35 +101,39 @@ const NewProductPage = () => {
   }
 
   return (
-    <Form submitLabel="Save" onSubmit={handleSubmit}>
-      <IngredientSearchBar
-        selection={productData.ingredient_id}
-        onSelect={handleSelectIngredient}
-      />
+    <SousanneLayout>
+      <Form submitLabel="Save" onSubmit={handleSubmit}>
+        <IngredientSearchBar
+          selection={productData.ingredient_id}
+          onSelect={handleSelectIngredient}
+        />
 
-      <ProductPackagingForm
-        productData={productData}
-        setProductData={setProductData}
-      />
+        <ProductPackagingForm
+          productData={productData}
+          setProductData={setProductData}
+        />
 
-      <PricesForm
-        prices={prices}
-        setPrices={setPrices}
-        stores={stores}
-        setStores={setStores}
-        fetchStores={fetchStores}
-      />
+        <PricesForm
+          prices={prices}
+          setPrices={setPrices}
+          stores={stores}
+          brands={brands}
+          setStores={setStores}
+          fetchStores={fetchStores}
+          fetchBrands={fetchBrands}
+        />
 
-      <Button
-        inline="true"
-        id="submit-product"
-        type="submit"
-        disabled={isLoading}
-        Loading={isLoading}
-      >
-        Save
-      </Button>
-    </Form>
+        <Button
+          inline="true"
+          id="submit-product"
+          type="submit"
+          disabled={isLoading}
+          Loading={isLoading}
+        >
+          Save
+        </Button>
+      </Form>
+    </SousanneLayout>
   )
 }
 
