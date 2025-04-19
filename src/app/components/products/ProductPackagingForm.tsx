@@ -1,47 +1,53 @@
-import React from 'react';
-import { Radio, TextInput, DropdownSelect, FieldGroup } from 'el-cuc-ui';
-import { ProductData } from './products.types';
+import React from 'react'
+import {
+  Radio,
+  TextInput,
+  DropdownSelect,
+  Checkbox,
+  FieldGroup,
+} from 'el-cuc-ui'
+import { ProductData } from './products.types'
 
 interface ProductPackagingFormProps {
-  productData: ProductData;
-  setProductData: React.Dispatch<React.SetStateAction<ProductData>>;
+  productData: ProductData
+  setProductData: React.Dispatch<React.SetStateAction<ProductData>>
 }
 
-const ProductPackagingForm: React.FC<ProductPackagingFormProps> = ({ 
-  productData, 
-  setProductData 
+const ProductPackagingForm: React.FC<ProductPackagingFormProps> = ({
+  productData,
+  setProductData,
 }) => {
   const handleGeneralInput = (event) => {
-    const { name, value } = event.target;
-    setProductData({ ...productData, [name]: value });
-  };
+    const { name, value } = event.target
+    setProductData({ ...productData, [name]: value })
+  }
 
   // Unit options for dropdown
   const unitNames = [
-    { labelText: "Ounce", value: "oz" },
-    { labelText: "Fluid ounce", value: "fl-oz" },
-    { labelText: "Count", value: "count" },
-    { labelText: "Gram", value: "g" },
-    { labelText: "Kilogram", value: "kg" },
-    { labelText: "Pound", value: "lb" },
-    { labelText: "Gallon", value: "gal" },
-    { labelText: "Liter", value: "l" },
-    { labelText: "Milliliter", value: "ml" },
-    { labelText: "Pint", value: "pt" },
-    { labelText: "Quart", value: "qt" }
-  ];
+    { labelText: 'Ounce', value: 'oz' },
+    { labelText: 'Fluid ounce', value: 'fl-oz' },
+    { labelText: 'Count', value: 'count' },
+    { labelText: 'Gram', value: 'g' },
+    { labelText: 'Kilogram', value: 'kg' },
+    { labelText: 'Pound', value: 'lb' },
+    { labelText: 'Gallon', value: 'gal' },
+    { labelText: 'Liter', value: 'l' },
+    { labelText: 'Milliliter', value: 'ml' },
+    { labelText: 'Pint', value: 'pt' },
+    { labelText: 'Quart', value: 'qt' },
+  ]
 
   return (
     <div className="product-packaging-section">
       <h3>Product Packaging</h3>
-      
+
       {/* Package Type Selection */}
       <div className="package-type-selection">
         <Radio
           onChange={handleGeneralInput}
           id="package_type_singleton"
           name="packageType"
-          checked={productData?.packageType === "single"}
+          checked={productData?.packageType === 'single'}
           labelText="Single, packaged item"
           value="single"
         />
@@ -50,7 +56,7 @@ const ProductPackagingForm: React.FC<ProductPackagingFormProps> = ({
           onChange={handleGeneralInput}
           id="package_type_multipack"
           name="packageType"
-          checked={productData?.packageType === "multiple"}
+          checked={productData?.packageType === 'multiple'}
           labelText="Multi-pack"
           value="multiple"
         />
@@ -59,7 +65,7 @@ const ProductPackagingForm: React.FC<ProductPackagingFormProps> = ({
           onChange={handleGeneralInput}
           id="package_type_by_weight"
           name="packageType"
-          checked={productData?.packageType === "weight"}
+          checked={productData?.packageType === 'weight'}
           labelText="Bulk item"
           value="weight"
         />
@@ -68,18 +74,18 @@ const ProductPackagingForm: React.FC<ProductPackagingFormProps> = ({
           onChange={handleGeneralInput}
           id="package_type_apiece"
           name="packageType"
-          checked={productData?.packageType === "apiece"}
+          checked={productData?.packageType === 'apiece'}
           labelText="By item count"
           value="apiece"
         />
       </div>
 
       {/* Product Size Configuration */}
-      {productData.packageType !== "apiece" && (
+      {productData.packageType !== 'apiece' && (
         <FieldGroup inline={true}>
-          {productData.packageType !== "weight" && (
+          {productData.packageType !== 'weight' && (
             <>
-              {productData.packageType === "multiple" && (
+              {productData.packageType === 'multiple' && (
                 <TextInput
                   type="number"
                   labelText="Amount"
@@ -104,7 +110,7 @@ const ProductPackagingForm: React.FC<ProductPackagingFormProps> = ({
               />
             </>
           )}
-          
+
           <DropdownSelect
             name="unitName"
             id="unit_name_selector"
@@ -116,8 +122,16 @@ const ProductPackagingForm: React.FC<ProductPackagingFormProps> = ({
           />
         </FieldGroup>
       )}
+      <Checkbox
+        labelText="Organic"
+        id="product_is_organic"
+        value={productData?.organic}
+        onChange={handleGeneralInput}
+        name="organic"
+        checked={productData?.organic}
+      />
     </div>
-  );
-};
+  )
+}
 
-export default ProductPackagingForm;
+export default ProductPackagingForm

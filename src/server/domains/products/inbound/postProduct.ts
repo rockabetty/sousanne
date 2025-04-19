@@ -2,10 +2,12 @@ import { ErrorKeys as CoreErrorKeys, ErrorKeys } from '@errors/errors.types'
 import { acceptPostOnly } from '@errors/methodgatekeeper'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { addProduct } from '../core/productService'
+import { addPrices } from '@domains/prices/core/priceService'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPostOnly(req, res)
   const { body } = req
+  console.log(body)
   try {
     const {
       name,
@@ -30,7 +32,17 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
     })
 
     if (newProduct.success) {
-      res.status(200).send(newProduct.data)
+      // product submissions may or may not also have prices attached.
+      const { prices } = body
+
+      if (!!prices) {
+        const newPrices = await addPrices(newProduct.data.id, prices)
+        if (newPrices.success) {
+          res.status(200).send({ product: newProduct.data, prices: newPrices })
+        }
+        res.status(400).send(newPrices.error)
+      }
+      res.status(200).send({ product: newProduct.data })
     }
     res.status(400).send(newProduct?.error)
   } catch (error) {

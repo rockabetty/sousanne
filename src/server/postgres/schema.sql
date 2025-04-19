@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS products (
     -- the quantity of each package for displaying to the user; 4-pack of tuna cans would be '5', half gallon of milk would be '64' (ounces)
     display_quantity INT,
     brand_id INT references brands(id),
-    product_template_id INT references product_templates(id),
+    product_id INT references products(id),
     CONSTRAINT unique_products UNIQUE (ingredient_id, unit_id, packaged_item, package_count, display_quantity),
     CONSTRAINT unique_product_brands UNIQUE (brand_id, product_id)
 );
@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS prices (
     id SERIAL PRIMARY KEY,
     product_id INT REFERENCES products(id),
     store_id INT REFERENCES stores(id),
-    price DECIMAL(10, 2) NOT NULL,
+    price INTEGER NOT NULL,
     currency_id INT REFERENCES currencies(id),
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     sale BOOLEAN default FALSE,
@@ -352,7 +352,7 @@ CREATE TYPE storage_type AS ENUM (
     'REFRIGERATED_SEALED',
     'REFRIGERATED_OPEN', -- sliced produced counts as 'open'
     'FROZEN_SEALED',
-    'FROZEN_OPEN'
+    'FROZEN_OPEN',
     'EXPIRED',
     'CONSUMED'
 );
@@ -369,7 +369,7 @@ CREATE TABLE IF NOT EXISTS pantry_items (
     user_id INT NOT NULL REFERENCES users(id),
     ingredient_id INT NOT NULL REFERENCES ingredients(id),
     purchased_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status storage_type NOT NULL DEFAULT "SHELF_SEALED"
+    status storage_type NOT NULL DEFAULT SHELF_SEALED
     amount_purchased DECIMAL(10,2) NOT NULL DEFAULT 1.0,
     amount_consumed DECIMAL(10,2) NOT NULL DEFAULT 0.0,
     expires_on TIMESTAMP NOT NULL

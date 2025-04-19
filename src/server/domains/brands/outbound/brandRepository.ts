@@ -2,7 +2,10 @@ import { BrandModel } from '@domains/products/products.types'
 import { handleDatabaseError } from '@errors'
 import { ErrorKeys } from '@errors/errors.types'
 import { queryDbConnection } from '@postgres'
-import { parseStringOrThrow } from '@server-services/sanitizer'
+import {
+  parseIntegerOrThrow,
+  parseStringOrThrow,
+} from '@server-services/sanitizer'
 import { ratio } from 'fuzzball/ultra_lite'
 
 /**
@@ -58,9 +61,30 @@ export async function selectBrandByName(brandName: string) {
       FROM brands
       WHERE lower(NAME) = $1
     `
-
     const normalizedInput = parseStringOrThrow(brandName).toLowerCase()
     const values = [normalizedInput]
+    const result = await queryDbConnection(query, values)
+    return result.rows
+  } catch (error) {
+    handleDatabaseError(error)
+  }
+}
+
+/**
+ * Identifies a brand ID and confirms existence.
+ *
+ * @param brandId The brand ID to check
+ * @returns Promise<Brand> - the brand found in the database.
+ */
+export async function selectBrandById(brandId: number) {
+  try {
+    const query = `
+      SELECT id, name
+      FROM brands
+      WHERE id = $1
+    `
+
+    const values = [brandId]
     const result = await queryDbConnection(query, values)
     return result.rows
   } catch (error) {

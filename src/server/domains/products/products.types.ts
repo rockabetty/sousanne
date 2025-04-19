@@ -12,7 +12,10 @@ export type ProductModel = {
   product_id?: number | null
 }
 
-export type BrandedProduct = ProductModel & { brand: string }
+export type Product = ProductModel & {
+  brand?: string
+  organic?: boolean
+}
 
 export type ProductModelColumn = keyof ProductModel
 

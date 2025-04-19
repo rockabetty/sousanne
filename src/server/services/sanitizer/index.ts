@@ -96,6 +96,42 @@ export const parseFloatOrThrow = (
 }
 
 /**
+ * Parses a string into a price in cents for USD
+ * You don't want "12.99" or "1.98", you want 1299 or 198
+ * because rounding errors will happen otherwise when you
+ * do math at a bunch of different prices. This wouldn't be
+ * sufficient if you considered stuff like yen but I mean it's
+ * fine for every currency on THIS continent so...Yeah.
+ *
+ * @param value - The string to parse
+ * @param required - If true, throws an error when value is falsy
+ * @returns The parsed price in cents or null
+ * @throws Error with INVALID_REQUEST key
+ */
+export const parsePriceOrThrow = (
+  value: string | null | undefined,
+  required: boolean = false
+): number | null => {
+  if (value === null || value === undefined || value === '') {
+    if (required) {
+      throw new Error(ErrorKeys.INVALID_REQUEST)
+    }
+    return null
+  }
+
+  // Remove any currency symbols and whitespace
+  const cleanValue = value.replace(/[$,\s]/g, '')
+
+  // Check if it's a valid number format for currency
+  if (!/^\d+(\.\d{1,2})?$/.test(cleanValue)) {
+    throw new Error(ErrorKeys.INVALID_REQUEST)
+  }
+
+  // Convert to cents with proper rounding
+  // Multiply by 100 and round to avoid floating point issues
+  return Math.round(parseFloat(cleanValue) * 100)
+}
+/**
  * A practical validator for strings to be stored in the DB.
  * This is not intended to make things 'safe' it's intended
  * to reject unreasonable, display-unfriendly user inputs.

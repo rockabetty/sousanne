@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
-import { TextInput, DropdownSelect, Badge, FieldGroup, Button, Modal } from 'el-cuc-ui';
-import NewStoreForm from '@components/stores/NewStoreForm';
-import { StorePrice, Store } from '@components/stores/stores.types';
-import axios from 'axios';
+import React, { useState } from 'react'
+import {
+  TextInput,
+  DropdownSelect,
+  Badge,
+  FieldGroup,
+  Button,
+  Modal,
+} from 'el-cuc-ui'
+import NewStoreForm from '@components/stores/NewStoreForm'
+import { StorePrice, Store } from '@components/stores/stores.types'
+import axios from 'axios'
 
 interface PricesSectionProps {
-  prices: StorePrice[];
-  setPrices: React.Dispatch<React.SetStateAction<StorePrice[]>>;
-  stores: Store[];
-  setStores: React.Dispatch<React.SetStateAction<Store[]>>;
-  fetchStores: () => Promise<void>;
+  prices: StorePrice[]
+  setPrices: React.Dispatch<React.SetStateAction<StorePrice[]>>
+  stores: Store[]
+  setStores: React.Dispatch<React.SetStateAction<Store[]>>
+  fetchStores: () => Promise<void>
 }
 
 const PricesSection: React.FC<PricesSectionProps> = ({
@@ -17,71 +24,71 @@ const PricesSection: React.FC<PricesSectionProps> = ({
   setPrices,
   stores,
   setStores,
-  fetchStores
+  fetchStores,
 }) => {
-  const [addStore, setAddStore] = useState<boolean>(false);
+  const [addStore, setAddStore] = useState<boolean>(false)
   const [newStore, setNewStore] = useState<Store>({
-    name: "",
-    zipcode: "",
-    street: "",
-    city: "Berkeley",
-    state: "CA",
-  });
+    name: '',
+    zipcode: '',
+    street: '',
+    city: 'Berkeley',
+    state: 'CA',
+  })
 
   const toggleAddNewStore = () => {
-    setAddStore(!addStore);
-  };
+    setAddStore(!addStore)
+  }
 
   const addPrice = () => {
-    setPrices([...prices, { storeId: "", price: 0.00 }]);
-  };
+    setPrices([...prices, { storeId: '', price: 0.0, currencyId: 1 }])
+  }
 
   const removePrice = (index: number) => {
-    const updatedPrices = [...prices];
-    updatedPrices.splice(index, 1);
-    setPrices(updatedPrices);
-  };
+    const updatedPrices = [...prices]
+    updatedPrices.splice(index, 1)
+    setPrices(updatedPrices)
+  }
 
   const handlePriceInput = (event, index: number) => {
-    const { value } = event.target;
-    const updatedPrices = [...prices];
-    updatedPrices[index].price = value;
-    setPrices(updatedPrices);
-  };
+    const { value } = event.target
+    const updatedPrices = [...prices]
+    updatedPrices[index].price = value
+    setPrices(updatedPrices)
+  }
 
   const handleStoreSelection = (event, index: number) => {
-    const { value } = event.target;
-    
+    const { value } = event.target
+
     if (value == -1) {
-      setAddStore(true);
+      setAddStore(true)
     } else {
-      setAddStore(false);
-      const updatedPrices = [...prices];
-      updatedPrices[index].storeId = value;
-      setPrices(updatedPrices);
+      setAddStore(false)
+      const updatedPrices = [...prices]
+      updatedPrices[index].storeId = value
+      setPrices(updatedPrices)
     }
-  };
+  }
 
   const submitNewStore = async () => {
     // Since we don't have POST routes yet, this is just a placeholder
-    console.log("New store should be created:", newStore); 
-    setAddStore(false);
+    console.log('New store should be created:', newStore)
+    setAddStore(false)
     setNewStore({
-      name: "",
-      zipcode: "",
-      street: "",
-      city: "Berkeley",
-      state: "CA",
-    });
-    
-    fetchStores();
-    toggleAddNewStore();
-  };
+      name: '',
+      zipcode: '',
+      street: '',
+      city: 'Berkeley',
+      state: 'CA',
+    })
+
+    fetchStores()
+    toggleAddNewStore()
+  }
 
   return (
     <div className="prices-section">
       <h3>Product Pricing</h3>
-      
+
       {prices.map((price, idx) => (
         <div key={`price-row-${idx}`} className="price-row">
           <FieldGroup inline={true}>
@@ -94,7 +101,7 @@ const PricesSection: React.FC<PricesSectionProps> = ({
               value={price.price}
               size="sm"
               onChange={(e) => handlePriceInput(e, idx)}
-            /> 
+            />
             <div className="store-selection">
               <DropdownSelect
                 name="store"
@@ -105,7 +112,7 @@ const PricesSection: React.FC<PricesSectionProps> = ({
                 options={stores}
                 onChange={(e) => handleStoreSelection(e, idx)}
               />
-              
+
               <Badge
                 labelText="Remove"
                 icon="close"
@@ -113,7 +120,6 @@ const PricesSection: React.FC<PricesSectionProps> = ({
                 onClick={() => removePrice(idx)}
               />
             </div>
-          
           </FieldGroup>
         </div>
       ))}
@@ -146,7 +152,7 @@ const PricesSection: React.FC<PricesSectionProps> = ({
         />
       </Modal>
     </div>
-  );
-};
+  )
+}
 
-export default PricesSection;
+export default PricesSection

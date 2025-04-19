@@ -14,8 +14,8 @@ import { ErrorKeys as CoreErrors } from '@errors/errors.types'
 import { ErrorKeys } from '../errors.types'
 import { selectUnitByAbbreviation } from '@domains/units/outbound/unitRepository'
 import { selectIngredientById } from '@domains/ingredients/outbound/ingredientRepository'
-import { BrandedProduct, ProductModel } from '../products.types'
-import { selectBrandByName } from '@domains/brands/outbound/brandRepository'
+import { Product, ProductModel } from '../products.types'
+import { selectBrandById } from '@domains/brands/outbound/brandRepository'
 
 export const parsePackageTypeOrThrow = (packageType: string) => {
   const trimmed = packageType.trim()
@@ -27,12 +27,11 @@ export const parsePackageTypeOrThrow = (packageType: string) => {
 }
 
 const generateDefaultProductNameFromData = async function (
-  product: ProductModel,
+  product: Product,
   unitName: string
 ): Promise<string> {
   const ingredientData = await selectIngredientById(product.ingredient_id)
-  const { name } = ingredientData
-  let ingredientName = name
+  let { name } = ingredientData
   let multipackString = ''
   let quantityString = ''
 
@@ -50,10 +49,14 @@ const generateDefaultProductNameFromData = async function (
 
   // e.g. "Canned Tuna, 3-pack of 5 oz"
   // e.g. "Canned Tuna, 7 oz"
-  return `${name}, ${multipackString}${quantityString}`
+  name = `${name}, ${multipackString}${quantityString}`
+  if (!!product.organic) {
+    name += ', Organic'
+  }
+  return name
 }
 
-export async function addProduct(productData: BrandedProduct) {
+export async function addProduct(productData: Product) {
   /* Since Products are in an adjacency list,
      we want to create the generic version first if it
      doesn't exist, then create the branded one.
@@ -61,12 +64,12 @@ export async function addProduct(productData: BrandedProduct) {
   try {
     const genericProduct = await addGenericProduct(productData)
 
-    if (productData.brand_id) {
-      const brand = await selectBrandByName(productData.brand)
-      if (genericProduct.success) {
+    if (genericProduct.success) {
+      if (!!productData?.brand_id) {
+        const { brand_id } = productData
         const data = {
           product_id: genericProduct.data.product_id,
-          brand_id: brand.data.id,
+          brand_id: brand_id,
         }
         const product = await insertOrSelectOneBrandedProduct(data)
         return {
@@ -111,7 +114,7 @@ export async function addGenericProduct(productData) {
       handleServiceError(CoreErrors.INVALID_REQUEST)
     }
     product.ingredient_id = id
-    product.display_quantity = parseFloatOrThrow(packageAmount)
+    product.display_quantity = parseFloatOrThrow(packageAmount) || 1
     product.package_count = parseIntegerOrThrow(packageCount) || 1
 
     if (productData.name) {

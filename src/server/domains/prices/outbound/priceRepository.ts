@@ -1,5 +1,5 @@
 import { handleDatabaseError } from '@errors'
-import { queryDbConnection } from '@postgres'
+import { queryDbConnection, withTransaction } from '@postgres'
 import { PriceModel } from './prices.types'
 
 export async function getPrices(productId: number): Promise<PriceModel[]> {
@@ -24,12 +24,14 @@ export async function getPrices(productId: number): Promise<PriceModel[]> {
 }
 
 export async function insertPrices(
-  priceDataArray: PriceModel[]
+  productId: number,
+  priceDataArray: PriceModel[],
+  userId: number = 1
 ): Promise<PriceModel[]> {
   try {
     return await withTransaction(async (client) => {
       const insertPromises = priceDataArray.map(async (priceData) => {
-        const { product_id, store_id, price, currency_id, user_id } = priceData
+        const { store_id, price, currency_id, user_id } = priceData
 
         const query = `
         INSERT INTO prices
@@ -45,13 +47,13 @@ export async function insertPrices(
             $1,
             $2,
             $3,
-            $4
+            $4,
             $5
           )
         RETURNING id, product_id, store_id, price, currency_id
         `
 
-        const values = [product_id, store_id, price, currency_id]
+        const values = [productId, store_id, price, currency_id, userId]
         const result = await queryDbConnection(query, values, client)
         return result.rows[0]
       })

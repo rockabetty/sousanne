@@ -82,11 +82,9 @@ export async function insertOrSelectOneProduct(productData: ProductModel) {
             ${product_id ? 'AND COALESCE(product_id, -1) = COALESCE($8, -1)' : ''}
         `
         newProduct = await queryDbConnection(selectQuery, values, client)
-        console.log(newProduct.rows)
       }
 
       if (newProduct.rows.length === 0) {
-        console.log("Didn't findsert!")
         handleDatabaseError(ErrorKeys.FAILURE_TO_FINDSERT)
       }
 
