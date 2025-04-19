@@ -3,28 +3,11 @@ import {
   insertOrSelectOneBrandedProduct,
   insertOrSelectOneProduct,
 } from '../outbound/productRepository'
-import {
-  alphaNumericAndSpacingOnly,
-  isValidInteger,
-  isValidNumber,
-  parseFloatOrThrow,
-  parseIntegerOrThrow,
-} from '@server-services/sanitizer'
 import { ErrorKeys as CoreErrors } from '@errors/errors.types'
 import { ErrorKeys } from '../errors.types'
-import { selectUnitByAbbreviation } from '@domains/units/outbound/unitRepository'
 import { selectIngredientById } from '@domains/ingredients/outbound/ingredientRepository'
-import { Product, ProductModel } from '../products.types'
-import { selectBrandById } from '@domains/brands/outbound/brandRepository'
-
-export const parsePackageTypeOrThrow = (packageType: string) => {
-  const trimmed = packageType.trim()
-  if (['single', 'multiple', 'weight', 'apiece'].includes(trimmed)) {
-    return trimmed
-  } else {
-    throw new Error(CoreErrors.INVALID_REQUEST)
-  }
-}
+import { Product, ProductFormSubmission, ProductModel } from '../products.types'
+import { selectUnitByAbbreviation } from '@domains/units/outbound/unitRepository'
 
 const generateDefaultProductNameFromData = async function (
   product: Product,
@@ -64,7 +47,7 @@ export async function addProduct(productData: Product) {
   try {
     const genericProduct = await addGenericProduct(productData)
 
-    if (genericProduct.success) {
+    if (genericProduct?.success) {
       if (!!productData?.brand_id) {
         const { brand_id } = productData
         const data = {
@@ -81,14 +64,14 @@ export async function addProduct(productData: Product) {
 
     return {
       success: true,
-      data: genericProduct.data,
+      data: genericProduct?.data,
     }
   } catch (error) {
     handleServiceError(error)
   }
 }
 
-export async function addGenericProduct(productData) {
+export async function addGenericProduct(productData: ProductFormSubmission) {
   try {
     const {
       ingredient_id,
@@ -96,37 +79,24 @@ export async function addGenericProduct(productData) {
       packageCount,
       packageType,
       unitName,
-      product_template_id,
+      product_id,
     } = productData
 
     const product: ProductModel = {
       id: -1,
       name: '',
-      ingredient_id: -1,
+      ingredient_id: ingredient_id,
       unit_id: -1,
       brand_id: null,
     }
 
-    const parsedPackageType = parsePackageTypeOrThrow(packageType) // Removed second parameter
-    product.packaged_item = ['single', 'multiple'].includes(parsedPackageType)
-    const id = parseIntegerOrThrow(ingredient_id, true)
-    if (!id) {
-      handleServiceError(CoreErrors.INVALID_REQUEST)
-    }
-    product.ingredient_id = id
-    product.display_quantity = parseFloatOrThrow(packageAmount) || 1
-    product.package_count = parseIntegerOrThrow(packageCount) || 1
+    product.packaged_item = ['single', 'multiple'].includes(packageType)
+    product.display_quantity = packageAmount
+    product.package_count = packageCount
 
-    if (productData.name) {
-      product.name = alphaNumericAndSpacingOnly(productData.name)
-    } else {
-      product.name = await generateDefaultProductNameFromData(product, unitName)
-    }
+    product.name = await generateDefaultProductNameFromData(product, unitName)
 
     const unit = await selectUnitByAbbreviation(unitName)
-    if (!unit) {
-      handleServiceError(CoreErrors.INVALID_REQUEST)
-    }
     product.unit_id = unit.id
 
     const productId = await insertOrSelectOneProduct(product)
@@ -138,7 +108,7 @@ export async function addGenericProduct(productData) {
     }
     return {
       success: false,
-      error: ErrorKeys.FAILURE_TO_FINDSERT,
+      error: ErrorKeys.FAILURE_TO_CREATE_PRODUCT,
     }
   } catch (error) {
     handleServiceError(error)

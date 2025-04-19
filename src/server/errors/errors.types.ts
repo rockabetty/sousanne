@@ -9,6 +9,7 @@ export enum ErrorKeys {
   AUTHENTICATION_FAILED = 'server.errors.authenticationFailed',
   METHOD_NOT_ALLOWED = 'server.errors.methodNotAllowed',
   ACCESS_DENIED = 'server.errors.accessDenied',
+  MISSING_REQUIRED_FIELDS = 'server.errors.missingRequiredFields',
 }
 
 export interface ErrorInfo {

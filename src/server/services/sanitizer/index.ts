@@ -1,4 +1,6 @@
+import { sendErrorResponse } from '@errors'
 import { ErrorKeys } from '@errors/errors.types'
+import { NextApiResponse } from 'next'
 
 /**
  * Filters a string to only keep alphanumeric characters, spaces,
@@ -49,23 +51,25 @@ export const isValidNumber = (value: string): boolean => {
  * Parses a string into an integer or throws an error if invalid.
  * If the value is null, undefined, or empty, returns null unless required is true.
  *
- * @param value - The string to parse, or null/undefined
- * @param required - If true, throws an error when value is null/undefined/empty
- * @returns The parsed integer or null
- * @throws Error with INVALID_REQUEST key if parsing fails or a required value is missing
+ * @param value - The string to parse
+ * @param required - If true, sends an error response when value is falsy
+ * @param res - NextApiResponse object to send error responses
+ * @returns The parsed integer
+ * @note calls sendErrorResponse, which returns, when validation fails
  */
-export const parseIntegerOrThrow = (
+export const parseIntegerOrReject = (
   value: string | null | undefined,
+  res: NextApiResponse,
   required: boolean = false
 ): number | null => {
   if (value === null || value === undefined || value === '') {
     if (!!required) {
-      throw new Error(ErrorKeys.INVALID_REQUEST)
+      sendErrorResponse(res, res, ErrorKeys.MISSING_REQUIRED_FIELDS)
     }
     return null
   }
   if (!isValidInteger(value)) {
-    throw new Error(ErrorKeys.INVALID_REQUEST)
+    sendErrorResponse(res, errorKeys.INVALID_REQUEST)
   }
   return parseInt(value, 10)
 }
@@ -74,63 +78,59 @@ export const parseIntegerOrThrow = (
  * Parses a string into a floating-point number or throws an error if invalid.
  * If the value is null, undefined, or empty, returns null unless required is true.
  *
- * @param value - The string to parse, or null/undefined
- * @param required - If true, throws an error when value is null/undefined/empty
- * @returns The parsed number or null
- * @throws Error with INVALID_REQUEST key
+ * @param value - The string to parse
+ * @param required - If true, sends an error response when value is falsy
+ * @param res - NextApiResponse object to send error responses
+ * @returns The parsed float
+ * @note calls sendErrorResponse, which retuns, when validation fails
  */
-export const parseFloatOrThrow = (
+export const parseFloatOrReject = (
   value: string | null | undefined,
+  res: NextApiResponse,
   required: boolean = false
 ): number | null => {
   if (value === null || value === undefined || value === '') {
     if (!!required) {
-      throw new Error(ErrorKeys.INVALID_REQUEST)
+      sendErrorResponse(res, res, ErrorKeys.MISSING_REQUIRED_FIELDS)
     }
     return null
   }
   if (!isValidNumber(value)) {
-    throw new Error(ErrorKeys.INVALID_REQUEST)
+    sendErrorResponse(res, errorKeys.INVALID_REQUEST)
   }
   return Number(value)
 }
 
 /**
  * Parses a string into a price in cents for USD
- * You don't want "12.99" or "1.98", you want 1299 or 198
- * because rounding errors will happen otherwise when you
- * do math at a bunch of different prices. This wouldn't be
- * sufficient if you considered stuff like yen but I mean it's
- * fine for every currency on THIS continent so...Yeah.
+ * Converts decimal prices (e.g. "12.99" or "1.98") to integer cents (1299 or 198)
+ * to avoid floating point rounding errors during calculations.
  *
  * @param value - The string to parse
- * @param required - If true, throws an error when value is falsy
- * @returns The parsed price in cents or null
- * @throws Error with INVALID_REQUEST key
+ * @param required - If true, sends an error response when value is falsy
+ * @param res - NextApiResponse object to send error responses
+ * @returns The parsed price in cents
+ * @note calls sendErrorResponse, which returns, when validation fails
  */
-export const parsePriceOrThrow = (
+export const parsePriceOrReject = (
   value: string | null | undefined,
+  res: NextApiResponse,
   required: boolean = false
 ): number | null => {
   if (value === null || value === undefined || value === '') {
     if (required) {
-      throw new Error(ErrorKeys.INVALID_REQUEST)
+      sendErrorResponse(res, res, ErrorKeys.MISSING_REQUIRED_FIELDS)
     }
     return null
   }
-
   // Remove any currency symbols and whitespace
   const cleanValue = value.replace(/[$,\s]/g, '')
-
-  // Check if it's a valid number format for currency
   if (!/^\d+(\.\d{1,2})?$/.test(cleanValue)) {
-    throw new Error(ErrorKeys.INVALID_REQUEST)
+    sendErrorResponse(res, res, errorKeys.INVALID_REQUEST)
   }
-
-  // Convert to cents with proper rounding
-  // Multiply by 100 and round to avoid floating point issues
   return Math.round(parseFloat(cleanValue) * 100)
 }
+
 /**
  * A practical validator for strings to be stored in the DB.
  * This is not intended to make things 'safe' it's intended
@@ -142,20 +142,28 @@ export const parsePriceOrThrow = (
  *
  * @param unparsedString The string to validate
  * @param maxLength Maximum allowed length after trimming
- * @returns The cleaned string if valid
+ * @param required - If true, sends an error response if falsy
+ * @returns The cleaned string if valid.
+ * @note calls sendErrorResponse, which returns, when validation fails
  */
-export function parseStringOrThrow(
+export function parseStringOrReject(
   unparsedString: string,
-  maxLength: number = 100
-): string {
-  if (!unparsedString) {
-    throw new Error(ErrorKeys.INVALID_REQUEST)
+  res: NextApiResponse,
+  maxLength: number = 100,
+  required: boolean = false
+): NextApiResponse | string {
+  if (unparsedString && typeof unparsedString !== 'string') {
+    sendErrorResponse(res, errorKeys.INVALID_REQUEST)
+  }
+
+  if (required && unparsedString != null && unparsedString == undefined) {
+    sendErrorResponse(res, errorKeys.MISSING_REQUIRED_FIELDS)
   }
 
   let trimmedString = unparsedString.trim()
 
   if (trimmedString.length === 0 || trimmedString.length > maxLength) {
-    throw new Error(ErrorKeys.INVALID_REQUEST)
+    sendErrorResponse(res, errorKeys.INVALID_REQUEST)
   }
 
   // Collapse multiple spaces into a single space
@@ -166,7 +174,7 @@ export function parseStringOrThrow(
   // These test for control characters like the beepy-beeper, that'd be
   // indicative of actual tomfoolery
   if (/[\x00-\x1F\x7F]/.test(trimmedString)) {
-    throw new Error(ErrorKeys.INVALID_REQUEST)
+    sendErrorResponse(res, errorKeys.INVALID_REQUEST)
   }
 
   return trimmedString

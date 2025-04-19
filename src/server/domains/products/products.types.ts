@@ -1,9 +1,9 @@
 export type ProductModel = {
   id: number
-  name: string
+  name?: string
   ingredient_id: number
   created_at?: Date
-  unit_id: number
+  unit_id?: number
   base_quantity?: number | null
   packaged_item?: boolean | null
   package_count?: number | null
@@ -36,6 +36,15 @@ export const productModelColumns: ProductModelColumn[] = [
 export const productModelColumnSet: Set<ProductModelColumn> = new Set(
   productModelColumns
 )
+
+export type ProductFormSubmission = {
+  ingredient_id: number
+  packageAmount: number
+  packageCount: number
+  packageType: 'single' | 'multiple' | 'apiece' | 'weight'
+  unitName: string
+  product_id: number
+}
 
 export type BrandModel = {
   id: number
