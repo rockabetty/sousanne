@@ -2,7 +2,11 @@ import { CORE_ERROR_MAP } from './errorMap'
 import { PANTRY_ERROR_MAP } from '@domains/pantries/errorMap'
 import { UNIT_ERROR_MAP } from '@domains/units/errorMap'
 import { PRODUCT_ERROR_MAP } from '@domains/products/errorMap'
-import { ApplicationErrorKey, ApiErrorResponse } from './apiResponse.types'
+import {
+  ApplicationErrorKey,
+  ApiResponse,
+  ApiErrorResponse,
+} from './apiResponse.types'
 import { t } from 'i18next'
 import { logger } from '@logger'
 import { NextApiResponse } from 'next'
@@ -70,7 +74,10 @@ export function handleDatabaseError(error: unknown, context?: object): never {
  * @param error The error to handle
  * @param context Optional context information to include in the log
  */
-export function handleServiceError(error: unknown, context?: object): never {
+export function handleServiceError(
+  error: unknown,
+  context?: object
+): ApiResponse<never> {
   if (error instanceof Error) {
     logger.error('Service-layer error', { error, ...context })
     return {
