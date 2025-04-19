@@ -1,14 +1,20 @@
+import { ErrorKeys } from '@errors/errors.types'
 import { acceptGetOnly } from '@errors/methodgatekeeper'
-import { NextApiHandler, NextApiRequest, NextApiResponse } from 'next'
+import { NextApiRequest, NextApiResponse } from 'next'
 import { getBrands } from '../core/brandService'
 
-const getBrandsHandler = async (req: NextApiRequest, res: NextApiResponse) => {
+const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptGetOnly(req, res)
-  const brands = await getBrands()
-  if (brands.success) {
-    res.status(200).send(brands.data)
-  }
-  res.status(500).send(brands.error)
-}
 
-export default getBrandsHandler
+  try {
+    const brands = await getBrands()
+
+    if (brands.success) {
+      res.status(200).json(brands.data)
+    } else {
+      res.status(400).json(brands.error)
+    }
+  } catch (error) {
+    res.status(500).json(ErrorKeys.GENERAL_SERVER_ERROR)
+  }
+}

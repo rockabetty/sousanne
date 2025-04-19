@@ -112,3 +112,86 @@ export async function selectBrands() {
     handleDatabaseError(error)
   }
 }
+
+/**
+ * Creates a new brand in the database.
+ *
+ * @param brandData The brand data to create
+ * @returns Promise<{id: number}> The ID of the newly created brand
+ */
+export async function insertBrand(brandData: {
+  name: string
+}): Promise<{ id: number }> {
+  try {
+    const query = `
+      INSERT INTO brands
+      (name)
+      VALUES
+      ($1)
+      RETURNING id
+    `
+    const values = [brandData.name]
+    const result = await queryDbConnection(query, values)
+
+    if (result.rows.length === 0) {
+      handleDatabaseError(new Error('Failed to insert brand'))
+    }
+
+    return result.rows[0]
+  } catch (error) {
+    handleDatabaseError(error)
+  }
+}
+
+/**
+ * Updates an existing brand in the database.
+ *
+ * @param id The ID of the brand to update
+ * @param brandData The updated brand data
+ * @returns Promise<BrandModel> The updated brand
+ */
+export async function updateBrand(
+  id: number,
+  brandData: { name: string }
+): Promise<BrandModel> {
+  try {
+    const query = `
+      UPDATE brands
+      SET name = $1
+      WHERE id = $2
+      RETURNING id, name
+    `
+    const values = [brandData.name, id]
+    const result = await queryDbConnection(query, values)
+
+    if (result.rows.length === 0) {
+      handleDatabaseError(new Error('Brand not found'))
+    }
+
+    return result.rows[0]
+  } catch (error) {
+    handleDatabaseError(error)
+  }
+}
+
+/**
+ * Deletes a brand from the database.
+ *
+ * @param id The ID of the brand to delete
+ * @returns Promise<boolean> True if the brand was deleted, false otherwise
+ */
+export async function deleteBrand(id: number): Promise<boolean> {
+  try {
+    const query = `
+      DELETE FROM brands
+      WHERE id = $1
+      RETURNING id
+    `
+    const values = [id]
+    const result = await queryDbConnection(query, values)
+
+    return result.rows.length > 0
+  } catch (error) {
+    handleDatabaseError(error)
+  }
+}

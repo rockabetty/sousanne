@@ -112,14 +112,18 @@ const PricesSection: React.FC<PricesSectionProps> = ({
 
   const submitNewBrand = async () => {
     // Since we don't have POST routes yet, this is just a placeholder
+    try {
+      const postRequest = await axios.post('/api/brands')
+      setAddBrand(false)
+      setNewBrand({
+        name: '',
+      })
+      fetchBrands()
+      toggleAddNewBrand()
+    } catch (error) {
+      console.log('Error creating a new brand.')
+    }
     console.log('New brand should be created:', newStore)
-    setAddBrand(false)
-    setNewBrand({
-      name: '',
-    })
-
-    fetchBrands()
-    toggleAddNewBrand()
   }
 
   return (
@@ -191,12 +195,7 @@ const PricesSection: React.FC<PricesSectionProps> = ({
         onAction={submitNewStore}
         size="lg"
       >
-        <NewStoreForm
-          newStore={newStore}
-          setNewStore={setNewStore}
-          onCancel={toggleAddNewStore}
-          onSubmit={submitNewStore}
-        />
+        <NewStoreForm newStore={newStore} setNewStore={setNewStore} />
       </Modal>
 
       <Modal
@@ -210,12 +209,7 @@ const PricesSection: React.FC<PricesSectionProps> = ({
         onAction={submitNewBrand}
         size="lg"
       >
-        <NewBrandForm
-          newBrand={newBrand}
-          setNewBrand={setNewBrand}
-          onCancel={toggleAddNewBrand}
-          onSubmit={submitNewBrand}
-        />
+        <NewBrandForm newBrand={newBrand} setNewBrand={setNewBrand} />
       </Modal>
     </div>
   )
