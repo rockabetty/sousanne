@@ -1,15 +1,16 @@
-import { NextApiHandler } from "next";
-import { updateIngredientAmountsInPantry } from "@domains/pantries/core/pantryService";
-import { sendErrorResponse } from "@errors";
-import { ErrorKeys } from "../errors.types";
-import { ErrorKeys as CoreErrors } from "@errors/errors.types";
-import { acceptPutOnly } from "@errors/methodgatekeeper";
+import { NextApiHandler } from 'next'
+import { updateIngredientAmountsInPantry } from '@domains/pantries/core/pantryService'
+import { sendErrorResponse } from '@errors'
+import { ErrorKeys } from '../errors.types'
+import { ErrorKeys as CoreErrors } from '@errors/errors.types'
+import { acceptPutOnly, rateLimit } from '@errors/methodgatekeeper'
 
 const handler: NextApiHandler = async (req, res) => {
   try {
     acceptPutOnly(req, res)
-    const {user_id} = req.query;
-    const {itemList, action} = req.body;
+    rateLimit
+    const { user_id } = req.query
+    const { itemList, action } = req.body
     if (!action) {
       return sendErrorResponse(res, ErrorKeys.PANTRY_ACTION_MISSING)
     }
@@ -22,16 +23,16 @@ const handler: NextApiHandler = async (req, res) => {
     const update = {
       user_id,
       itemList,
-      action
+      action,
     }
     const result = await updateIngredientAmountsInPantry(update)
     if (result.success) {
-      return res.status(200).send("OK")
+      return res.status(200).send('OK')
     }
-    return sendErrorResponse(res, result.error);
+    return sendErrorResponse(res, result.error)
   } catch (error) {
-    return sendErrorResponse(res, error);
+    return sendErrorResponse(res, error)
   }
-};
+}
 
-export default handler;
+export default handler

@@ -1,11 +1,12 @@
 import { ErrorKeys } from '@errors/errors.types'
-import { acceptPutOnly } from '@errors/methodgatekeeper'
+import { acceptPutOnly, rateLimit } from '@errors/methodgatekeeper'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { updateBrandById } from '../core/brandService'
 import { parseIntegerOrThrow } from '@server-services/sanitizer'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPutOnly(req, res)
+  rateLimit
   const { body, query } = req
   const { id } = query
 

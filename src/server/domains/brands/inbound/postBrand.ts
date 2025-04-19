@@ -1,10 +1,12 @@
 import { ErrorKeys } from '@errors/errors.types'
-import { acceptPostOnly } from '@errors/methodgatekeeper'
+import { acceptPostOnly, rateLimit } from '@errors/methodgatekeeper'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { addBrand } from '../core/brandService'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPostOnly(req, res)
+  rateLimit(req, res)
+
   const { body } = req
 
   try {

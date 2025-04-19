@@ -2,11 +2,11 @@ import { ErrorKeys } from '@errors/errors.types'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { removeBrand } from '../core/brandService'
 import { parseIntegerOrThrow } from '@server-services/sanitizer'
-import { acceptPostOnly } from '@errors/methodgatekeeper'
+import { acceptPostOnly, rateLimit } from '@errors/methodgatekeeper'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPostOnly(req, res)
-
+  rateLimit(req, res)
   const { id } = req.query
 
   if (!id) {
