@@ -1,7 +1,9 @@
-import { ErrorKeys } from '@errors/errors.types'
+import { ErrorKeys as CoreErrorKeys } from '@errors/errors.types'
 import { acceptPostOnly, rateLimit } from '@errors/methodgatekeeper'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { addBrand } from '../core/brandService'
+import { sendError } from 'next/dist/server/api-utils'
+import { sendErrorResponse } from '@errors'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPostOnly(req, res)
@@ -13,8 +15,7 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
     const { name } = body
 
     if (!name) {
-      res.status(400).json(ErrorKeys.INVALID_REQUEST)
-      return
+      return sendErrorResponse(res, CoreErrorKeys.MISSING_REQUIRED_FIELDS)
     }
 
     const newBrand = await addBrand({ name })
@@ -25,7 +26,7 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
       res.status(400).json(newBrand.error)
     }
   } catch (error) {
-    res.status(500).json(ErrorKeys.GENERAL_SERVER_ERROR)
+    return sendErrorResponse(res, CoreErrorKeys.GENERAL_SERVER_ERROR)
   }
 }
 

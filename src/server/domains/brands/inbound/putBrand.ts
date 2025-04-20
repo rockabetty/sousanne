@@ -3,6 +3,7 @@ import { acceptPutOnly, rateLimit } from '@errors/methodgatekeeper'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { updateBrandById } from '../core/brandService'
 import { parseIntegerOrThrow } from '@server-services/sanitizer'
+import { sendErrorResponse } from '@errors'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPutOnly(req, res)
@@ -20,8 +21,7 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
     const { name } = body
 
     if (!name) {
-      res.status(400).json(ErrorKeys.INVALID_REQUEST)
-      return
+      sendErrorResponse(res, ErrorKeys.MISSING_REQUIRED_FIELDS)
     }
 
     const updatedBrand = await updateBrandById(brandId, { name })
@@ -29,7 +29,7 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
     if (updatedBrand.success) {
       res.status(200).json({ brand: updatedBrand.data })
     } else {
-      res.status(400).json(updatedBrand.error)
+      sendErrorResponse(res, updatedBrand.error)
     }
   } catch (error) {
     res.status(500).json(ErrorKeys.GENERAL_SERVER_ERROR)

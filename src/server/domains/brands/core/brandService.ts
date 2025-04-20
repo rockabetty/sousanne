@@ -16,13 +16,6 @@ export async function addBrand(brandData: { name: string }) {
   try {
     const { name } = brandData
 
-    if (!name) {
-      return {
-        success: false,
-        error: ErrorKeys.INVALID_BRAND_DATA,
-      }
-    }
-
     const sanitizedName = alphaNumericAndSpacingOnly(name)
 
     const existingBrand = await selectBrandByName(sanitizedName)
@@ -85,12 +78,6 @@ export async function updateBrandById(id: number, brandData: { name: string }) {
   try {
     const { name } = brandData
 
-    if (!name) {
-      return {
-        success: false,
-        error: ErrorKeys.INVALID_BRAND_DATA,
-      }
-    }
     const existingBrand = await selectBrandById(id)
     if (!existingBrand || existingBrand.length === 0) {
       return {
@@ -100,7 +87,6 @@ export async function updateBrandById(id: number, brandData: { name: string }) {
     }
 
     const sanitizedName = alphaNumericAndSpacingOnly(name)
-
     const duplicateBrand = await selectBrandByName(sanitizedName)
     if (
       duplicateBrand &&
@@ -132,7 +118,6 @@ export async function updateBrandById(id: number, brandData: { name: string }) {
 
 export async function removeBrand(id: number) {
   try {
-    // Check if brand exists
     const existingBrand = await selectBrandById(id)
     if (!existingBrand || existingBrand.length === 0) {
       return {
