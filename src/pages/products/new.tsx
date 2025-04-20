@@ -7,10 +7,11 @@ import axios from 'axios'
 import { Store, StorePrice } from '@components/stores/stores.types'
 import { ProductData } from '@components/products/products.types'
 import SousanneLayout from '@components/layout/SousannePage'
+import { Brand } from '@components/brands/brands.types'
 const NewProductPage = () => {
   const [productData, setProductData] = useState<ProductData>({
     name: '',
-    ingredient_id: '',
+    ingredientId: '',
     packageType: 'single',
     packageCount: undefined,
     packageAmount: undefined,
@@ -36,10 +37,15 @@ const NewProductPage = () => {
     try {
       const response = await axios.get('/api/brands')
       if (response.data) {
-        const brandOptions = response.data.map((brand) => ({
+        const brandOptions = response.data.map((brand: Brand) => ({
           labelText: brand.name,
           value: brand.id,
         }))
+
+        brandOptions.unkshift({
+          labelText: 'Generic',
+          value: undefined,
+        })
 
         brandOptions.push({
           labelText: 'Add new brand',
@@ -56,7 +62,7 @@ const NewProductPage = () => {
     try {
       const response = await axios.get('/api/stores')
       if (response.data) {
-        const storeOptions = response.data.map((store) => ({
+        const storeOptions = response.data.map((store: Store) => ({
           labelText: store.name,
           value: store.id,
         }))
@@ -74,17 +80,21 @@ const NewProductPage = () => {
     }
   }
 
-  const handleSelectIngredient = (event) => {
+  const handleSelectIngredient = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { value } = event.target
-    setProductData({ ...productData, ingredient_id: value })
+    setProductData({ ...productData, ingredientId: value })
   }
 
-  const handleIngredientSearch = (event) => {
+  const handleIngredientSearch = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const { value } = event.target
     setIngredientQuery(value)
   }
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async () => {
     try {
       setIsLoading(true)
       const response = await axios.post('/api/products/new', {
@@ -104,7 +114,7 @@ const NewProductPage = () => {
     <SousanneLayout>
       <Form submitLabel="Save" onSubmit={handleSubmit}>
         <IngredientSearchBar
-          selection={productData.ingredient_id}
+          selection={productData.ingredientId}
           onSelect={handleSelectIngredient}
         />
 

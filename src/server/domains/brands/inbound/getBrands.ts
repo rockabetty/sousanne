@@ -18,3 +18,5 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
     res.status(500).json(ErrorKeys.GENERAL_SERVER_ERROR)
   }
 }
+
+export default handler

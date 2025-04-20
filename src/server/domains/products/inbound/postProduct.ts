@@ -12,6 +12,7 @@ import {
 } from '@server-services/sanitizer'
 import { selectUnitByAbbreviation } from '@domains/units/outbound/unitRepository'
 import { validatePackageType } from './validators'
+import { ParseValidPrices } from '@domains/prices/inbound/validators'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPostOnly(req, res)
@@ -34,26 +35,23 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
     }
 
     try {
-      const validIngredientId = parseInteger(ingredient_id, true)
+      const validIngredientId = parseIntegerOrReject(ingredient_id, res, true)
       if (!validIngredientId) {
         return sendErrorResponse(res, CoreErrorKeys.INVALID_REQUEST)
       }
 
-      const validPackageType = validatePackageType(packageType)
+      const validPackageType = validatePackageType(packageType, res)
 
       const validPackageAmount = parseFloatOrReject(packageAmount, res) || 1
       const validPackageCount = parseIntegerOrReject(packageCount, res) || 1
 
-      // Validate unit exists
       const unit = await selectUnitByAbbreviation(unitName)
       if (!unit) {
         return sendErrorResponse(res, ErrorKeys.UNIT_NOT_FOUND)
       }
 
-      // Validate name if provided
       const validName = name ? alphaNumericAndSpacingOnly(name) : null
 
-      // Create validated product object
       const validatedProduct = {
         name: validName,
         ingredient_id: validIngredientId,
@@ -70,7 +68,8 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
         const { prices } = body
 
         if (!!prices) {
-          const newPrices = await addPrices(newProduct.data.id, prices)
+          const priceList = ParseValidPrices(prices, newProduct.data.id, res)
+          const newPrices = await addPrices(newProduct.data.id, priceList)
           if (newPrices.success) {
             return res
               .status(200)

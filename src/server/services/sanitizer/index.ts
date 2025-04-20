@@ -64,7 +64,7 @@ export const parseIntegerOrReject = (
 ): number | null => {
   if (value === null || value === undefined || value === '') {
     if (!!required) {
-      sendErrorResponse(res, res, ErrorKeys.MISSING_REQUIRED_FIELDS)
+      sendErrorResponse(res, ErrorKeys.MISSING_REQUIRED_FIELDS)
     }
     return null
   }
@@ -91,7 +91,7 @@ export const parseFloatOrReject = (
 ): number | null => {
   if (value === null || value === undefined || value === '') {
     if (!!required) {
-      sendErrorResponse(res, res, ErrorKeys.MISSING_REQUIRED_FIELDS)
+      sendErrorResponse(res, ErrorKeys.MISSING_REQUIRED_FIELDS)
     }
     return null
   }
@@ -113,13 +113,13 @@ export const parseFloatOrReject = (
  * @note calls sendErrorResponse, which returns, when validation fails
  */
 export const parsePriceOrReject = (
-  value: string | null | undefined,
+  value: string | number | null | undefined,
   res: NextApiResponse,
   required: boolean = false
 ): number | null => {
   if (value === null || value === undefined || value === '') {
     if (required) {
-      sendErrorResponse(res, res, ErrorKeys.MISSING_REQUIRED_FIELDS)
+      sendErrorResponse(res, ErrorKeys.MISSING_REQUIRED_FIELDS)
     }
     return null
   }

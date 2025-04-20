@@ -1,26 +1,23 @@
-import React from 'react';
+import React from 'react'
 import { TextInput, Radio } from 'el-cuc-ui'
-import { useIngredientSearch } from "./hooks/useIngredientSearch";
-import { Ingredient } from '@domains/ingredients/ingredients.types';
+import { useIngredientSearch } from './hooks/useIngredientSearch'
 
 type IngredientSearchProps = {
-  onSelect: (event) => {};
-  selection: number;
+  onSelect: (e: React.ChangeEvent<HTMLInputElement>) => void
+  selection?: number
 }
 
-
-
 const IngredientSearchBar = function (props: IngredientSearchProps) {
-  const {onSelect, selection} = props
-  const {query, setQuery, suggestions} = useIngredientSearch();
+  const { onSelect, selection } = props
+  const { query, setQuery, suggestions } = useIngredientSearch()
 
   const handleSearch = (event) => {
-    const {value} = event.target;
+    const { value } = event.target
     setQuery(value)
   }
 
-    return (
-      <>
+  return (
+    <>
       <TextInput
         id="ingredients_search_bar"
         name="ingredient"
@@ -33,28 +30,25 @@ const IngredientSearchBar = function (props: IngredientSearchProps) {
 
       {suggestions.length > 0 ? (
         <fieldset>
-      <legend>Select an ingredient...</legend>
+          <legend>Select an ingredient...</legend>
 
-        {suggestions.map((suggestion) => {
-          return (
-            <Radio
-              labelText={suggestion.name}
-              onChange={onSelect}
-              value={suggestion.id}
-              name="selected_ingredient_search_result"
-              id={`ingredient_id_${suggestion.id}`}
-              checked={selection == suggestion.id}
-              key={`ingredient_result_${suggestion.id}`}/>
+          {suggestions.map((suggestion) => {
+            return (
+              <Radio
+                labelText={suggestion.name}
+                onChange={onSelect}
+                value={suggestion.id}
+                name="selected_ingredient_search_result"
+                id={`ingredient_id_${suggestion.id}`}
+                checked={selection == suggestion.id}
+                key={`ingredient_result_${suggestion.id}`}
+              />
             )
-        })}
-
+          })}
         </fieldset>
-        
-        ) : null}
-
-
-      </>
-    )
+      ) : null}
+    </>
+  )
 }
 
 export default IngredientSearchBar

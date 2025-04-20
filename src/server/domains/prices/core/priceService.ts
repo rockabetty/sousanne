@@ -12,15 +12,7 @@ export async function addPrices(
   productId: number,
   prices: PriceModel[]
 ): Promise<ApiResponse<PriceModel[]>> {
-  // validating each price
   try {
-    for (let price of prices) {
-      console.log(price)
-      price.price = parsePriceOrThrow(price.price)
-      price.product_id = parseIntegerOrThrow(productId)
-      price.store_id = parseIntegerOrThrow(price.storeId)
-      price.currency_id = parseIntegerOrThrow(price.currencyId)
-    }
     const priceTransaction = await insertPrices(productId, prices)
     if (priceTransaction.length > 0) {
       return {
