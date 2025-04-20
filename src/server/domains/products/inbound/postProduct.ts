@@ -2,17 +2,19 @@ import { ErrorKeys as CoreErrorKeys } from '@errors/errors.types'
 import { ErrorKeys } from '../errors.types'
 import { acceptPostOnly } from '@errors/methodgatekeeper'
 import { NextApiRequest, NextApiResponse } from 'next'
-import { addProduct } from '../core/productService'
+import { addBrandedProducts, addProduct } from '../core/productService'
 import { addPrices } from '@domains/prices/core/priceService'
 import { sendErrorResponse } from '@errors'
 import {
   alphaNumericAndSpacingOnly,
   parseFloatOrReject,
   parseIntegerOrReject,
+  parseStringOrReject,
 } from '@server-services/sanitizer'
 import { selectUnitByAbbreviation } from '@domains/units/outbound/unitRepository'
 import { validatePackageType } from './validators'
-import { ParseValidPrices } from '@domains/prices/inbound/validators'
+import { parseValidPrices } from '@domains/prices/inbound/validators'
+import { PriceModel, UserSubmittedPrice } from '@domains/prices/prices.types'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPostOnly(req, res)
@@ -22,7 +24,7 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   try {
     const {
       name,
-      ingredient_id,
+      ingredientId,
       packageAmount,
       packageCount,
       packageType,
@@ -30,12 +32,12 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
       organic,
     } = body.product
 
-    if (!ingredient_id || !packageType) {
+    if (!ingredientId || !packageType) {
       return sendErrorResponse(res, CoreErrorKeys.MISSING_REQUIRED_FIELDS)
     }
 
     try {
-      const validIngredientId = parseIntegerOrReject(ingredient_id, res, true)
+      const validIngredientId = parseIntegerOrReject(ingredientId, res, true)
       if (!validIngredientId) {
         return sendErrorResponse(res, CoreErrorKeys.INVALID_REQUEST)
       }
@@ -68,14 +70,28 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
         const { prices } = body
 
         if (!!prices) {
-          const priceList = ParseValidPrices(prices, newProduct.data.id, res)
+          const parentId = newProduct.data.id
+          const brandList: number[] = []
+          prices.forEach((price) => {
+            const num = parseIntegerOrReject(price.brandId, res)
+            const name = parseStringOrReject(price.brandName, res)
+            if (num && name) {
+              brandList.push({
+                brand_id: num,
+                productName: `${newProduct.data.name} by ${name}`,
+              })
+            }
+          })
+          const brandedProducts = await addBrandedProducts(parentId, brandList)
+
+          const priceList = parseValidPrices(prices, newProduct.data.id, res)
           const newPrices = await addPrices(newProduct.data.id, priceList)
           if (newPrices.success) {
             return res
               .status(200)
               .send({ product: newProduct.data, prices: newPrices })
           }
-          return sendErrorResponse(
+          sendErrorResponse(
             res,
             newPrices.error || CoreErrorKeys.GENERAL_SERVER_ERROR
           )
@@ -83,14 +99,14 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
         return res.status(200).send({ product: newProduct.data })
       }
       if (newProduct?.error) {
-        return sendErrorResponse(
+        sendErrorResponse(
           res,
           newProduct?.error || ErrorKeys.FAILURE_TO_CREATE_PRODUCT
         )
       }
     } catch (validationError) {
       if (validationError instanceof Error) {
-        return sendErrorResponse(
+        sendErrorResponse(
           res,
           (validationError.message as ErrorKeys) ||
             ErrorKeys.INVALID_PRODUCT_DATA

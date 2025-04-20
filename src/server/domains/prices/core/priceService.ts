@@ -1,7 +1,3 @@
-import {
-  parsePriceOrThrow,
-  parseIntegerOrThrow,
-} from '@server-services/sanitizer'
 import { PriceModel } from '../prices.types'
 import { insertPrices } from '../outbound/priceRepository'
 import { handleServiceError } from '@errors'
@@ -34,8 +30,6 @@ export async function getPrices(
   storeId: number
 ): Promise<ApiResponse<PriceModel[]>> {
   try {
-    const productId = parseIntegerOrThrow(productId)
-    const storeId = parseIntegerOrThrow(storeId)
     const priceList = await getPrices(productId, storeId)
     return {
       success: true,

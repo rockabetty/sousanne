@@ -1,5 +1,6 @@
 import { handleServiceError } from '@errors'
 import {
+  insertOrSelectBrandedProducts,
   insertOrSelectOneBrandedProduct,
   insertOrSelectOneProduct,
 } from '../outbound/productRepository'
@@ -39,39 +40,26 @@ const generateDefaultProductNameFromData = async function (
   return name
 }
 
-export async function addProduct(productData: Product) {
-  /* Since Products are in an adjacency list,
-     we want to create the generic version first if it
-     doesn't exist, then create the branded one.
-    */
+export async function addBrandedProducts(parentId: number, brands) {
+  console.log('Add branded products is getting called')
+
   try {
-    const genericProduct = await addGenericProduct(productData)
-
-    if (genericProduct?.success) {
-      if (!!productData?.brand_id) {
-        const { brand_id } = productData
-        const data = {
-          product_id: genericProduct.data.product_id,
-          brand_id: brand_id,
-        }
-        const product = await insertOrSelectOneBrandedProduct(data)
-        return {
-          success: true,
-          data: product.data,
-        }
+    const brandedProducts = await insertOrSelectBrandedProducts(
+      parentId,
+      brands
+    )
+    if (brandedProducts?.success) {
+      return {
+        success: true,
+        data: brandedProducts.data,
       }
-    }
-
-    return {
-      success: true,
-      data: genericProduct?.data,
     }
   } catch (error) {
     handleServiceError(error)
   }
 }
 
-export async function addGenericProduct(productData: ProductFormSubmission) {
+export async function addProduct(productData: ProductFormSubmission) {
   try {
     const {
       ingredient_id,

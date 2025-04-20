@@ -10,7 +10,6 @@ import SousanneLayout from '@components/layout/SousannePage'
 import { Brand } from '@components/brands/brands.types'
 const NewProductPage = () => {
   const [productData, setProductData] = useState<ProductData>({
-    name: '',
     ingredientId: undefined,
     packageType: 'single',
     packageCount: undefined,
@@ -39,12 +38,13 @@ const NewProductPage = () => {
       if (response.data) {
         const brandOptions = response.data.map((brand: Brand) => ({
           labelText: brand.name,
-          value: brand.id,
+          value: `${brand.id}^${brand.name}`,
         }))
 
-        brandOptions.unkshift({
+        brandOptions.unshift({
           labelText: 'Generic',
           value: undefined,
+          name: '',
         })
 
         brandOptions.push({

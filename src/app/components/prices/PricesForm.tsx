@@ -98,7 +98,10 @@ const PricesSection: React.FC<PricesSectionProps> = ({
     } else {
       setAddBrand(false)
       const updatedPrices = [...prices]
-      updatedPrices[index].brandId = value
+      updatedPrices[index].brandId = value.split('^')[0]
+      console.log(value)
+      updatedPrices[index].brandName = value.split('^')[1]
+      console.log(updatedPrices)
       setPrices(updatedPrices)
     }
   }
@@ -171,7 +174,7 @@ const PricesSection: React.FC<PricesSectionProps> = ({
                 name="brand"
                 id={`price_brand_${idx}`}
                 labelText="Brand"
-                value={price.brandId}
+                value={`${price.brandId}^${price.brandName}`}
                 size="lg"
                 options={brands}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>

@@ -7,15 +7,16 @@ import { PriceModel, UserSubmittedPrice } from '../prices.types'
 import { sendErrorResponse } from '@errors'
 import { ErrorKeys } from '@errors/errors.types'
 
-export const ParseValidPrices = function (
+export const parseValidPrices = function (
   prices: UserSubmittedPrice[],
   productId: string,
   res: NextApiResponse
 ): UserSubmittedPrice[] {
+  console.log('parse valid prices invoked')
   const validPrices = []
   for (let currPrice of prices) {
     const newPrice = {} as Partial<PriceModel>
-    const { price, productId, storeId, currencyId } = currPrice
+    const { price, storeId, currencyId } = currPrice
     if (!price || !productId || !storeId || !currencyId) {
       sendErrorResponse(res, ErrorKeys.MISSING_REQUIRED_FIELDS)
     }

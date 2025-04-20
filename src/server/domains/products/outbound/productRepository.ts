@@ -2,6 +2,7 @@ import { handleDatabaseError } from '@errors'
 import { queryDbConnection, withTransaction } from '@postgres'
 import { BrandedProduct, ProductModel } from '../products.types'
 import { ErrorKeys } from '../errors.types'
+import { QueryResult } from 'pg'
 
 export async function insertOrSelectOneProduct(productData: ProductModel) {
   return withTransaction(async (client) => {
@@ -53,7 +54,7 @@ export async function insertOrSelectOneProduct(productData: ProductModel) {
       INSERT INTO products (${columns.join(', ')})
       VALUES (${placeholders.join(', ')})
       ON CONFLICT ON CONSTRAINT unique_products DO NOTHING
-      RETURNING id`
+      RETURNING id, name`
 
     try {
       let newProduct = await queryDbConnection(insertQuery, values, client)
@@ -86,7 +87,7 @@ export async function insertOrSelectOneProduct(productData: ProductModel) {
         }
 
         const selectQuery = `
-          SELECT id
+          SELECT id, name
           FROM products
           WHERE ${conditions.join(' AND ')}
         `
@@ -104,29 +105,55 @@ export async function insertOrSelectOneProduct(productData: ProductModel) {
   })
 }
 
+export async function insertOrSelectBrandedProducts(
+  parentId: number,
+  brandIDs: number[]
+) {
+  try {
+    withTransaction(async (client) => {
+      const insertPromises: Promise<QueryResult>[] = []
+      brandIDs.forEach((brand) => {
+        insertPromises.push(
+          insertOrSelectOneBrandedProduct({
+            parent_id: parentId,
+            brand: brand,
+          })
+        )
+      })
+
+      return await Promise.all(insertPromises)
+    })
+  } catch (error) {
+    handleDatabaseError(ErrorKeys.FAILURE_TO_CREATE_PRODUCT)
+  }
+}
+
 export async function insertOrSelectOneBrandedProduct(
   productData: BrandedProduct
 ) {
-  return withTransaction(async (client) => {
-    const { brand_id, product_id } = productData
+  withTransaction(async (client) => {
+    const { brand, parent_id } = productData
+    const { brand_id, productName } = brand
 
     const insertQuery = `
     INSERT INTO products
     (
       brand_id,
-      product_id
+      product_id,
+      name
     )
     VALUES
     (
       $1,
       $2,
+      $3
     )
     ON CONFLICT
       ON CONSTRAINT unique_product_brands DO NOTHING
     RETURNING id
     `
 
-    const values = [brand_id, product_id]
+    const values = [brand_id, parent_id, productName]
 
     try {
       let newProduct = await queryDbConnection(insertQuery, values, client)
@@ -140,8 +167,12 @@ export async function insertOrSelectOneBrandedProduct(
           WHERE
             brand_id = $1
             AND product_id = $2
+
+
         `
-        newProduct = await queryDbConnection(selectQuery, values, client)
+        const selectValues = [brand_id, parent_id]
+
+        newProduct = await queryDbConnection(selectQuery, selectValues, client)
       }
 
       if (newProduct.rows.length === 0) {

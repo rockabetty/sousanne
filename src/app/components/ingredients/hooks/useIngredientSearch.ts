@@ -37,19 +37,18 @@ export function useIngredientSearch(
 
   const getIngredientSuggestions = async (searchQuery: string) => {
     // i'm not tryinna hit this route every keystroke
-    if (searchQuery.length % 2 == 0) {
-      axios
-        .get(`/api/ingredients?search=${encodeURIComponent(searchQuery)}`)
-        .then((response) => {
-          const { data } = response
-          setSuggestions(data)
-        })
-        .catch((error) => {
-          setError(error.error || "Couldn't find anything!")
-          setSuggestions([])
-        })
-        .finally(() => setLoading(false))
-    }
+
+    axios
+      .get(`/api/ingredients?search=${encodeURIComponent(searchQuery)}`)
+      .then((response) => {
+        const { data } = response
+        setSuggestions(data)
+      })
+      .catch((error) => {
+        setError(error.error || "Couldn't find anything!")
+        setSuggestions([])
+      })
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => {
