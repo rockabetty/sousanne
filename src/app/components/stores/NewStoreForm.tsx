@@ -11,7 +11,7 @@ const NewStoreForm: React.FC<NewStoreFormProps> = ({
   newStore,
   setNewStore,
 }) => {
-  const handleNewStoreInput = (event) => {
+  const handleNewStoreInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
     setNewStore({ ...newStore, [name]: value })
   }

@@ -62,17 +62,23 @@ const PricesSection: React.FC<PricesSectionProps> = ({
     setPrices(updatedPrices)
   }
 
-  const handlePriceInput = (event, index: number) => {
+  const handlePriceInput = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
     const { value } = event.target
     const updatedPrices = [...prices]
     updatedPrices[index].price = value
     setPrices(updatedPrices)
   }
 
-  const handleStoreSelection = (event, index: number) => {
+  const handleStoreSelection = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
     const { value } = event.target
 
-    if (value == -1) {
+    if (value == '-1') {
       setAddStore(true)
     } else {
       setAddStore(false)
@@ -82,9 +88,12 @@ const PricesSection: React.FC<PricesSectionProps> = ({
     }
   }
 
-  const handleBrandSelection = (event, index: number) => {
+  const handleBrandSelection = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
     const { value } = event.target
-    if (value == -1) {
+    if (value == '-1') {
       setAddBrand(true)
     } else {
       setAddBrand(false)
@@ -141,7 +150,9 @@ const PricesSection: React.FC<PricesSectionProps> = ({
               min={0}
               value={price.price}
               size="sm"
-              onChange={(e) => handlePriceInput(e, idx)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                handlePriceInput(e, idx)
+              }
             />
             <FieldGroup inline={true}>
               <DropdownSelect
@@ -151,7 +162,9 @@ const PricesSection: React.FC<PricesSectionProps> = ({
                 value={price.storeId}
                 size="lg"
                 options={stores}
-                onChange={(e) => handleStoreSelection(e, idx)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  handleStoreSelection(e, idx)
+                }
               />
 
               <DropdownSelect
@@ -161,7 +174,9 @@ const PricesSection: React.FC<PricesSectionProps> = ({
                 value={price.brandId}
                 size="lg"
                 options={brands}
-                onChange={(e) => handleBrandSelection(e, idx)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  handleBrandSelection(e, idx)
+                }
               />
 
               <Badge

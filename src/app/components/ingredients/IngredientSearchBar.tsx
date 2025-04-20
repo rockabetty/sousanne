@@ -4,14 +4,14 @@ import { useIngredientSearch } from './hooks/useIngredientSearch'
 
 type IngredientSearchProps = {
   onSelect: (e: React.ChangeEvent<HTMLInputElement>) => void
-  selection?: number
+  selection?: string
 }
 
 const IngredientSearchBar = function (props: IngredientSearchProps) {
   const { onSelect, selection } = props
   const { query, setQuery, suggestions } = useIngredientSearch()
 
-  const handleSearch = (event) => {
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target
     setQuery(value)
   }

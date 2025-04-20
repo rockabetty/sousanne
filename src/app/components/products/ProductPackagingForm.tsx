@@ -17,7 +17,7 @@ const ProductPackagingForm: React.FC<ProductPackagingFormProps> = ({
   productData,
   setProductData,
 }) => {
-  const handleGeneralInput = (event) => {
+  const handleGeneralInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
     setProductData({ ...productData, [name]: value })
   }

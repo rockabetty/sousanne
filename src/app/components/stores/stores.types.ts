@@ -9,7 +9,8 @@ export type Store = {
 }
 
 export type StorePrice = {
+  brandId?: number | string
   storeId: number | string
-  price: number
+  price: number | string
   currencyId: number | string
 }

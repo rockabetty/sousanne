@@ -11,7 +11,7 @@ const NewBrandForm: React.FC<NewBrandFormProps> = ({
   newBrand,
   setNewBrand,
 }) => {
-  const handleNewBrandInput = (event) => {
+  const handleNewBrandInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target
     setNewBrand({ ...newBrand, [name]: value })
   }

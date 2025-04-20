@@ -11,7 +11,7 @@ import { Brand } from '@components/brands/brands.types'
 const NewProductPage = () => {
   const [productData, setProductData] = useState<ProductData>({
     name: '',
-    ingredientId: '',
+    ingredientId: undefined,
     packageType: 'single',
     packageCount: undefined,
     packageAmount: undefined,
