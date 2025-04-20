@@ -2,6 +2,7 @@ import { ErrorKeys } from '@errors/errors.types'
 import { acceptGetOnly } from '@errors/methodgatekeeper'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { getBrands } from '../core/brandService'
+import { sendErrorResponse } from '@errors'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptGetOnly(req, res)
@@ -12,7 +13,7 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
     if (brands.success) {
       res.status(200).json(brands.data)
     } else {
-      res.status(400).json(brands.error)
+      sendErrorResponse(res, brands.error)
     }
   } catch (error) {
     res.status(500).json(ErrorKeys.GENERAL_SERVER_ERROR)

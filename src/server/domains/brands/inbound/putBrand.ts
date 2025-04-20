@@ -2,8 +2,8 @@ import { ErrorKeys } from '@errors/errors.types'
 import { acceptPutOnly, rateLimit } from '@errors/methodgatekeeper'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { updateBrandById } from '../core/brandService'
-import { parseIntegerOrThrow } from '@server-services/sanitizer'
 import { sendErrorResponse } from '@errors'
+import { parseIntegerOrReject } from '@server-services/sanitizer'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPutOnly(req, res)
@@ -17,14 +17,13 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    const brandId = parseIntegerOrThrow(id)
+    const brandId = parseIntegerOrReject(id as string, res, true)
     const { name } = body
-
-    if (!name) {
+    if (!brandId || !name) {
       sendErrorResponse(res, ErrorKeys.MISSING_REQUIRED_FIELDS)
     }
 
-    const updatedBrand = await updateBrandById(brandId, { name })
+    const updatedBrand = await updateBrandById(brandId as number, { name })
 
     if (updatedBrand.success) {
       res.status(200).json({ brand: updatedBrand.data })

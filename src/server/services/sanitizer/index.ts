@@ -58,7 +58,7 @@ export const isValidNumber = (value: string): boolean => {
  * @note calls sendErrorResponse, which returns, when validation fails
  */
 export const parseIntegerOrReject = (
-  value: string | null | undefined,
+  value: number | string | null | undefined,
   res: NextApiResponse,
   required: boolean = false
 ): number | null => {
@@ -85,7 +85,7 @@ export const parseIntegerOrReject = (
  * @note calls sendErrorResponse, which retuns, when validation fails
  */
 export const parseFloatOrReject = (
-  value: string | null | undefined,
+  value: number | string | null | undefined,
   res: NextApiResponse,
   required: boolean = false
 ): number | null => {

@@ -2,10 +2,7 @@ import { BrandModel } from '@domains/products/products.types'
 import { handleDatabaseError } from '@errors'
 import { ErrorKeys } from '@errors/errors.types'
 import { queryDbConnection } from '@postgres'
-import {
-  parseIntegerOrThrow,
-  parseStringOrThrow,
-} from '@server-services/sanitizer'
+
 import { ratio } from 'fuzzball/ultra_lite'
 
 /**
@@ -22,7 +19,7 @@ export async function selectSimilarBrands(
   limit: number = 10
 ): Promise<BrandModel[]> {
   try {
-    const normalizedInput = parseStringOrThrow(brandName).toLowerCase()
+    const normalizedInput = brandName.toLowerCase()
     const firstTwoCharacters = normalizedInput.substring(0, 2)
 
     const query = `
@@ -61,7 +58,7 @@ export async function selectBrandByName(brandName: string) {
       FROM brands
       WHERE lower(NAME) = $1
     `
-    const normalizedInput = parseStringOrThrow(brandName).toLowerCase()
+    const normalizedInput = brandName.toLowerCase()
     const values = [normalizedInput]
     const result = await queryDbConnection(query, values)
     return result.rows
