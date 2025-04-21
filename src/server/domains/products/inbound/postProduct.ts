@@ -15,11 +15,12 @@ import { selectUnitByAbbreviation } from '@domains/units/outbound/unitRepository
 import { validatePackageType } from './validators'
 import { parseValidPrices } from '@domains/prices/inbound/validators'
 import { PriceModel, UserSubmittedPrice } from '@domains/prices/prices.types'
+import { rateLimit } from '@errors/methodgatekeeper'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPostOnly(req, res)
   const { body } = req
-  console.log(body)
+  rateLimit(req, res)
 
   try {
     const {

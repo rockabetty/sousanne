@@ -4,10 +4,11 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { updateBrandById } from '../core/brandService'
 import { sendErrorResponse } from '@errors'
 import { parseIntegerOrReject } from '@server-services/sanitizer'
+import { rateLimit } from '@errors/methodgatekeeper'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPutOnly(req, res)
-  rateLimit
+  rateLimit(req, res)
   const { body, query } = req
   const { id } = query
 

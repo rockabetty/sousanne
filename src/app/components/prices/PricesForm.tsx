@@ -128,7 +128,7 @@ const PricesSection: React.FC<PricesSectionProps> = ({
   const submitNewBrand = async () => {
     // Since we don't have POST routes yet, this is just a placeholder
     try {
-      const postRequest = await axios.post('/api/brands')
+      const postRequest = await axios.post('/api/brands', newBrand)
       setAddBrand(false)
       setNewBrand({
         name: '',

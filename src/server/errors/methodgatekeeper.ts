@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { ErrorKeys as CoreErrors } from './errors.types'
 import { sendErrorResponse } from './index'
+import { rateLimiter } from '@server-services/rateLimiter'
 
 export const acceptGetOnly = function (
   req: NextApiRequest,
