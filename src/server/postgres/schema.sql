@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS stores (
     address TEXT,
     zipcode INT, -- we'll worry bout something more advanced later
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT unique_locations UNIQUE (address, zipcode)
+    CONSTRAINT unique_stores UNIQUE (name, address, zipcode)
 );
 
 

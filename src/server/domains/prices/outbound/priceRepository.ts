@@ -31,7 +31,7 @@ export async function insertPrices(
   try {
     return await withTransaction(async (client) => {
       const insertPromises = priceDataArray.map(async (priceData) => {
-        const { storeId, price, currencyId, userId } = priceData
+        const { store_id, price, currencyId, userId } = priceData
 
         const query = `
         INSERT INTO prices
@@ -53,7 +53,7 @@ export async function insertPrices(
         RETURNING id, product_id, store_id, price, currency_id
         `
 
-        const values = [productId, storeId, price, currencyId, userId]
+        const values = [productId, store_id, price, currencyId, userId]
         const result = await queryDbConnection(query, values, client)
         return result.rows[0]
       })

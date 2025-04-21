@@ -108,18 +108,21 @@ const PricesSection: React.FC<PricesSectionProps> = ({
 
   const submitNewStore = async () => {
     // Since we don't have POST routes yet, this is just a placeholder
-    console.log('New store should be created:', newStore)
-    setAddStore(false)
-    setNewStore({
-      name: '',
-      zipcode: '',
-      street: '',
-      city: 'Berkeley',
-      state: 'CA',
-    })
-
-    fetchStores()
-    toggleAddNewStore()
+    try {
+      const postRequest = await axios.post('/api/stores', newStore)
+      setAddStore(false)
+      setNewStore({
+        name: '',
+        zipcode: '',
+        street: '',
+        city: 'Berkeley',
+        state: 'CA',
+      })
+      fetchStores()
+      toggleAddNewStore()
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const submitNewBrand = async () => {

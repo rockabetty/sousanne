@@ -153,17 +153,17 @@ export function parseStringOrReject(
   required: boolean = false
 ): NextApiResponse | string {
   if (unparsedString && typeof unparsedString !== 'string') {
-    sendErrorResponse(res, errorKeys.INVALID_REQUEST)
+    sendErrorResponse(res, ErrorKeys.INVALID_REQUEST)
   }
 
   if (required && unparsedString != null && unparsedString == undefined) {
-    sendErrorResponse(res, errorKeys.MISSING_REQUIRED_FIELDS)
+    sendErrorResponse(res, ErrorKeys.MISSING_REQUIRED_FIELDS)
   }
 
   let trimmedString = unparsedString.trim()
 
   if (trimmedString.length === 0 || trimmedString.length > maxLength) {
-    sendErrorResponse(res, errorKeys.INVALID_REQUEST)
+    sendErrorResponse(res, ErrorKeys.INVALID_REQUEST)
   }
 
   // Collapse multiple spaces into a single space
@@ -174,7 +174,7 @@ export function parseStringOrReject(
   // These test for control characters like the beepy-beeper, that'd be
   // indicative of actual tomfoolery
   if (/[\x00-\x1F\x7F]/.test(trimmedString)) {
-    sendErrorResponse(res, errorKeys.INVALID_REQUEST)
+    sendErrorResponse(res, ErrorKeys.INVALID_REQUEST)
   }
 
   return trimmedString
