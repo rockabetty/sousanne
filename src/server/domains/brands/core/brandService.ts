@@ -15,10 +15,10 @@ import { BrandModel } from '../brands.types'
 export async function addBrand(brandData: { name: string }) {
   try {
     const { name } = brandData
+    console.log('adding brand ' + name)
+    console.log(brandData)
 
-    const sanitizedName = alphaNumericAndSpacingOnly(name)
-
-    const existingBrand = await selectBrandByName(sanitizedName)
+    const existingBrand = await selectBrandByName(name)
     if (existingBrand && existingBrand.length > 0) {
       return {
         success: false,
@@ -26,7 +26,7 @@ export async function addBrand(brandData: { name: string }) {
       }
     }
 
-    const brandId = await insertBrand({ name: sanitizedName })
+    const brandId = await insertBrand({ name })
     if (brandId) {
       return {
         success: true,

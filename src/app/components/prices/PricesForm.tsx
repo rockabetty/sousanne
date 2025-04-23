@@ -32,6 +32,7 @@ const PricesSection: React.FC<PricesSectionProps> = ({
   fetchBrands,
   fetchStores,
 }) => {
+  const [priceIndexFromModal, setPriceIndexFromModal] = useState<number>(0)
   const [addBrand, setAddBrand] = useState<boolean>(false)
   const [addStore, setAddStore] = useState<boolean>(false)
   const [newBrand, setNewBrand] = useState<Brand>({
@@ -77,9 +78,11 @@ const PricesSection: React.FC<PricesSectionProps> = ({
     index: number
   ) => {
     const { value } = event.target
-
     if (value == '-1') {
       setAddStore(true)
+      const { id } = event.target
+      const priceIndex = id.split('_').pop()
+      setPriceIndexFromModal(priceIndex)
     } else {
       setAddStore(false)
       const updatedPrices = [...prices]
@@ -99,9 +102,7 @@ const PricesSection: React.FC<PricesSectionProps> = ({
       setAddBrand(false)
       const updatedPrices = [...prices]
       updatedPrices[index].brandId = value.split('^')[0]
-      console.log(value)
       updatedPrices[index].brandName = value.split('^')[1]
-      console.log(updatedPrices)
       setPrices(updatedPrices)
     }
   }
@@ -119,6 +120,10 @@ const PricesSection: React.FC<PricesSectionProps> = ({
         state: 'CA',
       })
       fetchStores()
+      const latestStore = postRequest.data.id
+      const updatedPrices = [...prices]
+      updatedPrices[priceIndexFromModal].storeId = latestStore
+      setPrices(updatedPrices)
       toggleAddNewStore()
     } catch (error) {
       console.log(error)
@@ -134,6 +139,15 @@ const PricesSection: React.FC<PricesSectionProps> = ({
         name: '',
       })
       fetchBrands()
+      console.log(postRequest.data)
+      const { name, id } = postRequest.data
+
+      const updatedPrices = [...prices]
+      console.log(prices)
+      console.log(`${id}^${name}`)
+      updatedPrices[priceIndexFromModal].brandId = id
+      updatedPrices[priceIndexFromModal].brandName = name
+      setPrices(updatedPrices)
       toggleAddNewBrand()
     } catch (error) {
       console.log('Error creating a new brand.')

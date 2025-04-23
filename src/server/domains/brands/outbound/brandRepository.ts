@@ -125,7 +125,7 @@ export async function insertBrand(brandData: {
       (name)
       VALUES
       ($1)
-      RETURNING id
+      RETURNING id, name
     `
     const values = [brandData.name]
     const result = await queryDbConnection(query, values)

@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { addBrand } from '../core/brandService'
 import { sendError } from 'next/dist/server/api-utils'
 import { sendErrorResponse } from '@errors'
+import { parseStringOrReject } from '@server-services/sanitizer'
 
 const handler = async function (req: NextApiRequest, res: NextApiResponse) {
   acceptPostOnly(req, res)
@@ -13,15 +14,15 @@ const handler = async function (req: NextApiRequest, res: NextApiResponse) {
 
   try {
     const { name } = body
-
     if (!name) {
       return sendErrorResponse(res, CoreErrorKeys.MISSING_REQUIRED_FIELDS)
     }
-
-    const newBrand = await addBrand({ name })
+    const brandName = parseStringOrReject(name, res)
+    console.log('string parsed')
+    const newBrand = await addBrand({ name: brandName })
 
     if (newBrand.success) {
-      res.status(201).json({ brand: newBrand.data })
+      res.status(201).json(newBrand.data)
     } else {
       res.status(400).json(newBrand.error)
     }

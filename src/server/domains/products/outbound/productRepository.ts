@@ -4,6 +4,27 @@ import { BrandedProduct, ProductModel } from '../products.types'
 import { ErrorKeys } from '../errors.types'
 import { QueryResult } from 'pg'
 
+export async function getProductsByIngredient(ingredientId: number) {
+  // first get the base products:
+  const query = `
+    WITH sp AS 
+      (WITH parent_products AS 
+        (SELECT name, id FROM products WHERE ingredient_id = $1)
+      SELECT 
+        products.name, products.id
+      FROM products 
+      WHERE products.product_id IN
+        (SELECT id FROM parent_products)
+          OR products.id IN (SELECT id FROM parent_products)
+      ORDER BY NAME ASC)
+    SELECT
+      sp.id, sp.name, s.name, price from sp
+    LEFT JOIN prices p ON p.product_id = sp.id
+    JOIN stores s ON s.id = p.store_id`
+
+  const queryResult = queryDbConnection(query, [ingredientId])
+}
+
 export async function insertOrSelectOneProduct(productData: ProductModel) {
   return withTransaction(async (client) => {
     const {

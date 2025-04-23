@@ -31,7 +31,7 @@ export async function insertOrSelectOneStore(storeData) {
         VALUES
         ($1, $2, $3)
         ON CONFLICT ON CONSTRAINT unique_stores DO NOTHING
-        RETURNING name, address, zipcode
+        RETURNING id, name, address, zipcode
         `
     const values = [name, address, zipcode]
     const queryResult = await queryDbConnection(query, values)
@@ -39,7 +39,7 @@ export async function insertOrSelectOneStore(storeData) {
     if (queryResult.rows.length === 0) {
       const selectQuery = `
         SELECT 
-            name, address, zipcode
+            id, name, address, zipcode
         FROM stores 
         WHERE name = $1 AND address = $2 AND zipcode = $3
         `

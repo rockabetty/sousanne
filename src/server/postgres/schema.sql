@@ -168,7 +168,8 @@ CREATE TABLE IF NOT EXISTS stores (
     address TEXT,
     zipcode INT, -- we'll worry bout something more advanced later
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT unique_stores UNIQUE (name, address, zipcode)
+    CONSTRAINT unique_stores UNIQUE (name, address, zipcode),
+    slug varchar(50)
 );
 
 
@@ -231,7 +232,7 @@ CREATE TABLE IF NOT EXISTS prices (
     sale_begins TIMESTAMP,
     sale_ends TIMESTAMP,
     user_id INT REFERENCES users(id),
-    price_by_measurement BOOLEAN DEFAULT FALSE,
+    price_per_unit INTEGER,
     CONSTRAINT positive_price CHECK (price > 0)
 );
 
