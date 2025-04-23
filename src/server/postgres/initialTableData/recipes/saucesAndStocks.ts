@@ -1,5 +1,7 @@
 const commonSteps = {
-  skimFat: { desc: 'Skim off all the fat that rises to the surface.' },
+  skimFat: {
+    desc: 'Occassionally skim off the fat that rises to the surface.',
+  },
   strain: { desc: 'Pour through a strainer.', supplies: ['Strainer'] },
   addAllBoilSimmer: {
     desc: 'Bring water to a boil. Add all the ingredients, then lower to a simmer.',
@@ -13,6 +15,35 @@ const commonSteps = {
 }
 
 export const sauces = {
+  'Cocktail Sauce': {
+    yield: { amount: 2, unit: 'cup' },
+    duration: [1, 3],
+    components: [
+      {
+        name: 'Sauce',
+        ingredients: [
+          {
+            name: 'Ketchup',
+            amount: 1.75,
+            unit: 'cup',
+          },
+          {
+            name: 'Worcestershire Sauce',
+            amount: 2,
+            unit: 'teaspoon',
+          },
+          {
+            name: 'Horseradish',
+            amount: 2,
+            unit: 'tablespoon',
+          },
+          { name: 'Lemon Juice', amount: 2, unit: 'tablespoon' },
+          { name: 'Black Pepper', amount: 0.25, unit: 'teaspoon' },
+        ],
+        instructions: ['Mix everything up together!'],
+      },
+    ],
+  },
   'Béarnaise Sauce': {
     yield: { amount: 1.5, unit: 'cup' },
     supplies: ['Stovetop', 'Double Broiler'],
@@ -189,7 +220,7 @@ export const sauces = {
 }
 
 export const stocks = {
-  'Cajun-Creole Fish Stock': {
+  'French-Creole Fish Stock': {
     description:
       'Perfect for Louisiana-style seafood stews and light gumbos. Fast and clean.',
     duration: [20, 25],
@@ -243,6 +274,48 @@ export const stocks = {
           commonSteps.strain.desc,
           commonSteps.refrigerate3Days.desc,
           commonSteps.freezeIfWant.desc,
+        ],
+      },
+    ],
+  },
+
+  'Cajun Fish Stock': {
+    duration: [30, 45],
+    yield: { amount: 4, unit: 'quart' },
+    supplies: ['Stock pot', 'Strainer'],
+    components: [
+      {
+        name: 'Stock',
+        ingredients: [
+          { name: 'Fish Head and Bone', amount: 2, unit: 'pound' },
+          {
+            name: 'Yellow Onion',
+            amount: 1,
+            unit: 'count',
+            prepState: 'Chopped',
+          },
+          { name: 'Celery', amount: 2, unit: 'stalk', prepState: 'Chopped' },
+          {
+            name: 'Green Bell Pepper',
+            amount: 0.5,
+            unit: 'count',
+            prepState: 'Chopped',
+          },
+          { name: 'Garlic', amount: 4, unit: 'clove', prepState: 'Crushed' },
+          { name: 'Fresh Parsley', amount: 4, unit: 'sprig' },
+          { name: 'Bay Leaf', amount: 2, unit: 'count' },
+          { name: 'Black Peppercorn', amount: 1, unit: 'teaspoon' },
+          { name: 'Cayenne Pepper', amount: 0.25, unit: 'teaspoon' },
+          { name: 'Water', amount: 6, unit: 'quart' },
+        ],
+        instructions: [
+          'Rinse fish heads and bones thoroughly under cold water.',
+          commonSteps.addAllBoilSimmer.desc,
+          'Reduce to a simmer and cook uncovered for 30 minutes.',
+          commonSteps.skimFat.desc,
+          commonSteps.strain.desc,
+          commonSteps.freezeIfWant.desc,
+          ,
         ],
       },
     ],

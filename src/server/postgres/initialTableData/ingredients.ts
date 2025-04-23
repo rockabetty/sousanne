@@ -13,74 +13,6 @@ const ingredientHierarchy = {
          Dried mushrooms (see detailed section below)
       */
 
-    'grains:': {
-      gluten: {
-        barley: {
-          Barley: {
-            variants: ['Pearled Barley'],
-          },
-        },
-        wheat: {
-          flour: {
-            Semolina: {
-              variants: ['Semolina'],
-            },
-            'Wheat Flour': {
-              variants: ['All-Purpose Flour', 'Bread Flour', '00 Pizza Flour'],
-            },
-          },
-        },
-        rye: {
-          'Rye Flour': {
-            variants: ['Rye Flour'],
-          },
-        },
-      },
-      nongluten: {
-        buckwheat: {
-          flour: {
-            variants: ['Buckwheat Flour'],
-          },
-          groats: {
-            variants: ['Buckwheat'],
-          },
-        },
-        corn: {
-          'Corn Meal': { variants: ['Corn Meal'] },
-          hominy: {
-            'Masa Harina': { variants: ['Masa Flour'] },
-            Hominy: { variants: ['Dried Hominy', 'Canned Hominy'] },
-            Grits: {
-              variants: ['Grits'],
-            },
-          },
-        },
-        rice: {
-          flour: {
-            'Rice Flour': {
-              variants: ['Rice Flour'],
-            },
-          },
-          white_rice: {
-            'White Rice': {
-              variants: [
-                'Long Grain White Rice',
-                'Short Grain White Rice',
-                'Medium Grain White Rice',
-              ],
-            },
-            'Jasmine Rice': { variants: ['Jasmine Rice'] },
-            'Sushi Rice': { variants: ['Sushi Rice'] },
-          },
-          brown_rice: {
-            variants: ['Brown Rice'],
-          },
-          wild_rice: {
-            variants: ['Wild Rice'],
-          },
-        },
-      },
-    },
     produce: {
       starches: {
         potatoes_yams: {
@@ -453,20 +385,20 @@ const ingredientHierarchy = {
 
   fats_and_oils: {
     cooking_fats: {
-      low_smoke_point: { variants: ['Bacon Fat', 'Sesame Oil'] },
+      low_smoke_point: { variants: ['Bacon Fat', 'Butter'] },
       medium_smoke_point: {
-        variants: [
-          'Lard',
-          'Schmaltz',
-          'Duck Fat',
-          'Peanut Oil',
-          'Beef Tallow',
-          'Vegetable Shortening',
-        ],
+        variants: ['Lard', 'Schmaltz', 'Duck Fat', 'Beef Tallow'],
       },
       high_smoke_point: {
-        variants: ['Safflower Oil', 'Grapeseed Oil', 'Ghee'],
+        variants: ['Ghee'],
       },
+    },
+    cooking_oils: {
+      low_smoke_point: { variants: ['Sesame Oil'] },
+      medium_smoke_point: {
+        variants: ['Peanut Oil', 'Vegetable Shortening'],
+      },
+      high_smoke_point: ['Safflower Oil', 'Grapeseed Oil'],
     },
     dressing_oils: {
       nut_oils: { variants: ['Walnut Oil', 'Hazelnut Oil', 'Macadamia Oil'] },
@@ -544,24 +476,37 @@ const ingredientHierarchy = {
         umami_bomb: ['Worcestershire Sauce', 'Fish Sauce', 'Ponzu Sauce'],
       },
     },
-
-    functional_ingredients: {
-      thickeners: {
-        vegan: {
-          variants: [
-            'Filé Powder',
-            'Arrowroot',
-            'Potato Starch',
-            'Corn Starch',
-            'Tapioca Starch',
-          ],
+    condiments: {
+      sweet_and_tangy: {
+        variants: ['Ketchup'],
+      },
+      sharp_and_kicking: {
+        mustards: {
+          Mustard: { variants: ['Yellow Mustard'] },
         },
-        vegetarian: { variants: ['Egg Yolk', 'Egg Whites'] },
-        non_vegetarian: { variants: ["Pig's Blood", "Duck's Blood"] },
+        'Horseradish Sauce': {
+          variants: ['Horseradish Sauce'],
+        },
       },
-      emulsifiers: {
-        vegetarian: ['Egg Yolk'],
+    },
+  },
+
+  functional_ingredients: {
+    thickeners: {
+      vegan: {
+        variants: [
+          'Filé Powder',
+          'Arrowroot',
+          'Potato Starch',
+          'Corn Starch',
+          'Tapioca Starch',
+        ],
       },
+      vegetarian: { variants: ['Egg Yolk', 'Egg Whites'] },
+      non_vegetarian: { variants: ["Pig's Blood", "Duck's Blood"] },
+    },
+    emulsifiers: {
+      vegetarian: ['Egg Yolk'],
     },
   },
 
@@ -571,12 +516,20 @@ const ingredientHierarchy = {
         variants: ['Vanilla Extract', 'Mexican Vanilla Extract'],
       },
     },
-
     herbs_and_spices: {
       sweet_and_floral: {
         vanillas: {
           variants: ['Vanilla Bean', 'Vanilla Powder', 'Vanilla Paste'],
         },
+      },
+      saltiness: {
+        salts: {
+          variants: ['Table Salt', 'Kosher Salt', 'Sea Salt'],
+        },
+        sodiums: {
+          variants: ['Monosodium Glutamate'],
+        },
+        substitutes: { variants: ['Potassium Chloride'] },
       },
       peppers_and_heat: {
         peppercorns: {
@@ -589,6 +542,70 @@ const ingredientHierarchy = {
       paprikas: {
         variants: ['Paprika', 'Smoked Paprika', 'Sweet Paprika', 'Hot Paprika'],
       },
+      earthy_pungent: {
+        nutty: {
+          variants: [
+            'Poppy Seeds',
+            'Nutmeg',
+            'Mace',
+            'Cumin Seed',
+            'Ground Cumin',
+          ],
+        },
+        sweet: {
+          variants: [
+            'Cinnamon',
+            'Whole Cloves',
+            'Ground Cloves',
+            'Allspice',
+            'Anise Seed',
+          ],
+        },
+        musky_aromatics: {
+          variants: ['Coriander', 'Cardamom'],
+        },
+      },
+      herbal_greens: {
+        grassy_floral_notes: {
+          variants: [
+            'Thyme',
+            'Rosemary',
+            'Lavender',
+            'Bay Leaf',
+            'Dill Leaf',
+            'Saffron',
+          ],
+        },
+        sweet_anise_notes: {
+          variants: [
+            'Chervil',
+            'Tarragon',
+            'Shiso Leaf',
+            'Caraway Seeds',
+            'Dill Seed',
+            'Fennel Seed',
+            'Thai Basil',
+            'Star Anise',
+          ],
+        },
+        minty_and_peppery: {
+          cup_weight: 0.5,
+          average_weight: 2,
+          variants: ['French Parsley', 'Minari', 'Basil'],
+        },
+        bright_and_citrusy: {
+          variants: [
+            'Cilantro',
+            'Mexican Oregano',
+            'Italian Parsley',
+            'Mitsuba',
+            'Lemon Thyme',
+          ],
+        },
+        earthy_minty: {
+          variants: ['Oregano', 'Marjoram'],
+        },
+      },
     },
   },
   spice_blends: {
@@ -597,64 +614,6 @@ const ingredientHierarchy = {
     },
     hot_n_spicy: {
       variants: ['Shichimi Togarashi'],
-    },
-  },
-  earthy_pungent: {
-    nutty: {
-      variants: ['Poppy Seeds', 'Nutmeg', 'Mace', 'Cumin Seed', 'Ground Cumin'],
-    },
-    sweet: {
-      variants: [
-        'Cinnamon',
-        'Whole Cloves',
-        'Ground Cloves',
-        'Allspice',
-        'Anise Seed',
-      ],
-    },
-    musky_aromatics: {
-      variants: ['Coriander', 'Cardamom'],
-    },
-  },
-  herbal_greens: {
-    grassy_floral_notes: {
-      variants: [
-        'Thyme',
-        'Rosemary',
-        'Lavender',
-        'Bay Leaf',
-        'Dill Leaf',
-        'Saffron',
-      ],
-    },
-    sweet_anise_notes: {
-      variants: [
-        'Chervil',
-        'Tarragon',
-        'Shiso Leaf',
-        'Caraway Seeds',
-        'Dill Seed',
-        'Fennel Seed',
-        'Thai Basil',
-        'Star Anise',
-      ],
-    },
-    minty_and_peppery: {
-      cup_weight: 0.5,
-      average_weight: 2,
-      variants: ['French Parsley', 'Minari', 'Basil'],
-    },
-    bright_and_citrusy: {
-      variants: [
-        'Cilantro',
-        'Mexican Oregano',
-        'Italian Parsley',
-        'Mitsuba',
-        'Lemon Thyme',
-      ],
-    },
-    earthy_minty: {
-      variants: ['Oregano', 'Marjoram'],
     },
   },
 }

@@ -106,7 +106,7 @@ CREATE TABLE ingredients (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     is_archetype BOOLEAN DEFAULT FALSE,
-    weight_multiplier DECIMAL (5,2)
+    weight_multiplier DECIMAL (5,2) DEFAULT 1
 );
 alter table ingredients add constraint uc_name unique (name);
 

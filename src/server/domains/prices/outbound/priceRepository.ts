@@ -2,6 +2,15 @@ import { handleDatabaseError } from '@errors'
 import { queryDbConnection, withTransaction } from '@postgres'
 import { PriceModel } from './prices.types'
 
+/*
+-- average prices per ingredient
+select avg(price), i.name from prices pc 
+join products pd on pd.id = pc.product_id 
+join ingredients i on i.id = pd.ingredient_id
+group by i.name
+
+*/
+
 export async function getPrices(productId: number): Promise<PriceModel[]> {
   try {
     const query = `
