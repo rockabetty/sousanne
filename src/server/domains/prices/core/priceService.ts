@@ -1,5 +1,8 @@
 import { PriceModel } from '../prices.types'
-import { insertPrices } from '../outbound/priceRepository'
+import {
+  insertPrices,
+  selectRecipeIngredientPrices,
+} from '../outbound/priceRepository'
 import { handleServiceError } from '@errors'
 import { ErrorKeys } from '../errors.types'
 import { ApiResponse } from '@errors/apiResponse.types'
@@ -19,6 +22,20 @@ export async function addPrices(
     return {
       success: false,
       error: ErrorKeys.PRICES_NOT_CREATED,
+    }
+  } catch (error) {
+    handleServiceError(error)
+  }
+}
+
+export async function getIngredientPricesByRecipe(
+  recipeId: number
+): Promise<ApiResponse<any>> {
+  try {
+    const pricesPerIngredient = await selectRecipeIngredientPrices(recipeId)
+    return {
+      success: true,
+      data: pricesPerIngredient,
     }
   } catch (error) {
     handleServiceError(error)

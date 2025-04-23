@@ -2,7 +2,7 @@ import { handleDatabaseError } from '@errors'
 import { queryDbConnection, withTransaction } from '@postgres'
 import { PriceModel } from './prices.types'
 
-export async function getRecipeIngredientPrices(recipeId: number) {
+export async function selectRecipeIngredientPrices(slug: string) {
   try {
     const query = `
     WITH price_per_unit as (
@@ -11,18 +11,19 @@ export async function getRecipeIngredientPrices(recipeId: number) {
       JOIN products pd ON pd.id = pc.product_id 
       JOIN ingredients i ON i.id = pd.ingredient_id
       JOIN recipe_ingredients ri ON ri.ingredient_id = i.id
+      JOIN recipes r ON r.id = ri.recipe_id
       JOIN ingredient_hierarchy ih ON ih.id = i.ingredient_hierarchy_id
       JOIN units u ON u.id = ih.unit_id
-      WHERE ri.recipe_id = 1
+      WHERE r.slug = $1
       GROUP BY i.name, i.id, u.abbreviation
     ) 
     SELECT jsonb_object_agg(price_per_unit.id, jsonb_build_object(
       'cost', cost,
-    'ingredient', name, 
-    'unit', unit
+      'ingredient', name, 
+      'unit', unit
     )) AS data 
     FROM price_per_unit`
-    const prices = await queryDbConnection(query, [recipeId])
+    const prices = await queryDbConnection(query, [slug])
     return prices.rows
   } catch (error) {
     handleDatabaseError(error)
