@@ -2,14 +2,32 @@ import { handleDatabaseError } from '@errors'
 import { queryDbConnection, withTransaction } from '@postgres'
 import { PriceModel } from './prices.types'
 
-/*
--- average prices per ingredient
-select avg(price), i.name from prices pc 
-join products pd on pd.id = pc.product_id 
-join ingredients i on i.id = pd.ingredient_id
-group by i.name
-
-*/
+export async function getRecipeIngredientPrices(recipeId: number) {
+  try {
+    const query = `
+    WITH price_per_unit as (
+      SELECT AVG(price_per_unit) AS cost, i.name, i.id, u.abbreviation AS unit 
+      FROM prices pc 
+      JOIN products pd ON pd.id = pc.product_id 
+      JOIN ingredients i ON i.id = pd.ingredient_id
+      JOIN recipe_ingredients ri ON ri.ingredient_id = i.id
+      JOIN ingredient_hierarchy ih ON ih.id = i.ingredient_hierarchy_id
+      JOIN units u ON u.id = ih.unit_id
+      WHERE ri.recipe_id = 1
+      GROUP BY i.name, i.id, u.abbreviation
+    ) 
+    SELECT jsonb_object_agg(price_per_unit.id, jsonb_build_object(
+      'cost', cost,
+    'ingredient', name, 
+    'unit', unit
+    )) AS data 
+    FROM price_per_unit`
+    const prices = await queryDbConnection(query, [recipeId])
+    return prices.rows
+  } catch (error) {
+    handleDatabaseError(error)
+  }
+}
 
 export async function getPrices(productId: number): Promise<PriceModel[]> {
   try {

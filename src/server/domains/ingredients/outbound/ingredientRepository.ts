@@ -1,14 +1,19 @@
-import { queryDbConnection } from "@postgres";
-import { handleDatabaseError } from "@errors"
-import { IngredientHierarchyModelColumn, ingredientHierarchyModelColumnSet, IngredientModelColumn, UserFacingIngredient } from "../ingredients.types";
+import { queryDbConnection } from '@postgres'
+import { handleDatabaseError } from '@errors'
+import {
+  IngredientHierarchyModelColumn,
+  ingredientHierarchyModelColumnSet,
+  IngredientModelColumn,
+  UserFacingIngredient,
+} from '../ingredients.types'
 
-export async function queryIngredientsByName (
+export async function queryIngredientsByName(
   searchString: string,
   offset: number = 0,
   limit: number = 10
 ): Promise<UserFacingIngredient[]> {
   try {
-    const query =`
+    const query = `
     SELECT
       i.id,
       name,
@@ -28,27 +33,27 @@ export async function queryIngredientsByName (
       name ASC
     OFFSET $4
     LIMIT $5
-    `;
+    `
 
     const values = [
-      `%${searchString}%`,    // general LIKE match
-      `${searchString}`,      // exact match
-      `${searchString}%`,     // "starts with"
+      `%${searchString}%`, // general LIKE match
+      `${searchString}`, // exact match
+      `${searchString}%`, // "starts with"
       offset,
-      limit
-    ];
-    
-    const queryResult = await queryDbConnection(query,values);
-    return queryResult.rows;
+      limit,
+    ]
 
+    const queryResult = await queryDbConnection(query, values)
+    return queryResult.rows
   } catch (error) {
     handleDatabaseError(error)
   }
 }
 
-export async function selectIngredientArchetypes ( 
+export async function selectIngredientArchetypes(
   limit: number = 50,
-  offset: number = 0,): Promise<UserFacingIngredient[]> {
+  offset: number = 0
+): Promise<UserFacingIngredient[]> {
   try {
     const query = `
     SELECT
@@ -63,18 +68,19 @@ export async function selectIngredientArchetypes (
     ORDER BY name ASC
     OFFSET $1
     LIMIT $2
-    `;
+    `
 
     const values = [offset, limit]
-    const queryResult = await queryDbConnection(query,values);
-    return queryResult.rows;
-  }
-  catch (error) {
-    handleDatabaseError(error);
+    const queryResult = await queryDbConnection(query, values)
+    return queryResult.rows
+  } catch (error) {
+    handleDatabaseError(error)
   }
 }
 
-export async function selectIngredientOptions(ingredientId: number): Promise<UserFacingIngredient[]> {
+export async function selectIngredientOptions(
+  ingredientId: number
+): Promise<UserFacingIngredient[]> {
   try {
     const query = `WITH relevant_hierarchy AS (
       SELECT 
@@ -99,13 +105,13 @@ export async function selectIngredientOptions(ingredientId: number): Promise<Use
       ingredients child_i ON child_i.ingredient_hierarchy_id = child_ih.id
     ORDER BY
       child_i.name;
-    `;
-    
-    const values = [ingredientId];
-    const queryResult = await queryDbConnection(query, values);
-    return queryResult.rows;
+    `
+
+    const values = [ingredientId]
+    const queryResult = await queryDbConnection(query, values)
+    return queryResult.rows
   } catch (error) {
-    handleDatabaseError(error);
+    handleDatabaseError(error)
   }
 }
 
@@ -115,8 +121,8 @@ export async function selectIngredientById(
 ): Promise<UserFacingIngredient> {
   try {
     // Base columns that are always needed
-    const baseColumns = [`i.id`, `u.name as unit`, `i.name`];
-    
+    const baseColumns = [`i.id`, `u.name as unit`, `i.name`]
+
     // Default columns if none specified
     const defaultColumns = [
       `description`,
@@ -129,20 +135,20 @@ export async function selectIngredientById(
       `average_weight`,
       `edible_percentage`,
       `cooking_yield_percentage`,
-      `cup_weight`
-    ];
-    
-    let additionalColumns: string[] = defaultColumns;
-    
+      `cup_weight`,
+    ]
+
+    let additionalColumns: string[] = defaultColumns
+
     if (columns.length > 0) {
-      additionalColumns = columns.filter(col => 
+      additionalColumns = columns.filter((col) =>
         ingredientHierarchyModelColumnSet.has(col)
-      );
+      )
     }
-    
-    const allColumns = [...baseColumns, ...additionalColumns];
-    const columnString = allColumns.join(", ");
-    
+
+    const allColumns = [...baseColumns, ...additionalColumns]
+    const columnString = allColumns.join(', ')
+
     const query = `
     SELECT 
       ${columnString}
@@ -154,16 +160,18 @@ export async function selectIngredientById(
       units u ON u.id = ih.unit_id
     WHERE 
       i.id = $1
-    `;
-    
-    const values = [id];
-    const queryResult = await queryDbConnection(query, values);
-    return queryResult.rows[0];
+    `
+
+    const values = [id]
+    const queryResult = await queryDbConnection(query, values)
+    return queryResult.rows[0]
   } catch (error) {
-    handleDatabaseError(error);
+    handleDatabaseError(error)
   }
 }
-export async function selectIngredientOptionsWithSeasonality(ingredientId: number): Promise<UserFacingIngredient[]> {
+export async function selectIngredientOptionsWithSeasonality(
+  ingredientId: number
+): Promise<UserFacingIngredient[]> {
   try {
     const query = `
       WITH relevant_hierarchy AS (
@@ -188,7 +196,7 @@ export async function selectIngredientOptionsWithSeasonality(ingredientId: numbe
                   SELECT ist.status
                   FROM ingredient_seasonality ist
                   WHERE 
-                    ist.ingredient_hierarchy_id = child_i.id AND
+                    ist.ingredient_id = child_i.id AND
                     ist.region_id = 1 AND
                     ist.month = EXTRACT(MONTH FROM CURRENT_DATE)::integer
                   LIMIT 1
@@ -216,12 +224,12 @@ export async function selectIngredientOptionsWithSeasonality(ingredientId: numbe
             ELSE 4
           END,
           name;
-    `;
-    
-    const values = [ingredientId];
-    const queryResult = await queryDbConnection(query, values);
-    return queryResult.rows;
+    `
+
+    const values = [ingredientId]
+    const queryResult = await queryDbConnection(query, values)
+    return queryResult.rows
   } catch (error) {
-    handleDatabaseError(error);
+    handleDatabaseError(error)
   }
 }
