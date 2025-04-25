@@ -20,6 +20,161 @@ export const drinkIngredients = {
   name: 'drink',
   children: [
     {
+      name: 'alcoholic',
+      children: [
+        {
+          name: 'spirit',
+        },
+        {
+          name: 'beer_cider',
+          children: [
+            {
+              name: 'ale',
+              children: [
+                { name: 'wheat_ale' },
+                { name: 'india_pale_ale' },
+                { name: 'blonde_ale' },
+                { name: 'belgian_ale' },
+                { name: 'stout' },
+                { name: 'amber_or_red_ale' },
+                { name: 'pale_ale' },
+                { name: 'sour' },
+                { name: 'porter' },
+                { name: 'kolsch' },
+                { name: 'brown_ale' },
+                { name: 'saison' },
+              ],
+            },
+            { name: 'lager' },
+            { name: 'cider' },
+          ],
+        },
+        {
+          name: 'wine',
+          children: [
+            {
+              name: 'red',
+              children: [
+                { name: 'cabernet_suavignon' },
+                { name: 'pinot_noir' },
+                { name: 'zinfandel' },
+                { name: 'sangiovese' },
+                { name: 'merlot' },
+                { name: 'red_blend' },
+                { name: 'syrah' },
+                { name: 'malbec' },
+                { name: 'bordeaux_blend' },
+                { name: 'tempranillo' },
+                { name: 'barbera' },
+                { name: 'grenache' },
+              ],
+            },
+            {
+              name: 'white',
+              children: [
+                { name: 'chardonnay' },
+                { name: 'suavignon_blanc' },
+                { name: 'pinot_grigio' },
+                { name: 'chenin_blanc' },
+                { name: 'viognier' },
+                { name: 'vinho_verde' },
+                { name: 'white_blend' },
+                { name: 'riesling' },
+                { name: 'muscat' },
+              ],
+            },
+
+            {
+              name: 'sparkling',
+              children: [
+                { name: 'champagne_style' },
+                { name: 'prosecco_style' },
+                { name: 'cava_style' },
+              ],
+            },
+            {
+              name: 'rose',
+              ingredients: [{ name: 'Rosé' }],
+              children: [
+                {
+                  name: 'sparkling_rose',
+                  ingredients: [{ name: 'Sparkling Rosé' }],
+                },
+                {
+                  name: 'white_zinfandel',
+                  ingredients: [{ name: 'White Zinfandel' }],
+                },
+              ],
+            },
+            { name: 'rice_wine' },
+            { name: 'dessert_wine', children: [{ name: 'port' }] },
+            { name: 'fruit_wine' },
+          ],
+        },
+        {
+          name: 'mixer',
+        },
+      ],
+    },
+    {
+      name: 'boozeless_spirits',
+      children: [{ name: 'beer' }, { name: 'wine' }],
+    },
+    {
+      name: 'seltzer',
+      children: [
+        {
+          name: 'fruit',
+          children: [
+            {
+              name: 'citrus',
+              children: [
+                {
+                  name: 'orange',
+                  children: [
+                    {
+                      name: 'alcoholic',
+                      ingredients: [
+                        {
+                          name: 'Hard Orange Seltzer',
+                          brands: ['Smirnoff'],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'raspberry',
+              children: [
+                {
+                  name: 'alcoholic',
+                  ingredients: [
+                    {
+                      name: 'Hard Raspberry Selzter',
+                      brands: ['Smirnoff'],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              name: 'tamarind',
+              children: [
+                {
+                  name: 'alcoholic',
+                  ingredients: [
+                    { name: 'Hard Tamarind Seltzer', brands: ['Smirnoff'] },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: 'soda',
       children: [
         {
@@ -66,6 +221,7 @@ export const drinkIngredients = {
           ingredients: [
             { name: 'Fruit Punch Soda', brands: ['Jarritos', 'Crush'] },
           ],
+
           children: [
             {
               name: 'tamarind',
@@ -194,6 +350,10 @@ export const drinkIngredients = {
               ingredients: [
                 { name: 'Strawberry Soda', brands: ['Fanta', 'Mizuho'] },
               ],
+            },
+            {
+              name: 'raspberry',
+              ingredients: [{ name: 'Rasberry Soda' }],
             },
           ],
         },
