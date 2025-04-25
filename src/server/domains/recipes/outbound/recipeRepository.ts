@@ -1,30 +1,29 @@
-import { queryDbConnection } from "@postgres";
-import { QueryResult } from 'pg';
-import { handleDatabaseError } from "@errors"
+import { queryDbConnection } from '@postgres'
+import { QueryResult } from 'pg'
+import { handleDatabaseError } from '@errors'
 
 export async function selectRecipes(
   offset: number = 0,
   limit: number = 20
 ): Promise<Recipe[] | null> {
-    try {
-        const query = `
+  try {
+    const query = `
             SELECT *
             FROM recipes
             OFFSET $1
             LIMIT $2
-        `;
-        const values = [limit, offset]
-        const queryResult = await queryDbConnection(query, values)
-        return queryResult.rows
-    } catch (error) {
-        handleDatabaseError(error);
-    }
-};
+        `
+    const values = [limit, offset]
+    const queryResult = await queryDbConnection(query, values)
+    return queryResult.rows
+  } catch (error) {
+    handleDatabaseError(error)
+  }
+}
 
-export async function selectRecipeBySlug(
-    slug: string): Promise<Recipe | null> {
-    try {
-        const query = `
+export async function selectRecipeBySlug(slug: string): Promise<Recipe | null> {
+  try {
+    const query = `
         SELECT 
             r.name,
             r.base_serving_size,
@@ -41,7 +40,8 @@ export async function selectRecipeBySlug(
                 'id', i.id,
                 'name', i.name,
                 'amount', ri.amount,
-                'unit', u.name
+                'unit', u.name,
+                'abbreviation', u.abbreviation
             )) AS ingredients
             FROM recipe_ingredients ri
             LEFT JOIN ingredients i ON i.id = ri.ingredient_id
@@ -56,10 +56,10 @@ export async function selectRecipeBySlug(
         WHERE
             r.slug = $1;
         `
-        const values = [slug]
-        const queryResult = await queryDbConnection(query, values)
-        return queryResult.rows[0]
-    } catch (error) {
-        handleDatabaseError(error)
-    }
-};
+    const values = [slug]
+    const queryResult = await queryDbConnection(query, values)
+    return queryResult.rows[0]
+  } catch (error) {
+    handleDatabaseError(error)
+  }
+}

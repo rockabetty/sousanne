@@ -152,6 +152,8 @@ export const GrainsTableData = {
       Hominy: { variants: ['Dried Hominy', 'Canned Hominy'] },
     },
   },
+
+  // grains.baked_goods.bread.loaves.light
   baked_goods: {
     bread: {
       loaves: {

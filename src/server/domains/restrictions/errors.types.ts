@@ -1,0 +1,3 @@
+export enum ErrorKeys {
+  RESTRICTION_NOT_FOUND = 'RESTRICTION_NOT_FOUND',
+}

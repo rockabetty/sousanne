@@ -8,7 +8,7 @@ BEGIN
   FROM products
   WHERE id = NEW.product_id;
 
-  NEW.price_per_unit = NEW.price / GREATEST(1, product_display_quantity) * GREATEST(1, product_package_count);
+  NEW.price_per_unit = NEW.price / GREATEST(1, product_display_quantity) / GREATEST(1, product_package_count);
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

@@ -1,6 +1,6 @@
 import { sauces, stocks } from '../recipes/saucesAndStocks'
 import { breakfasts } from '../recipes/breakfasts'
-
+import { drinks } from '../recipes/drinks'
 const european = {
   children: {
     name: 'French',
@@ -48,8 +48,21 @@ const americana = {
           ],
         },
         {
+          name: 'Lowcountry',
+          recipes: {
+            drinks: [drinks['Sweet Peach Tea']],
+          },
+        },
+        {
+          name: 'Hill Country',
+          recipes: {
+            drinks: [drinks['Sweet Peach Tea']],
+          },
+        },
+        {
           name: 'Southern & Soul',
           recipes: {
+            drinks: [drinks['Sweet Peach Tea']],
             saucesAndStocks: [
               stocks['Turkey Stock'],
               stocks['Roasted Turkey Stock'],

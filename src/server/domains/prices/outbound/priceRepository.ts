@@ -24,7 +24,7 @@ export async function selectRecipeIngredientPrices(slug: string) {
     )) AS data 
     FROM price_per_unit`
     const prices = await queryDbConnection(query, [slug])
-    return prices.rows
+    return prices.rows[0].data
   } catch (error) {
     handleDatabaseError(error)
   }

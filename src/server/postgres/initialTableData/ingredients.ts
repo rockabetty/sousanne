@@ -208,6 +208,15 @@ const ingredientHierarchy = {
         },
       },
       fruits: {
+        arecaceae: {
+          euterpe: {
+            'Açaí Berry': { variants: ['Açaí Berry'] },
+          },
+          cocos: {
+            Coconut: { variants: ['Coconut'] },
+            'Heart Of Palm': { variants: ['Heart Of Palm'] },
+          },
+        },
         rutaceae: {
           citrus: {
             //"Lime" in the array refer to Persian Limes.
@@ -220,6 +229,10 @@ const ingredientHierarchy = {
         rosaceae: {
           prunus: {
             Plum: { variants: ['Plum'] },
+            Peach: { variants: ['Peach'] },
+          },
+          malus: {
+            Apple: {},
           },
         },
       },
@@ -351,6 +364,53 @@ const ingredientHierarchy = {
     },
 
     drinks: {
+      powdered_mix: {
+        // kool aid goes here!!!
+      },
+      sodas: {
+        cola: {},
+        citrus: {
+          variants: ['Mountain Dew', 'Mello Yello', 'Sun Drop', 'Surge'],
+        },
+        ginger_ale: {},
+        root_beer: {},
+        cream_soda: {
+          // big red goes here
+        },
+        champagne_soda: {},
+      },
+      probiotic: {
+        kombucha: {},
+        dairy: {},
+        fruit: {
+          pineapple: {
+            variants: ['Tepache'],
+          },
+        },
+      },
+      water_and_sparkling: {
+        still_water: {
+          variants: ['Bottled Water'],
+        },
+        compotes_and_ades: {
+          citrus: {
+            Lemon: { variants: ['Lemonade'] },
+            Lime: { variants: ['Limeade'] },
+          },
+          // mors, lemonade, kompot, agua fresca...
+        },
+        flavored_water: {
+          variants: [
+            // all kindsa flavors
+          ],
+        },
+        sparkling_water: {
+          'Mineral Water': {
+            variants: ['Sparkling Mineral Water'],
+          },
+          // I don't want to reinvent the same list of citruses etc...
+        },
+      },
       fruit_juices: {
         citrus: {
           Lime: { variants: ['Lime Juice'] },
@@ -359,6 +419,44 @@ const ingredientHierarchy = {
           Calamansi: { variants: ['Calamansi Juice'] },
           Yuzu: { variants: ['Yuzu Juice'] },
         },
+      },
+      vegetable_juices: {},
+      teas: {
+        white: {},
+        yellow: {},
+        green: {},
+        oolong: {},
+        black: {
+          blends: {
+            variants: [
+              'Loose-Leaf Earl Grey',
+              'Loose-Leaf English Breakfast',
+              'Loose-Leaf Irish Breakfast',
+            ],
+          },
+          chinese: {
+            variants: [
+              'Congou',
+              'Lapsang Souchong',
+              'Keemun',
+              'Dianhong',
+              'Yingdehong',
+              'Jiu Qu Hong Mei',
+            ],
+          },
+          taiwanese: {
+            variants: [
+              { name: 'Jinxuan', alii: ['Taicha No. 12'] },
+              { name: 'Rudy Black Tea', alii: ['Taicha No. 18'] },
+              'Sun Moon Lake',
+            ],
+          },
+          indian: {
+            variants: ['Assam', 'Darjeeling', 'Kangra', 'Munnar', 'Nilgiri'],
+          },
+        },
+        puer: {},
+        herbal: {},
       },
     },
 

@@ -110,12 +110,19 @@ CREATE TABLE ingredients (
 );
 alter table ingredients add constraint uc_name unique (name);
 
+CREATE TYPE restriction AS ENUM (
+    'LIFESTYLE',
+    'HEALTH',
+    'AVERSION'
+);
 
 -- To generate a list of dietary restrictions e.g. 'vegan', 'kosher'.
 CREATE TABLE dietary_restrictions (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE,
+    shortdesc TEXT,
     description TEXT
+    category restriction
 );
 
 -- For enabling users to say "We're vegan" or "no peanut products", etc.
