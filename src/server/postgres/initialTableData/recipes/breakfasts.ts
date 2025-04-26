@@ -76,7 +76,7 @@ export const breakfasts = {
   'Egg On Toast': {
     yield: { servings: 1 },
     activeDuration: [5, 10],
-    supplies: ['Stovetop', 'Skillet'],
+    supplies: ['Stovetop', 'Skillet', 'Toaster'],
     components: [
       {
         name: 'meal',
@@ -85,6 +85,7 @@ export const breakfasts = {
           { name: 'Large Egg', amount: 1, unit: 'count' },
           { name: 'Salt', amount: 1, unit: 'dash' },
           { name: 'Pepper', amount: 1, unit: 'dash' },
+          { name: 'Butter', amount: 0.5, unit: 'tablespoon' },
         ],
         instructions: [
           'Toast your bread.',

@@ -8,6 +8,7 @@ import { sendErrorResponse } from '@errors'
 import { acceptGetOnly } from '@errors/methodgatekeeper'
 import { parseRecipeIngredient, RecipeIngredient } from '../ingredients.types'
 import { ErrorKeys } from '@errors/errors.types'
+import { Ingredient } from '@components/ingredients/ingredients.types'
 
 const handler: NextApiHandler = async (req, res) => {
   try {
